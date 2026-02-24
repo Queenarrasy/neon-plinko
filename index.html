@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neon Plinko - Telegram Game</title>
+    
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* CSS singkat agar tampilan langsung rapi */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0d0221;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden; /* Mencegah layar goyang di HP */
+            touch-action: none;
+        }
+        #gui {
+            position: absolute;
+            top: 10px;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 10;
+        }
+        .stat-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 15px;
+            border-radius: 20px;
+            border: 1px solid #00f7ff;
+            box-shadow: 0 0 10px #00f7ff;
+        }
+        #drop-btn {
+            background: linear-gradient(45deg, #ff00ff, #00f7ff);
+            border: none;
+            padding: 10px 25px;
+            color: white;
+            font-weight: bold;
+            border-radius: 25px;
+            box-shadow: 0 0 15px #ff00ff;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+        #drop-btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="gui">
+        <div class="stat-box">
+            <span>💰 Balance: </span>
+            <span id="balance">100.00</span> TON
+        </div>
+        <button id="drop-btn">DROP BALL</button>
+    </div>
+
+    <script src="script.js"></script>
+
+    <script>
+        // Inisialisasi awal Telegram Web App
+        const webapp = window.Telegram.WebApp;
+        webapp.ready(); // Memberitahu Telegram bahwa app siap
+        webapp.expand(); // Membuka layar penuh
+        
+        // Mengatur warna header Telegram agar senada dengan game
+        webapp.setHeaderColor('#0d0221');
+        webapp.setBackgroundColor('#0d0221');
+    </script>
+</body>
+</html>
