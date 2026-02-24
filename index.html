@@ -33,26 +33,39 @@
     </div>
 
     <div id="game-layer" style="display: none;">
-        <div id="ui-top">
-            <div class="profile-btn" onclick="toggleProfile()">
-                <img id="main-avatar" src="" alt="Avatar">
-            </div>
-            <div class="balance-container">
-                <div>💵 <span id="bal-usdt">0.00</span></div>
-                <div>🇮🇩 <span id="bal-idr">0</span></div>
-            </div>
+    <div id="ui-top">
+        <div class="profile-btn" onclick="toggleProfile()">
+            <img id="main-avatar" src="" alt="Avatar">
         </div>
-        </div>
-
-    <div id="profile-layer" class="overlay-popup" style="display: none;">
-        <div class="profile-content">
-            <span class="close-btn" onclick="toggleProfile()">&times;</span>
-            <h2 style="color: #00f7ff;">DATA PROFIL</h2>
-            <div class="read-only-box">ID: <span id="profile-id"></span></div>
-            <div class="read-only-box">REK: <span id="profile-wallet"></span></div>
+        <div class="balance-container">
+            <div class="bal-item">💵 <span id="bal-usdt">0.00</span> USDT</div>
+            <div class="bal-item">🇮🇩 <span id="bal-idr">0</span> IDR</div>
         </div>
     </div>
 
-    <script src="script.js"></script>
-</body>
-</html>
+    <div id="plinko-canvas-container"></div>
+
+    <div class="multiplier-row">
+        <div class="m-box">5.0</div>
+        <div class="m-box">2.0</div>
+        <div class="m-box">0.5</div>
+        <div class="m-box">2.0</div>
+        <div class="m-box">5.0</div>
+    </div>
+
+    <div class="footer-controls">
+        <div class="bet-control">
+            <button onclick="changeBet(-1)">−</button>
+            <div class="bet-info">
+                <small>TARUHAN</small>
+                <div id="bet-amount">1.00</div>
+            </div>
+            <button onclick="changeBet(1)">+</button>
+        </div>
+        <div class="main-buttons">
+            <button class="btn-side">DEPO</button>
+            <button id="drop-btn" onclick="spawnBall()" class="btn-play">PLAY</button>
+            <button class="btn-side" onclick="toggleProfile()">WD</button>
+        </div>
+    </div>
+</div>
