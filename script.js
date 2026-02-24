@@ -1,63 +1,62 @@
 const { Engine, Render, Runner, Bodies, Composite, Events, Body } = Matter;
-const tg = window.Telegram.WebApp;
-tg.expand();
+const engine = Engine.create({ positionIterations: 10 });
+const world = engine.world;
+const width = window.innerWidth;
+const height = window.innerHeight;
 
-// --- SISTEM DATABASE & AUTH ---
-let userData = null;
-let activeCurrency = 'USDT';
-let currentBet = 1.00;
+const render = Render.create({
+    element: document.body,
+    engine: engine,
+    options: { width, height, wireframes: false, background: 'transparent' }
+});
 
-function initAuth() {
-    const tgId = tg.initDataUnsafe?.user?.id || "DEBUG_USER";
-    const savedData = localStorage.getItem(`plinko_user_${tgId}`);
-
-    document.getElementById('loading-spinner').style.display = 'none';
-    if (savedData) {
-        userData = JSON.parse(savedData);
-        document.getElementById('login-form').style.display = 'block';
-    } else {
-        document.getElementById('auth-form').style.display = 'block';
+// Pembuatan Paku dengan Efek VIP
+const rows = 9;
+const spacing = 42;
+for (let i = 0; i < rows; i++) {
+    const startX = (width - (i * spacing)) / 2;
+    for (let j = 0; j <= i; j++) {
+        const peg = Bodies.circle(startX + (j * spacing), 150 + (i * 45), 3.5, {
+            isStatic: true,
+            restitution: 0.8,
+            render: { 
+                fillStyle: '#ffffff',
+                shadowBlur: 10,
+                shadowColor: '#ffffff'
+            }
+        });
+        Composite.add(world, peg);
     }
 }
 
-window.handleAuth = (type) => {
-    const tgId = tg.initDataUnsafe?.user?.id || "DEBUG_USER";
-    if (type === 'register') {
-        const user = document.getElementById('reg-username').value;
-        const pass = document.getElementById('reg-password').value;
-        if (!user || !pass) return alert("Isi data lengkap!");
-        
-        userData = { username: user, password: pass, usdt: 100, idr: 1000000 };
-        localStorage.setItem(`plinko_user_${tgId}`, JSON.stringify(userData));
-        alert("Pendaftaran Berhasil!");
-    } else {
-        const pass = document.getElementById('login-password').value;
-        if (pass !== userData.password) return alert("Password Salah!");
-    }
-    startGame();
-};
+// Slot Multiplier Berwarna
+const multipliers = [10, 5, 2, 0.5, 0.2, 0.5, 2, 5, 10];
+const slotWidth = width / multipliers.length;
+multipliers.forEach((val, i) => {
+    const x = i * slotWidth + slotWidth / 2;
+    const color = val >= 1 ? '#00f7ff' : '#ff0077';
+    const slot = Bodies.rectangle(x, height - 120, slotWidth - 6, 40, {
+        isStatic: true, isSensor: true, label: `slot-${val}`,
+        render: { fillStyle: color, strokeStyle: '#fff', lineWidth: 1 }
+    });
+    Composite.add(world, slot);
 
-function startGame() {
-    document.getElementById('auth-screen').style.display = 'none';
-    document.getElementById('gui').style.display = 'flex';
-    updateUI();
-    // Jalankan Matter.js Engine disini...
-}
+    const label = document.createElement('div');
+    label.innerText = val + 'x';
+    label.className = 'multiplier-label';
+    label.style.left = (x - 12) + 'px';
+    label.style.top = (height - 135) + 'px';
+    document.body.appendChild(label);
+});
 
-// --- LOGIKA SALDO GANDA ---
-window.switchCurrency = (type) => {
-    activeCurrency = type;
-    currentBet = type === 'USDT' ? 1.00 : 10000;
-    document.querySelectorAll('.currency-selector button').forEach(b => b.classList.remove('active'));
-    document.getElementById(`use-${type.toLowerCase()}`).classList.add('active');
-    updateUI();
-};
+// Logika Jatuhkan Bola
+document.getElementById('drop-btn').addEventListener('click', () => {
+    const ball = Bodies.circle(width / 2 + (Math.random() * 2 - 1), 60, 6, {
+        restitution: 0.5, frictionAir: 0.02,
+        render: { fillStyle: '#ff0077', shadowBlur: 15, shadowColor: '#ff0077' }
+    });
+    Composite.add(world, ball);
+});
 
-function updateUI() {
-    document.getElementById('bal-usdt').innerText = userData.usdt.toFixed(2);
-    document.getElementById('bal-idr').innerText = userData.idr.toLocaleString('id-ID');
-    document.getElementById('bet-amount').innerText = currentBet.toLocaleString('id-ID');
-}
-
-// Tambahkan sisa logika Matter.js (Paku, Drop Bola, Multiplier) dari script sebelumnya di bawah startGame()
-initAuth();
+Render.run(render);
+Runner.run(Runner.create(), engine);
