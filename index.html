@@ -3,39 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEON PLINKO VIP</title>
+    <title>Neon Plinko VIP - Auth</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <div class="auth-overlay">
-        <div class="auth-card">
-            <h1 class="neon-title">NEON PLINKO <span class="vip-tag">VIP</span></h1>
-            
-            <div id="auth-form">
-                <input type="text" id="reg-username" class="neon-input" placeholder="USERNAME (Untuk User ID)">
-                <input type="password" id="reg-password" class="neon-input" placeholder="PASSWORD">
-                <input type="text" id="reg-wallet" class="neon-input" placeholder="NO REKENING / E-WALLET">
-                <p class="warning">*Data akan dikunci & tidak dapat diubah!</p>
-                <button onclick="simpanDanMasuk()" class="btn-main">DAFTAR & AKTIVASI ID</button>
+    <div class="page-container">
+        <h1 class="neon-title">NEON PLINKO <span style="color:#ff0077">VIP</span></h1>
+        
+        <div id="auth-box" class="glass-card">
+            <div id="reg-form">
+                <h3 style="margin-bottom:20px">PENDAFTARAN AKUN</h3>
+                <input type="text" id="reg-u" class="main-input" placeholder="USERNAME (ID LOGIN)">
+                <input type="password" id="reg-p" class="main-input" placeholder="PASSWORD (MIN 6 KARAKTER)">
+                <input type="text" id="reg-n" class="main-input" placeholder="NAMA LENGKAP">
+                <input type="text" id="reg-w" class="main-input" placeholder="NO REKENING / E-WALLET">
+                <p class="lock-text">🔒 Data akan dikunci & otomatis tampil di profil</p>
+                <button onclick="prosesDaftar()" id="btn-daftar" class="btn-primary">DAFTAR & AKTIVASI ID</button>
+                <p onclick="toggleAuth()" class="switch-link">Sudah punya akun? Login</p>
+            </div>
+
+            <div id="login-form" style="display:none">
+                <h3 style="margin-bottom:20px">LOGIN MEMBER</h3>
+                <input type="text" id="log-u" class="main-input" placeholder="USERNAME">
+                <input type="password" id="log-p" class="main-input" placeholder="PASSWORD">
+                <button onclick="prosesLogin()" class="btn-primary">MASUK KE GAME</button>
+                <p onclick="toggleAuth()" class="switch-link">Belum punya akun? Daftar</p>
             </div>
         </div>
     </div>
 
     <script>
-        function simpanDanMasuk() {
-            const u = document.getElementById('reg-username').value;
-            const p = document.getElementById('reg-password').value;
-            const w = document.getElementById('reg-wallet').value;
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw989EdWdq0Xr06urGZR7EguhnuAWk5nPspqbMbrto9OSoO_xA4ymiahaAChddnrBJa7A/exec";
 
-            if (!u || !p || !w) return alert("Lengkapi semua data!");
-
-            const userData = { username: u, password: p, wallet: w, balance: 0 };
-            localStorage.setItem('plinko_user_data', JSON.stringify(userData));
-            
-            alert("ID Berhasil Diaktivasi!");
-            window.location.href = "game.html"; // Perintah pindah rumah
+        function toggleAuth() {
+            const reg = document.getElementById('reg-form');
+            const log = document.getElementById('login-form');
+            reg.style.display = reg.style.display === 'none' ? 'block' : 'none';
+            log.style.display = log.style.display === 'none' ? 'block' : 'none';
         }
-    </script>
-</body>
-</html>
+
+        async function prosesDaftar() {
+            const u = document.getElementById('reg-u').value;
+            const p = document.getElementById('reg-p').value;
+            const n = document.getElementById('reg-n').value;
+            const w = document.getElementById('reg-w').value;
+
+            const passRegex = /^(?=.*[a-zA-Z])(?=.*[0-9]).{6,}$/;
+            if(!passRegex.test(p)) return alert("Password minimal 6 karakter gabungan huruf & angka!");
+            if(!u || !n || !w) return alert("Mohon lengkapi semua data!");
+
+            const btn = document.getElementById('btn-daftar');
+            btn.innerText = "MENGIRIM DATA...";
+            btn.disabled = true;
+
+            const userObj = { username: u, password: p, nama: n, wallet: w };
+
+            try {
+                await fetch(SCRIPT_URL, {
