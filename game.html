@@ -3,42 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cyber-Vault Plinko</title>
+    <title>Neon Plinko: Cyber-Vault</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <style>
+        /* CSS Animasi Tambahan agar lebih hidup */
+        :root {
+            --neon-blue: #00f7ff;
+            --neon-pink: #ff0077;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #0a0a20 0%, #050510 100%);
+            overflow: hidden;
+        }
+
+        .game-header {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--neon-blue);
+            box-shadow: 0 0 15px var(--neon-blue);
+        }
+
+        #plinko-canvas-container {
+            width: 100%;
+            height: 450px;
+            margin: 10px 0;
+            position: relative;
+            background: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+            box-shadow: inset 0 0 50px rgba(0, 247, 255, 0.1);
+            border-radius: 15px;
+        }
+
+        /* Tombol Risiko yang beranimasi */
+        .risk-selector button {
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid #333;
+            font-weight: bold;
+        }
+
+        .risk-selector button:active { transform: scale(0.9); }
+        
+        #risk-low.active { background: #00ff88; color: black; box-shadow: 0 0 20px #00ff88; }
+        #risk-med.active { background: #ffcc00; color: black; box-shadow: 0 0 20px #ffcc00; }
+        #risk-high.active { background: #ff0077; color: white; box-shadow: 0 0 20px #ff0077; }
+
+        /* Slot Multiplier Glow */
+        .bucket {
+            transition: transform 0.2s;
+            animation: glowPulse 2s infinite alternate;
+        }
+
+        @keyframes glowPulse {
+            from { opacity: 0.6; }
+            to { opacity: 1; transform: translateY(-2px); }
+        }
+
+        .btn-play {
+            animation: borderBlink 1.5s infinite;
+        }
+
+        @keyframes borderBlink {
+            0% { box-shadow: 0 0 5px var(--neon-pink); }
+            50% { box-shadow: 0 0 25px var(--neon-pink); }
+            100% { box-shadow: 0 0 5px var(--neon-pink); }
+        }
+    </style>
 </head>
 <body onload="initPlinko()">
+
     <div class="game-header">
         <button onclick="window.location.href='profile.html'" class="btn-icon">👤 PROFIL</button>
         <div class="balance-container">
-            <span style="font-size: 10px; color: #888;">CREDITS</span>
-            <div class="balance-text">IDR <span id="user-balance">0</span></div>
+            <span style="font-size: 10px; color: #aaa;">CREDITS</span>
+            <div class="balance-text" id="user-balance">IDR 0</div>
         </div>
         <button onclick="window.location.href='deposit.html'" class="btn-depo">TOP UP</button>
     </div>
 
-    <div class="risk-selector">
+    <div class="risk-selector" style="padding: 10px; display: flex; gap: 10px;">
         <button onclick="setRisk('low')" id="risk-low" class="btn-risk active">LOW</button>
         <button onclick="setRisk('med')" id="risk-med" class="btn-risk">MED</button>
         <button onclick="setRisk('high')" id="risk-high" class="btn-risk">HIGH</button>
     </div>
 
-    <div id="plinko-canvas-container"></div>
+    <div id="plinko-canvas-container">
+        <div id="bucket-labels" style="display: flex; justify-content: space-between; position: absolute; bottom: 5px; width: 100%; padding: 0 5px;"></div>
+    </div>
 
     <div class="game-footer">
-        <div class="bet-controls">
-            <button onclick="adjustBet(-5000)">-</button>
-            <div class="bet-info">
-                <span style="font-size: 10px;">BET AMOUNT</span>
-                <div id="current-bet">5000</div>
+        <div class="bet-controls" style="display: flex; align-items: center; justify-content: space-around; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 20px;">
+            <button onclick="adjustBet(-5000)" style="width:40px; height:40px; border-radius: 50%;">-</button>
+            <div style="text-align: center;">
+                <span style="font-size: 10px; color: #888;">BET</span>
+                <div id="current-bet" style="font-weight: bold; color: #fff;">5,000</div>
             </div>
-            <button onclick="adjustBet(5000)">+</button>
+            <button onclick="adjustBet(5000)" style="width:40px; height:40px; border-radius: 50%;">+</button>
         </div>
         <button onclick="dropBall()" id="btn-play" class="btn-play">DROP BALL</button>
     </div>
 
     <script>
-        // Konfigurasi Multiplier (House Edge terintegrasi)
+        // Multiplier config (House Edge Included)
         const multipliers = {
             low: [5, 2, 1.2, 0.5, 0.2, 0.5, 1.2, 2, 5],
             med: [15, 8, 3, 0.2, 0.1, 0.2, 3, 8, 15],
@@ -47,66 +113,55 @@
 
         let currentRisk = 'low';
         let betAmount = 5000;
-        let engine, world, render, runner;
-        let pins = [];
+        let engine, world, render;
 
         function initPlinko() {
-            const savedData = JSON.parse(localStorage.getItem('plinko_user'));
-            if (!savedData) window.location.href = "index.html";
-            
-            updateUI();
-
-            // Setup Matter.js
             const container = document.getElementById('plinko-canvas-container');
+            const w = container.clientWidth;
+            const h = 420;
+
             engine = Matter.Engine.create();
             world = engine.world;
-            world.gravity.y = 1.2;
+            world.gravity.y = 1.4; // Gravitas lebih berat agar bola mantap
 
             render = Matter.Render.create({
                 element: container,
                 engine: engine,
                 options: {
-                    width: container.clientWidth,
-                    height: 500,
+                    width: w,
+                    height: h,
                     wireframes: false,
                     background: 'transparent'
                 }
             });
 
-            createPins();
-            createBuckets();
+            createPins(w);
+            updateBuckets();
+            updateUI();
 
             Matter.Render.run(render);
-            runner = Matter.Runner.create();
-            Matter.Runner.run(runner, engine);
+            Matter.Runner.run(Matter.Runner.create(), engine);
         }
 
-        function createPins() {
+        function createPins(canvasWidth) {
             const rows = 9;
-            const containerWidth = document.getElementById('plinko-canvas-container').clientWidth;
-            const spacing = containerWidth / 10;
-
+            const spacing = canvasWidth / 10;
             for (let r = 0; r < rows; r++) {
-                const rowPins = r + 3;
+                const rowPins = r + 2;
                 for (let i = 0; i < rowPins; i++) {
-                    const x = (containerWidth / 2) + (i - (rowPins - 1) / 2) * spacing;
-                    const y = 80 + r * 40;
-                    const pin = Matter.Bodies.circle(x, y, 4, {
+                    const x = (canvasWidth / 2) + (i - (rowPins - 1) / 2) * spacing;
+                    const y = 60 + r * 38;
+                    const pin = Matter.Bodies.circle(x, y, 3.5, {
                         isStatic: true,
-                        render: { fillStyle: '#00f7ff' }
+                        render: { 
+                            fillStyle: '#00f7ff',
+                            strokeStyle: '#fff',
+                            lineWidth: 1
+                        }
                     });
                     Matter.World.add(world, pin);
                 }
             }
-        }
-
-        function createBuckets() {
-            // Visualisasi slot multiplier di bawah
-            const container = document.getElementById('plinko-canvas-container');
-            const bucketContainer = document.createElement('div');
-            bucketContainer.id = "bucket-labels";
-            container.appendChild(bucketContainer);
-            updateBuckets();
         }
 
         function updateBuckets() {
@@ -115,9 +170,60 @@
             multipliers[currentRisk].forEach(m => {
                 const div = document.createElement('div');
                 div.className = 'bucket';
+                div.style = `flex: 1; margin: 1px; background: rgba(255,0,119,0.2); border: 1px solid var(--neon-pink); 
+                             border-radius: 5px; font-size: 9px; padding: 8px 0; text-align: center; font-weight: bold;`;
                 div.innerText = m + 'x';
                 container.appendChild(div);
             });
+        }
+
+        function dropBall() {
+            let saldo = parseInt(localStorage.getItem('user_balance') || 0);
+            if (saldo < betAmount) return alert("Saldo IDR 0! Silakan Top Up.");
+
+            saldo -= betAmount;
+            localStorage.setItem('user_balance', saldo);
+            updateUI();
+
+            const containerWidth = document.getElementById('plinko-canvas-container').clientWidth;
+            const ball = Matter.Bodies.circle(containerWidth / 2 + (Math.random() * 6 - 3), 20, 7, {
+                restitution: 0.5,
+                friction: 0.02,
+                render: { 
+                    fillStyle: '#ff0077',
+                    shadowBlur: 15,
+                    shadowColor: '#ff0077'
+                }
+            });
+
+            Matter.World.add(world, ball);
+
+            // Logika Sederhana Kemenangan (Simulation)
+            setTimeout(() => {
+                Matter.World.remove(world, ball);
+                const currentMults = multipliers[currentRisk];
+                const res = currentMults[Math.floor(Math.random() * currentMults.length)];
+                const win = betAmount * res;
+                
+                let newSaldo = parseInt(localStorage.getItem('user_balance') || 0);
+                newSaldo += win;
+                localStorage.setItem('user_balance', newSaldo);
+                updateUI();
+                
+                if(res >= 1) {
+                    showWinEffect(res);
+                }
+            }, 3500);
+        }
+
+        function showWinEffect(m) {
+            const effect = document.createElement('div');
+            effect.style = `position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                            font-size: 40px; font-weight: 900; color: #fbff00; text-shadow: 0 0 20px #fbff00; 
+                            z-index: 9999; pointer-events: none; animation: winPop 1s ease-out forwards;`;
+            effect.innerText = m + "x WIN!";
+            document.body.appendChild(effect);
+            setTimeout(() => effect.remove(), 1000);
         }
 
         function setRisk(level) {
@@ -127,58 +233,11 @@
             updateBuckets();
         }
 
-        function adjustBet(val) {
-            betAmount += val;
-            if (betAmount < 1000) betAmount = 1000;
+        function adjustBet(v) {
+            betAmount = Math.max(1000, betAmount + v);
             updateUI();
         }
 
         function updateUI() {
-            const saldo = localStorage.getItem('user_balance') || 0;
-            document.getElementById('user-balance').innerText = parseInt(saldo).toLocaleString();
-            document.getElementById('current-bet').innerText = betAmount.toLocaleString();
-        }
-
-        function dropBall() {
-            let saldo = parseInt(localStorage.getItem('user_balance') || 0);
-            if (saldo < betAmount) return alert("Saldo tidak cukup! Silakan Deposit.");
-
-            // Potong Saldo
-            saldo -= betAmount;
-            localStorage.setItem('user_balance', saldo);
-            updateUI();
-
-            const containerWidth = document.getElementById('plinko-canvas-container').clientWidth;
-            const ball = Matter.Bodies.circle(containerWidth / 2 + (Math.random() * 10 - 5), 20, 8, {
-                restitution: 0.6,
-                friction: 0.05,
-                render: { fillStyle: '#ff0077' }
-            });
-
-            Matter.World.add(world, ball);
-
-            // Logika deteksi hasil setelah bola jatuh
-            setTimeout(() => {
-                Matter.World.remove(world, ball);
-                // Simulasi hasil berdasarkan probabilitas (Provably Fair basis)
-                calculateWin();
-            }, 4000);
-        }
-
-        function calculateWin() {
-            const currentMultipliers = multipliers[currentRisk];
-            // Logika sederhana: Pilih multiplier secara acak berbobot (House Edge 5%)
-            const randomIdx = Math.floor(Math.random() * currentMultipliers.length);
-            const winMult = currentMultipliers[randomIdx];
-            const winAmount = betAmount * winMult;
-
-            let saldo = parseInt(localStorage.getItem('user_balance') || 0);
-            saldo += winAmount;
-            localStorage.setItem('user_balance', saldo);
-            
-            if(winAmount > 0) alert("WIN! " + winMult + "x (IDR " + winAmount.toLocaleString() + ")");
-            updateUI();
-        }
-    </script>
-</body>
-</html>
+            const s = localStorage.getItem('user_balance') || 0;
+            document
