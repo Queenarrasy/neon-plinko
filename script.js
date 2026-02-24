@@ -1,51 +1,47 @@
 const tg = window.Telegram.WebApp;
 tg.expand();
 
-// FUNGSI UTAMA: CEK STATUS USER
-function checkUser() {
-    const tgId = tg.initDataUnsafe?.user?.id || "USER_TEST";
+function initApp() {
+    const tgId = tg.initDataUnsafe?.user?.id || "GUEST";
     const data = localStorage.getItem(`neon_v5_${tgId}`);
 
+    // SEMBUNYIKAN SEMUA TERLEBIH DAHULU
+    document.getElementById('reg-container').style.display = 'none';
+    document.getElementById('login-container').style.display = 'none';
+
     if (data) {
-        // Jika sudah ada data, tampilkan LOGIN
-        window.activeAccount = JSON.parse(data);
+        window.user = JSON.parse(data);
         document.getElementById('login-container').style.display = 'block';
-        document.getElementById('display-greet').innerText = "Halo, " + window.activeAccount.username;
-        document.getElementById('user-avatar').src = `https://api.dicebear.com/7.x/bottts/svg?seed=${window.activeAccount.username}`;
+        document.getElementById('display-greet').innerText = window.user.username;
+        document.getElementById('user-avatar').src = `https://api.dicebear.com/7.x/bottts/svg?seed=${window.user.username}`;
     } else {
-        // Jika user baru, tampilkan PENDAFTARAN
         document.getElementById('reg-container').style.display = 'block';
     }
 }
 
-// LOGIKA DAFTAR & MASUK
 window.handleAuth = (mode) => {
-    const tgId = tg.initDataUnsafe?.user?.id || "USER_TEST";
-
+    const tgId = tg.initDataUnsafe?.user?.id || "GUEST";
     if (mode === 'register') {
         const u = document.getElementById('reg-username').value;
         const p = document.getElementById('reg-password').value;
         const w = document.getElementById('reg-wallet').value;
-
-        if (!u || !p || !w) return alert("Isi semua data!");
-
-        window.activeAccount = { username: u, password: p, wallet: w };
-        localStorage.setItem(`neon_v5_${tgId}`, JSON.stringify(window.activeAccount));
-        alert("ID Aktif! Selamat Bermain.");
+        if (!u || !p || !w) return alert("Lengkapi data!");
+        window.user = { username: u, password: p, wallet: w };
+        localStorage.setItem(`neon_v5_${tgId}`, JSON.stringify(window.user));
     } else {
-        const pass = document.getElementById('login-password').value;
-        if (pass !== window.activeAccount.password) return alert("Password Salah!");
+        if (document.getElementById('login-password').value !== window.user.password) return alert("Salah!");
     }
-
-    // MASUK KE GAME & KUNCI DATA PROFIL
     document.getElementById('auth-layer').style.display = 'none';
     document.getElementById('game-layer').style.display = 'block';
     
-    // Kunci data di Profil (Read Only)
-    document.getElementById('profile-id-display').innerText = window.activeAccount.username;
-    document.getElementById('profile-wallet-display').innerText = window.activeAccount.wallet;
+    document.getElementById('profile-id').innerText = window.user.username;
+    document.getElementById('profile-wallet').innerText = window.user.wallet;
 };
 
-// Jalankan pengecekan
-checkUser();
+window.toggleProfile = () => {
+    const p = document.getElementById('profile-layer');
+    p.style.display = p.style.display === 'none' ? 'flex' : 'none';
+};
 
+// JALANKAN SAAT LOAD
+document.addEventListener('DOMContentLoaded', initApp);
