@@ -19,24 +19,54 @@ function initApp() {
     }
 }
 
-window.handleAuth = (mode) => {
-    const tgId = tg.initDataUnsafe?.user?.id || "GUEST";
-    if (mode === 'register') {
+// 1. LOGIKA DAFTAR & MASUK (HANDLING AUTH)
+window.handleAuth = (type) => {
+    const tgId = tg.initDataUnsafe?.user?.id || "DEV_USER";
+    
+    if (type === 'register') {
         const u = document.getElementById('reg-username').value;
         const p = document.getElementById('reg-password').value;
         const w = document.getElementById('reg-wallet').value;
-        if (!u || !p || !w) return alert("Lengkapi data!");
-        window.user = { username: u, password: p, wallet: w };
-        localStorage.setItem(`neon_v5_${tgId}`, JSON.stringify(window.user));
+
+        if (!u || !p || !w) return alert("Lengkapi semua data pendaftaran!");
+
+        // Simpan Data Permanen (Saldo Awal 0)
+        window.userAccount = { 
+            username: u, 
+            password: p, 
+            wallet: w, 
+            usdt: 0, 
+            idr: 0 
+        };
+        localStorage.setItem(`neon_plinko_v5_${tgId}`, JSON.stringify(window.userAccount));
+        alert("Pendaftaran Berhasil! User ID Anda telah aktif.");
     } else {
-        if (document.getElementById('login-password').value !== window.user.password) return alert("Salah!");
+        const pInput = document.getElementById('login-password').value;
+        if (pInput !== window.userAccount.password) return alert("Password Salah!");
     }
+
+    // TRANSISI KE GAME (NO 3)
     document.getElementById('auth-layer').style.display = 'none';
     document.getElementById('game-layer').style.display = 'block';
     
-    document.getElementById('profile-id').innerText = window.user.username;
-    document.getElementById('profile-wallet').innerText = window.user.wallet;
+    // Aktifkan Papan Game & Sinkronisasi Profil
+    startPlinko(); 
+    syncToProfile();
 };
+
+// 2. SINKRONISASI DATA KE PROFIL (READ ONLY)
+function syncToProfile() {
+    // Isi data ke Lembar 3 (Profil Popup)
+    document.getElementById('profile-id').innerText = window.userAccount.username;
+    document.getElementById('profile-wallet').innerText = window.userAccount.wallet;
+    
+    // Update Avatar & Saldo di Lembar 2
+    document.getElementById('main-avatar').src = `https://api.dicebear.com/7.x/bottts/svg?seed=${window.userAccount.username}`;
+    document.getElementById('bal-usdt').innerText = window.userAccount.usdt.toFixed(2);
+    document.getElementById('bal-idr').innerText = window.userAccount.idr.toLocaleString('id-ID');
+}
+
+// 3. MESIN FISIKA PLINKO (MATTER.JS)
 let engine, world, render;
 
 function startPlinko() {
@@ -56,8 +86,9 @@ function startPlinko() {
         }
     });
 
-    // Membuat Formasi Paku (Pegs)
-    for (let i = 0; i < 9; i++) {
+    // Membuat Formasi Paku (Pegs) Segitiga
+    const rows = 9;
+    for (let i = 0; i < rows; i++) {
         for (let j = 0; j <= i; j++) {
             const x = container.clientWidth / 2 + (j - i / 2) * 35;
             const y = 40 + i * 38;
@@ -73,7 +104,7 @@ function startPlinko() {
     Runner.run(Runner.create(), engine);
 }
 
-// Fungsi Menjatuhkan Bola
+// 4. FUNGSI JATUHKAN BOLA
 window.spawnBall = () => {
     const ball = Matter.Bodies.circle(window.innerWidth / 2 + (Math.random() - 0.5) * 5, 10, 7, {
         restitution: 0.6, 
@@ -83,11 +114,8 @@ window.spawnBall = () => {
     Matter.Composite.add(world, ball);
 };
 
-
+// 5. FUNGSI POPUP PROFIL
 window.toggleProfile = () => {
     const p = document.getElementById('profile-layer');
     p.style.display = p.style.display === 'none' ? 'flex' : 'none';
 };
-
-// JALANKAN SAAT LOAD
-document.addEventListener('DOMContentLoaded', initApp);
