@@ -1,28 +1,72 @@
-/* Mengunci Pendaftaran agar tidak berantakan */
-.overlay-full {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
-    background: #050510;
-    z-index: 999; /* Layer tertinggi */
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* TEMA UTAMA NEON PLINKO VIP */
+:root {
+    --neon-blue: #00f7ff;
+    --neon-pink: #ff0077;
+    --bg-dark: #050510;
 }
 
-/* Mengatur Game Layer agar tetap di posisinya */
-#game-layer {
-    position: relative;
-    width: 100%;
-    height: 100vh;
-    z-index: 100;
+body {
+    margin: 0; padding: 0;
+    background: var(--bg-dark);
+    color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
 }
 
-/* Memastikan Tombol Tetap Sama Besar (Simetris) */
-.action-group {
-    display: flex;
-    width: 90%;
-    gap: 10px;
+/* LEMBAR 1: AUTH GATEWAY (KUNCI VISUAL) */
+.auth-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle at center, #0d0d2b 0%, #050510 100%);
+    z-index: 9999; display: flex; align-items: center; justify-content: center;
 }
-.btn-side { flex: 1; height: 45px; } /* Deposit & WD */
-.btn-center { flex: 2; height: 45px; } /* Tombol Main */
+
+.auth-glass-card {
+    width: 85%; max-width: 380px; padding: 30px;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(20px); border: 1px solid rgba(0, 247, 255, 0.2);
+    border-radius: 30px; box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+    text-align: center;
+}
+
+.neon-title { color: var(--neon-blue); text-shadow: 0 0 15px var(--neon-blue); margin-bottom: 20px; }
+.vip-tag { font-size: 10px; background: var(--neon-pink); padding: 2px 8px; border-radius: 4px; vertical-align: middle; }
+
+.auth-box { margin-top: 20px; }
+.neon-input {
+    width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 12px;
+    background: rgba(0, 0, 0, 0.5); border: 1px solid #1a1a3a;
+    color: white; outline: none; box-sizing: border-box;
+}
+
+.btn-glow-blue {
+    width: 100%; padding: 15px; border-radius: 12px; border: none;
+    background: linear-gradient(90deg, #00d2ff, var(--neon-blue));
+    color: #000; font-weight: bold; cursor: pointer; box-shadow: 0 0 15px rgba(0, 247, 255, 0.4);
+}
+
+.btn-glow-pink {
+    width: 100%; padding: 15px; border-radius: 12px; border: none;
+    background: linear-gradient(90deg, var(--neon-pink), #aa00ff);
+    color: #fff; font-weight: bold; cursor: pointer; box-shadow: 0 0 15px rgba(255, 0, 119, 0.4);
+}
+
+/* AVATAR LOGIN */
+.user-info-preview img {
+    width: 70px; height: 70px; border-radius: 50%;
+    border: 2px solid var(--neon-blue); margin-bottom: 10px;
+}
+
+/* LEMBAR 3: PROFIL POP-UP (DATA TERKUNCI) */
+.overlay-popup {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(5, 5, 16, 0.95); z-index: 10000;
+    display: flex; align-items: center; justify-content: center;
+}
+.profile-content {
+    width: 85%; max-width: 350px; padding: 25px; border-radius: 20px;
+    background: #12122b; border: 1px solid var(--neon-blue); position: relative;
+}
+.read-only-box {
+    background: #0a0a20; padding: 12px; border-radius: 8px;
+    border: 1px solid #333; color: #888; font-size: 14px; margin-top: 5px;
+}
+.close-btn { position: absolute; top: 10px; right: 15px; font-size: 25px; color: var(--neon-pink); cursor: pointer; }
