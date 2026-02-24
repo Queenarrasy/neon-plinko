@@ -3,54 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Plinko VIP - Auth</title>
+    <title>Neon Plinko VIP - Login & Daftar</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="page-container">
         <h1 class="neon-title">NEON PLINKO <span style="color:#ff0077">VIP</span></h1>
         
-        <div id="auth-box" class="glass-card">
+        <div class="glass-card">
             <div id="reg-form">
                 <h3 style="margin-bottom:20px">PENDAFTARAN AKUN</h3>
                 <input type="text" id="reg-u" class="main-input" placeholder="USERNAME (ID LOGIN)">
                 <input type="password" id="reg-p" class="main-input" placeholder="PASSWORD (MIN 6 KARAKTER)">
                 <input type="text" id="reg-n" class="main-input" placeholder="NAMA LENGKAP">
                 <input type="text" id="reg-w" class="main-input" placeholder="NO REKENING / E-WALLET">
-                <p class="lock-text">🔒 Data akan dikunci & otomatis tampil di profil</p>
+                
+                <p style="font-size: 12px; color: #aaa; margin: 15px 0;">
+                    🔒 Data akan dikunci & otomatis tampil di profil
+                </p>
+                
                 <button onclick="prosesDaftar()" id="btn-daftar" class="btn-primary">DAFTAR & AKTIVASI ID</button>
-                <p onclick="toggleAuth()" class="switch-link">Sudah punya akun? Login</p>
+                <p onclick="toggleAuth()" style="cursor:pointer; margin-top:20px; font-size:14px; color:var(--neon-blue)">Sudah punya akun? Login</p>
             </div>
 
             <div id="login-form" style="display:none">
                 <h3 style="margin-bottom:20px">LOGIN MEMBER</h3>
                 <input type="text" id="log-u" class="main-input" placeholder="USERNAME">
                 <input type="password" id="log-p" class="main-input" placeholder="PASSWORD">
+                
                 <button onclick="prosesLogin()" class="btn-primary">MASUK KE GAME</button>
-                <p onclick="toggleAuth()" class="switch-link">Belum punya akun? Daftar</p>
+                <p onclick="toggleAuth()" style="cursor:pointer; margin-top:20px; font-size:14px; color:var(--neon-blue)">Belum punya akun? Daftar</p>
             </div>
         </div>
     </div>
 
     <script>
+        // MASUKKAN URL GOOGLE SCRIPT ANDA DI SINI
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw989EdWdq0Xr06urGZR7EguhnuAWk5nPspqbMbrto9OSoO_xA4ymiahaAChddnrBJa7A/exec";
 
+        // Fungsi Tukar Tampilan Login/Daftar (Fix cite: 25992.jpg)
         function toggleAuth() {
             const reg = document.getElementById('reg-form');
             const log = document.getElementById('login-form');
-            reg.style.display = reg.style.display === 'none' ? 'block' : 'none';
-            log.style.display = log.style.display === 'none' ? 'block' : 'none';
+            if (reg.style.display === 'none') {
+                reg.style.display = 'block';
+                log.style.display = 'none';
+            } else {
+                reg.style.display = 'none';
+                log.style.display = 'block';
+            }
         }
 
+        // Fungsi Daftar (Fix Tombol Tidak Berfungsi)
         async function prosesDaftar() {
             const u = document.getElementById('reg-u').value;
             const p = document.getElementById('reg-p').value;
             const n = document.getElementById('reg-n').value;
             const w = document.getElementById('reg-w').value;
 
-            const passRegex = /^(?=.*[a-zA-Z])(?=.*[0-9]).{6,}$/;
-            if(!passRegex.test(p)) return alert("Password minimal 6 karakter gabungan huruf & angka!");
-            if(!u || !n || !w) return alert("Mohon lengkapi semua data!");
+            if(!u || !p || !n || !w) return alert("Mohon lengkapi semua data!");
 
             const btn = document.getElementById('btn-daftar');
             btn.innerText = "MENGIRIM DATA...";
@@ -59,4 +70,37 @@
             const userObj = { username: u, password: p, nama: n, wallet: w };
 
             try {
-                await fetch(SCRIPT_URL, {
+                // Simpan lokal agar login bisa langsung dilakukan
+                localStorage.setItem('plinko_user', JSON.stringify(userObj));
+                localStorage.setItem('user_balance', '0');
+
+                // Kirim ke Google Sheets
+                await fetch(SCRIPT_URL, { 
+                    method: 'POST', 
+                    mode: 'no-cors', // Penting untuk menghindari error CORS
+                    body: JSON.stringify(userObj) 
+                });
+
+                alert("Pendaftaran Berhasil! Menuju Game...");
+                window.location.replace("game.html"); // Pindah ke halaman game
+            } catch (e) {
+                // Jika server sibuk, tetap pindah karena data sudah masuk localStorage
+                window.location.replace("game.html");
+            }
+        }
+
+        // Fungsi Login
+        function prosesLogin() {
+            const u = document.getElementById('log-u').value;
+            const p = document.getElementById('log-p').value;
+            const saved = JSON.parse(localStorage.getItem('plinko_user'));
+
+            if(saved && u === saved.username && p === saved.password) {
+                window.location.replace("game.html");
+            } else {
+                alert("Username atau Password Salah / Akun belum terdaftar di perangkat ini.");
+            }
+        }
+    </script>
+</body>
+</html>
