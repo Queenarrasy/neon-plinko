@@ -2,87 +2,83 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Plinko Game Area</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Area - Neon Plinko</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
 </head>
-<body>
-    <div id="game-container">
-        <div class="header">
-            <button onclick="toggleProfile()" class="btn-circle">👤</button>
-            <div class="wallet-display">💵 IDR <span id="main-balance">0</span></div>
-            <button onclick="window.location.href='deposit.html'" class="btn-depo">DEPOSIT</button>
-        </div>
-
-        <div id="plinko-board"></div>
-
-        <div class="controls">
-            <div class="bet-section">
-                <button onclick="changeBet(-1000)">-</button>
-                <div class="bet-value">BET: <span id="current-bet">1000</span></div>
-                <button onclick="changeBet(1000)">+</button>
-            </div>
-            <button onclick="spawnBall()" class="btn-play">PLAY</button>
-        </div>
-
-        <div id="profile-modal" class="modal" style="display:none; position:fixed; top:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:999;">
-    <div style="padding:40px; text-align:center;">
-        <h3 style="color:var(--neon-blue);">PROFIL USER (LOCKED)</h3>
-        <div style="background:#111; padding:20px; border-radius:15px; text-align:left; margin-bottom:20px;">
-            <p>USER ID: <span id="disp-id" style="color:white;"></span></p>
-            <p>REKENING: <span id="disp-rek" style="color:white;"></span></p>
-        </div>
-        <button onclick="toggleModal('profile-modal')" class="btn-main">TUTUP</button>
+<body onload="initGame()">
+    <div class="game-header">
+        <button onclick="toggleModal(true)" class="btn-icon">👤 PROFIL</button>
+        <div class="balance-text">💰 IDR <span id="user-balance">0</span></div>
+        <button onclick="window.location.href='deposit.html'" class="btn-depo">DEPOSIT</button>
     </div>
-</div>
 
-<script>
-    // Memanggil data yang tersimpan saat pendaftaran
-    function loadUserData() {
-        const data = JSON.parse(localStorage.getItem('plinko_v5_user'));
-        if(data) {
-            document.getElementById('disp-id').innerText = data.username;
-            document.getElementById('disp-rek').innerText = data.wallet;
-        }
-    }
-    window.onload = loadUserData;
-</script>
+    <div id="plinko-container"></div>
 
-            <div class="modal-content">
-                <span onclick="toggleProfile()" class="close">&times;</span>
-                <h3>DATA AKUN (LOCKED)</h3>
-                <p>USER ID: <b id="p-id"></b></p>
-                <p>REK/E-WALLET: <b id="p-rek"></b></p>
+    <div class="game-footer">
+        <div class="bet-control">
+            <button onclick="changeBet(-1000)">-</button>
+            <span>BET: <b id="bet-display">1000</b></span>
+            <button onclick="changeBet(1000)">+</button>
+        </div>
+        <button onclick="dropBall()" class="btn-play">PLAY BALL</button>
+    </div>
+
+    <div id="profile-modal" class="modal-overlay" style="display:none">
+        <div class="glass-card modal-content">
+            <h3 style="color:#00f7ff">DATA AKUN (LOCKED)</h3>
+            <hr border="1" color="#333">
+            <div class="info-list">
+                <p>USER ID: <span id="p-id" class="neon-text"></span></p>
+                <p>NAMA: <span id="p-nama" class="neon-text"></span></p>
+                <p>WALLET: <span id="p-wallet" class="neon-text"></span></p>
             </div>
+            <button onclick="toggleModal(false)" class="btn-primary">KEMBALI KE GAME</button>
         </div>
     </div>
 
-    <script src="game-logic.js"></script>
     <script>
-    let engine, world;
-    function startGame() {
-        const { Engine, Render, Runner, Bodies, Composite } = Matter;
-        engine = Engine.create(); world = engine.world;
-        const container = document.getElementById('plinko-board');
-        const render = Render.create({
-            element: container, engine: engine,
-            options: { width: container.clientWidth, height: 400, wireframes: false, background: 'transparent' }
-        });
-        // Paku-paku
-        for (let i = 0; i < 9; i++) {
-            for (let j = 0; j <= i; j++) {
-                Composite.add(world, Bodies.circle(container.clientWidth/2 + (j-i/2)*35, 50+i*40, 3, { isStatic: true, render: {fillStyle: '#fff'} }));
-            }
-        }
-        Render.run(render); Runner.run(Runner.create(), engine);
-    }
-    window.playBall = () => {
-        const ball = Matter.Bodies.circle(window.innerWidth/2, 10, 8, { restitution: 0.5, render: {fillStyle: '#ff0077'} });
-        Matter.Composite.add(world, ball);
-    }
-    startGame();
-</script>
+        let engine, world, currentBet = 1000;
 
+        function initGame() {
+            const data = JSON.parse(localStorage.getItem('plinko_user'));
+            if(!data) return window.location.href = "index.html";
+            
+            document.getElementById('p-id').innerText = data.username;
+            document.getElementById('p-nama').innerText = data.nama;
+            document.getElementById('p-wallet').innerText = data.wallet;
+
+            const { Engine, Render, Runner, Bodies, Composite } = Matter;
+            engine = Engine.create(); world = engine.world;
+            const container = document.getElementById('plinko-container');
+            const render = Render.create({
+                element: container, engine: engine,
+                options: { width: container.clientWidth, height: 400, wireframes: false, background: 'transparent' }
+            });
+            for (let i = 0; i < 9; i++) {
+                for (let j = 0; j <= i; j++) {
+                    Composite.add(world, Bodies.circle(container.clientWidth/2 + (j-i/2)*35, 50+i*40, 3, { isStatic: true, render: {fillStyle: '#fff'} }));
+                }
+            }
+            Render.run(render); Runner.run(Runner.create(), engine);
+        }
+
+        function toggleModal(show) {
+            document.getElementById('profile-modal').style.display = show ? 'flex' : 'none';
+        }
+
+        function dropBall() {
+            const ball = Matter.Bodies.circle(window.innerWidth/2, 10, 8, { restitution: 0.5, render: {fillStyle: '#ff0077'} });
+            Matter.Composite.add(world, ball);
+        }
+
+        function changeBet(val) {
+            currentBet += val;
+            if(currentBet < 1000) currentBet = 1000;
+            document.getElementById('bet-display').innerText = currentBet;
+        }
+    </script>
 </body>
 </html>
+
