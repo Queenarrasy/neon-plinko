@@ -1,38 +1,112 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deposit Panel - Neon Plinko</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <div class="depo-container">
-        <h2>PILIH METODE DEPOSIT</h2>
-        <div class="methods">
-            <button onclick="showMethod('REKENING')">🏦 REKENING</button>
-            <button onclick="showMethod('EWALLET')">📱 E-WALLET</button>
-            <button onclick="showMethod('QRIS')">🖼️ QRIS</button>
+<body onload="muatRiwayat()">
+    <div class="page-container">
+        <h2 class="neon-title">FORM SETOR DANA</h2>
+
+        <div class="glass-card">
+            <p style="color: #ff0077; font-weight: bold;">⚠️ MINIMAL DEPOSIT: IDR 20,000</p>
+            
+            <div class="input-group">
+                <label>NOMINAL YANG INGIN ANDA DEPO (IDR):</label>
+                <input type="number" id="input-nominal" class="main-input" placeholder="Masukkan angka saja">
+            </div>
+
+            <div style="display: flex; gap: 10px; margin: 15px 0;">
+                <button onclick="pilihMetode('QRIS')" class="btn-tab" style="flex:1;">🇮🇩 QRIS RUPIAH</button>
+                <button onclick="pilihMetode('CRYPTO')" class="btn-tab" style="flex:1;">🌐 CRYPTO (USDT)</button>
+            </div>
+
+            <div id="box-instruksi" class="glass-card" style="display:none; border: 1px solid var(--neon-blue);">
+                <div id="konten-qris" style="display:none;">
+                    <h4>SILAKAN SCAN QRIS DI BAWAH</h4>
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=ID1024357689073" alt="QRIS" style="width: 250px; border-radius: 10px; margin: 10px 0;">
+                    <p style="font-size: 12px;">ARRASHY STORE / SAXOPONE<br>NMID: ID1024357689073</p>
+                </div>
+
+                <div id="konten-crypto" style="display:none;">
+                    <h4 style="color:#f3ba2f">PEMBAYARAN CRYPTO</h4>
+                    <p style="font-size: 14px;">Tersedia: USDT (TRC20/BEP20)</p>
+                    <p style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; font-size: 13px;">
+                        ⚠️ Pembayaran Crypto akan dikenakan biaya layanan (Fee).<br>Silakan hubungi Admin untuk mendapatkan alamat dompet terbaru.
+                    </p>
+                    <a href="https://wa.me/NOMOR_WHATSAPP_ANDA" target="_blank" class="btn-primary" style="display:block; background:#25d366; text-decoration:none;">HUBUNGI ADMIN (WHATSAPP)</a>
+                </div>
+            </div>
+
+            <button onclick="prosesDeposit()" id="btn-konfirmasi" class="btn-primary" style="margin-top: 20px; display:none;">SAYA SUDAH TRANSFER</button>
         </div>
 
-        <div id="method-detail" class="detail-box" style="display:none;">
-            <h4 id="method-title"></h4>
-            <p id="method-info"></p>
-            <input type="number" id="depo-amount" placeholder="Jumlah Deposit">
-            <button onclick="konfirmasiDepo()" class="btn-confirm">KONFIRMASI</button>
+        <div class="glass-card" style="margin-top: 30px;">
+            <h3>📋 RIWAYAT TRANSAKSI ANDA</h3>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; font-size: 11px; text-align: left;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid #333;">
+                            <th style="padding: 10px;">WAKTU LENGKAP</th>
+                            <th>NOMINAL</th>
+                            <th>METODE</th>
+                            <th>STATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="list-riwayat"></tbody>
+                </table>
+            </div>
         </div>
-        
-        <button onclick="window.location.href='game.html'" class="btn-back">KEMBALI KE GAME</button>
+        <button onclick="window.location.href='game.html'" class="btn-back" style="margin-top:20px;">KEMBALI KE GAME</button>
     </div>
 
     <script>
-        function showMethod(type) {
-            document.getElementById('method-detail').style.display = 'block';
-            document.getElementById('method-title').innerText = "TRANSFER VIA " + type;
-            document.getElementById('method-info').innerText = type === 'REKENING' ? "BCA: 12345678 (A/N ADMIN)" : "DANA: 0812345678";
+        let metodeTerpilih = "";
+
+        function pilihMetode(tipe) {
+            metodeTerpilih = tipe;
+            document.getElementById('box-instruksi').style.display = 'block';
+            document.getElementById('btn-konfirmasi').style.display = 'block';
+            
+            document.getElementById('konten-qris').style.display = (tipe === 'QRIS') ? 'block' : 'none';
+            document.getElementById('konten-crypto').style.display = (tipe === 'CRYPTO') ? 'block' : 'none';
         }
 
-        function konfirmasiDepo() {
-            alert("Permintaan Deposit Terkirim! Saldo akan masuk otomatis setelah diverifikasi.");
-            // Logika notifikasi otomatis bisa dihubungkan dengan API Bot Telegram nantinya
-            window.location.href = 'game.html';
+        function prosesDeposit() {
+            const nom = document.getElementById('input-nominal').value;
+            if(!nom || nom < 20000) return alert("Minimal deposit IDR 20,000");
+
+            const skrg = new Date();
+            const waktu = skrg.toLocaleString('id-ID', { 
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit', second: '2-digit' 
+            });
+
+            const data = { waktu, jumlah: nom, metode: metodeTerpilih, status: "TERTUNDA" };
+            let riwayat = JSON.parse(localStorage.getItem('riwayat_depo')) || [];
+            riwayat.unshift(data);
+            localStorage.setItem('riwayat_depo', JSON.stringify(riwayat));
+
+            alert("Konfirmasi Terkirim!\nStatus: TERTUNDA\nSaldo akan bertambah setelah diverifikasi Admin.");
+            muatRiwayat();
+        }
+
+        function muatRiwayat() {
+            const list = document.getElementById('list-riwayat');
+            const riwayat = JSON.parse(localStorage.getItem('riwayat_depo')) || [];
+            list.innerHTML = "";
+            riwayat.forEach(item => {
+                const warna = item.status === "SUKSES" ? "#00f7ff" : "#ffcc00";
+                list.innerHTML += `
+                    <tr style="border-bottom: 1px solid #222;">
+                        <td style="padding: 10px;">${item.waktu}</td>
+                        <td>IDR ${parseInt(item.jumlah).toLocaleString()}</td>
+                        <td>${item.metode}</td>
+                        <td style="color:${warna}; font-weight:bold;">${item.status}</td>
+                    </tr>`;
+            });
         }
     </script>
 </body>
