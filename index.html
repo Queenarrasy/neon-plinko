@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Plinko Premium</title>
+    <title>Neon Plinko Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
     <link rel="stylesheet" href="style.css">
@@ -11,22 +11,21 @@
 <body>
     <div id="gui">
         <div class="header">
-            <div class="stat-box">💰 <span id="balance">100.00</span> TON</div>
+            <div class="stat-box">💰 Saldo: <span id="balance">100.00</span> TON</div>
         </div>
         
         <div class="actions">
             <button id="deposit-btn" class="btn-alt">DEPOSIT</button>
-            <button id="drop-btn" class="btn-main">DROP BOLA</button>
+            <button id="drop-btn" class="btn-main">JATUHKAN BOLA</button>
             <button id="wd-btn" class="btn-alt">WITHDRAW</button>
         </div>
     </div>
     
     <div id="admin-panel">
-        <p>Admin Control:</p>
-        <button onclick="setMode('win')">Mode Menang</button>
-        <button onclick="setMode('lose')">Mode Kalah</button>
-        <button onclick="setMode('normal')">Normal</button>
-        <div id="status-mode">Mode: Normal</div>
+        <small>Admin:</small><br>
+        <button onclick="setMode('win')">Win</button>
+        <button onclick="setMode('lose')">Lose</button>
+        <button onclick="setMode('normal')">Norm</button>
     </div>
 
     <script src="script.js"></script>
