@@ -11,34 +11,23 @@
 <body>
     <div id="auth-layer" class="auth-overlay">
         <div class="auth-glass-card">
-            <div class="brand-section">
-                <h1 class="neon-title">NEON PLINKO <span class="vip-tag">VIP</span></h1>
+            <h1 class="neon-title">NEON PLINKO <span class="vip-tag">VIP</span></h1>
+            
+            <div id="reg-container" style="display: none;">
+                <p class="auth-instruction">Daftar untuk Aktivasi USER ID</p>
+                <input type="text" id="reg-username" class="neon-input" placeholder="Username">
+                <input type="password" id="reg-password" class="neon-input" placeholder="Password">
+                <input type="text" id="reg-wallet" class="neon-input" placeholder="DANA/BANK/GOPAY">
+                <button onclick="handleAuth('register')" class="btn-glow-blue">DAFTAR & KUNCI ID</button>
             </div>
 
-            <div id="reg-container" class="auth-box fade-in" style="display: none;">
-                <p class="auth-instruction">Daftar untuk Aktivasi USER ID Permanen</p>
-                <div class="input-wrapper">
-                    <input type="text" id="reg-username" class="neon-input" placeholder="Buat Username">
-                </div>
-                <div class="input-wrapper">
-                    <input type="password" id="reg-password" class="neon-input" placeholder="Buat Password">
-                </div>
-                <div class="input-wrapper">
-                    <input type="text" id="reg-wallet" class="neon-input" placeholder="DANA/GOPAY/BANK - Nomor Rekening">
-                </div>
-                <button onclick="handleAuth('register')" class="btn-glow-blue">DAFTAR & DAPATKAN ID</button>
-                <p class="note-text">*Data Rekening & ID tidak dapat diubah setelah disimpan.</p>
-            </div>
-
-            <div id="login-container" class="auth-box fade-in" style="display: none;">
-                <div class="user-info-preview">
+            <div id="login-container" style="display: none;">
+                <div class="user-preview">
                     <img id="user-avatar" src="" alt="Avatar">
                     <h3 id="display-greet"></h3>
                 </div>
-                <div class="input-wrapper">
-                    <input type="password" id="login-password" class="neon-input" placeholder="Masukkan Password">
-                </div>
-                <button onclick="handleAuth('login')" class="btn-glow-pink">MASUK KE GAME</button>
+                <input type="password" id="login-password" class="neon-input" placeholder="Password">
+                <button onclick="handleAuth('login')" class="btn-glow-pink">MASUK GAME</button>
             </div>
         </div>
     </div>
@@ -49,4 +38,21 @@
                 <img id="main-avatar" src="" alt="Avatar">
             </div>
             <div class="balance-container">
-                <div class="bal-item">💵 <span id="bal-usdt">0.
+                <div>💵 <span id="bal-usdt">0.00</span></div>
+                <div>🇮🇩 <span id="bal-idr">0</span></div>
+            </div>
+        </div>
+        </div>
+
+    <div id="profile-layer" class="overlay-popup" style="display: none;">
+        <div class="profile-content">
+            <span class="close-btn" onclick="toggleProfile()">&times;</span>
+            <h2 style="color: #00f7ff;">DATA PROFIL</h2>
+            <div class="read-only-box">ID: <span id="profile-id"></span></div>
+            <div class="read-only-box">REK: <span id="profile-wallet"></span></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
