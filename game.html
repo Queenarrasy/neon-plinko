@@ -120,4 +120,227 @@
             text-shadow: 0 1px 2px rgba(0,0,0,0.8);
         }
 
-        .m-high { background: linear-gradient(180deg,
+        .m-high { background: linear-gradient(180deg, #ff0044, #8b0000); }
+        .m-mid { background: linear-gradient(180deg, #ff8800, #b35900); }
+        .m-low { background: linear-gradient(180deg, #00ff88, #008044); }
+        .m-zero { background: linear-gradient(180deg, #555, #222); }
+
+        /* MENU GRID BAWAH */
+        .bottom-menu-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            width: 95%;
+            margin: 10px auto 20px;
+        }
+
+        .menu-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 0, 119, 0.2);
+            border-radius: 12px;
+            padding: 12px 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .menu-icon { font-size: 26px; margin-bottom: 5px; }
+
+        /* FOOTER CONTROLS */
+        .footer-controls {
+            padding: 15px 20px 30px;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .bet-adjuster {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            background: rgba(0,0,0,0.4);
+            padding: 5px 30px;
+            border-radius: 30px;
+            border: 1px solid #444;
+        }
+
+        .btn-play {
+            width: 100%;
+            max-width: 300px;
+            padding: 16px;
+            border-radius: 40px;
+            border: none;
+            background: linear-gradient(to right, #00d4ff, #0055ff);
+            color: white;
+            font-size: 20px;
+            font-weight: 900;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body onload="initPlinko()">
+
+    <div class="game-header">
+        <div class="header-left">
+            <div onclick="window.location.href='profile.html'" style="text-align:center">
+                <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Lucky" class="profile-img">
+                <div class="menu-text">PROFILE</div>
+            </div>
+
+            <div class="gift-box-container" onclick="window.location.href='rewards.html'">
+                <div class="gift-icon" style="font-size:32px">🎁</div>
+                <div class="menu-text">HADIAH</div>
+            </div>
+        </div>
+
+        <div class="balance-display">
+            <span style="font-size: 8px; color: #aaa; display:block">CREDITS</span>
+            <span id="user-balance" style="font-weight: bold; font-size: 16px; color: var(--neon-blue);">IDR 0</span>
+        </div>
+
+        <div onclick="window.location.href='deposit.html'" style="text-align:center">
+            <div style="font-size:30px; filter: drop-shadow(0 0 5px gold);">💰</div>
+            <div class="menu-text">DEPOSIT</div>
+        </div>
+    </div>
+
+    <div class="game-arena">
+        <div id="plinko-canvas-container">
+            <div id="bucket-labels"></div>
+        </div>
+    </div>
+
+    <div class="bottom-menu-grid">
+        <div class="menu-box" onclick="window.location.href='deposit.html'">
+            <span class="menu-icon">➕</span>
+            <span class="menu-text">TOP UP</span>
+        </div>
+        <div class="menu-box" onclick="window.location.href='withdraw.html'">
+            <span class="menu-icon" style="font-size:30px">💱</span>
+            <span class="menu-text">TARIK</span>
+        </div>
+        <div class="menu-box" onclick="window.location.href='deposit.html'">
+            <span class="menu-icon" style="font-size:32px">💲</span>
+            <span class="menu-text">DEPOSIT</span>
+        </div>
+        <div class="menu-box" onclick="alert('Ranking Segera Tersedia!')">
+            <span class="menu-icon">🏆</span>
+            <span class="menu-text" style="font-size:6px">SEGERA TERSEDIA</span>
+        </div>
+    </div>
+
+    <div class="footer-controls">
+        <div class="bet-adjuster">
+            <button onclick="adjustBet(-5000)" style="background:none; border:none; color:var(--neon-blue); font-size:28px;">-</button>
+            <div style="text-align:center">
+                <span style="font-size:9px; color:#888; display:block">BET AMOUNT</span>
+                <span id="current-bet" style="font-weight:bold; font-size:18px">5,000</span>
+            </div>
+            <button onclick="adjustBet(5000)" style="background:none; border:none; color:var(--neon-blue); font-size:28px;">+</button>
+        </div>
+        <button class="btn-play" onclick="dropBall()">PLAY BALL</button>
+    </div>
+
+    <script>
+        const multipliers = {
+            low: [5, 2, 1.2, 0.5, 0.2, 0.5, 1.2, 2, 5],
+            med: [15, 8, 3, 0.2, 0.1, 0.2, 3, 8, 15],
+            high: [100, 25, 5, 0, 0, 0, 5, 25, 100]
+        };
+        let currentRisk = 'low';
+        let betAmount = 5000;
+        let engine, world, render;
+
+        function initPlinko() {
+            const container = document.getElementById('plinko-canvas-container');
+            engine = Matter.Engine.create();
+            world = engine.world;
+            render = Matter.Render.create({
+                element: container,
+                engine: engine,
+                options: { 
+                    width: container.clientWidth, 
+                    height: 380, 
+                    wireframes: false, 
+                    background: 'transparent' 
+                }
+            });
+            createPins(container.clientWidth);
+            updateBuckets();
+            updateUI();
+            Matter.Render.run(render);
+            Matter.Runner.run(Matter.Runner.create(), engine);
+        }
+
+        function createPins(cw) {
+            const rows = 10;
+            const spacing = cw / 11;
+            for (let r = 0; r < rows; r++) {
+                const pinsInRow = r + 2;
+                for (let i = 0; i < pinsInRow; i++) {
+                    const x = (cw / 2) + (i - (pinsInRow - 1) / 2) * spacing;
+                    const y = 40 + r * 30;
+                    Matter.World.add(world, Matter.Bodies.circle(x, y, 3, { 
+                        isStatic: true, 
+                        render: { fillStyle: '#ffffff' } 
+                    }));
+                }
+            }
+        }
+
+        function updateBuckets() {
+            const container = document.getElementById('bucket-labels');
+            container.innerHTML = '';
+            multipliers[currentRisk].forEach(m => {
+                const d = document.createElement('div');
+                d.className = 'm-badge ' + (m >= 5 ? 'm-high' : m >= 2 ? 'm-mid' : m >= 1 ? 'm-low' : 'm-zero');
+                d.innerText = m + 'x';
+                container.appendChild(d);
+            });
+        }
+
+        function dropBall() {
+            let saldo = parseInt(localStorage.getItem('user_balance') || 0);
+            if (saldo < betAmount) return alert("Saldo IDR 0! Silakan ambil hadiah di menu 🎁");
+            
+            localStorage.setItem('user_balance', saldo - betAmount);
+            updateUI();
+
+            const ball = Matter.Bodies.circle(document.getElementById('plinko-canvas-container').clientWidth/2, 5, 8, {
+                restitution: 0.5, 
+                render: { fillStyle: '#ff0077', shadowBlur: 10, shadowColor: '#ff0077' }
+            });
+            Matter.World.add(world, ball);
+
+            setTimeout(() => {
+                Matter.World.remove(world, ball);
+                const currentMults = multipliers[currentRisk];
+                const res = currentMults[Math.floor(Math.random() * currentMults.length)];
+                const win = Math.floor(betAmount * res);
+                
+                let newSaldo = parseInt(localStorage.getItem('user_balance')) + win;
+                localStorage.setItem('user_balance', newSaldo);
+                updateUI();
+                
+                if(res >= 2) alert("MENANG! IDR " + win.toLocaleString());
+            }, 3000);
+        }
+
+        function adjustBet(v) { 
+            betAmount = Math.max(5000, betAmount + v); 
+            updateUI(); 
+        }
+
+        function updateUI() {
+            const s = parseInt(localStorage.getItem('user_balance') || 0);
+            document.getElementById('user-balance').innerText = "IDR " + s.toLocaleString();
+            document.getElementById('current-bet').innerText = betAmount.toLocaleString();
+        }
+    </script>
+</body>
+</html>
