@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil Saya - Neon Plinko</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body onload="muatDataProfil()">
+    <div class="page-container">
+        <h2 class="neon-title">PROFIL PENGGUNA</h2>
+
+        <div class="glass-card" style="text-align: left;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div style="width: 80px; height: 80px; background: var(--neon-blue); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 40px; color: black; font-weight: bold; box-shadow: 0 0 15px var(--neon-blue);">
+                    👤
+                </div>
+                <h3 id="display-nama-header" style="margin-top: 10px; color: white;">-</h3>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
+
+            <div class="info-group" style="margin-bottom: 15px;">
+                <label style="color: #888; font-size: 12px;">USERNAME / ID LOGIN</label>
+                <p id="p-username" class="data-field" style="color: var(--neon-blue); font-weight: bold; font-size: 18px; margin: 5px 0;">-</p>
+            </div>
+
+            <div class="info-group" style="margin-bottom: 15px;">
+                <label style="color: #888; font-size: 12px;">NAMA LENGKAP</label>
+                <p id="p-nama" class="data-field" style="color: white; font-size: 16px; margin: 5px 0;">-</p>
+            </div>
+
+            <div class="info-group" style="margin-bottom: 15px;">
+                <label style="color: #888; font-size: 12px;">REKENING / WALLET TUJUAN</label>
+                <p id="p-wallet" class="data-field" style="color: #ff0077; font-weight: bold; font-size: 16px; margin: 5px 0;">-</p>
+                <span style="font-size: 10px; color: #555;">*Data ini digunakan untuk pengiriman dana Withdraw (Locked)</span>
+            </div>
+
+            <div class="info-group" style="margin-bottom: 15px;">
+                <label style="color: #888; font-size: 12px;">STATUS AKUN</label>
+                <p style="color: #00ff00; font-size: 14px; margin: 5px 0;">✅ AKTIF (VIP MEMBER)</p>
+            </div>
+        </div>
+
+        <div class="glass-card" style="margin-top: 20px;">
+            <button onclick="window.location.href='deposit.html'" class="btn-primary" style="background: #00f7ff; color: black; margin-bottom: 10px;">ISI SALDO (DEPOSIT)</button>
+            <button onclick="window.location.href='withdraw.html'" class="btn-primary" style="background: #ff0077; color: white;">TARIK DANA (WITHDRAW)</button>
+        </div>
+
+        <br>
+        <button onclick="window.location.href='game.html'" class="btn-back" style="width: 100%; padding: 12px; background: none; border: 1px solid #333; color: #888; border-radius: 10px;">KEMBALI KE LOBBY GAME</button>
+        
+        <p style="margin-top: 30px; font-size: 12px; color: #444;">ID Pendaftaran: <span id="p-id-sistem">...</span></p>
+    </div>
+
+    <script>
+        function muatDataProfil() {
+            // Mengambil data pendaftaran awal dari memori (cite: 25978.jpg)
+            const dataPendaftaran = JSON.parse(localStorage.getItem('plinko_user'));
+
+            if (!dataPendaftaran) {
+                alert("Sesi berakhir, silakan login kembali.");
+                window.location.href = "index.html";
+                return;
+            }
+
+            // Menampilkan data sesuai format pendaftaran awal
+            document.getElementById('display-nama-header').innerText = dataPendaftaran.nama.toUpperCase();
+            document.getElementById('p-username').innerText = dataPendaftaran.username;
+            document.getElementById('p-nama').innerText = dataPendaftaran.nama;
+            document.getElementById('p-wallet').innerText = dataPendaftaran.wallet;
+            
+            // Menampilkan ID unik pendaftaran (simulasi dari username)
+            document.getElementById('p-id-sistem').innerText = btoa(dataPendaftaran.username).substring(0, 8).toUpperCase();
+        }
+    </script>
+</body>
+</html>
