@@ -33,16 +33,13 @@
             <div class="profile-btn" onclick="toggleProfile()">
                 <img id="main-avatar" src="" alt="Avatar">
             </div>
-            <div class="balance-container">
-                <div>💵 <span id="bal-usdt">0.00</span></div>
-                <div>🇮🇩 <span id="bal-idr">0</span></div>
-            </div>
-        </div>
-        <div id="plinko-canvas-container"></div>
-        <div class="footer-controls">
-            <button id="drop-btn" onclick="spawnBall()" class="btn-play">PLAY</button>
-        </div>
+            <div class="footer-controls">
+    <button id="drop-btn" onclick="spawnBall()" class="btn-play">JATUHKAN BOLA</button>
+    <div style="margin-top: 10px;">
+        <button onclick="toggleProfile()" class="btn-side" style="background: #1a1a3a; color: white; padding: 5px 15px; border-radius: 10px; border: 1px solid #333;">PROFIL & WD</button>
     </div>
+</div>
+
 
     <div id="profile-layer" class="overlay-popup" style="display: none;">
         <div class="profile-content">
