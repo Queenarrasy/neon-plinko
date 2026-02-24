@@ -26,7 +26,29 @@
             <button onclick="spawnBall()" class="btn-play">PLAY</button>
         </div>
 
-        <div id="profile-modal" class="modal" style="display:none;">
+        <div id="profile-modal" class="modal" style="display:none; position:fixed; top:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:999;">
+    <div style="padding:40px; text-align:center;">
+        <h3 style="color:var(--neon-blue);">PROFIL USER (LOCKED)</h3>
+        <div style="background:#111; padding:20px; border-radius:15px; text-align:left; margin-bottom:20px;">
+            <p>USER ID: <span id="disp-id" style="color:white;"></span></p>
+            <p>REKENING: <span id="disp-rek" style="color:white;"></span></p>
+        </div>
+        <button onclick="toggleModal('profile-modal')" class="btn-main">TUTUP</button>
+    </div>
+</div>
+
+<script>
+    // Memanggil data yang tersimpan saat pendaftaran
+    function loadUserData() {
+        const data = JSON.parse(localStorage.getItem('plinko_v5_user'));
+        if(data) {
+            document.getElementById('disp-id').innerText = data.username;
+            document.getElementById('disp-rek').innerText = data.wallet;
+        }
+    }
+    window.onload = loadUserData;
+</script>
+
             <div class="modal-content">
                 <span onclick="toggleProfile()" class="close">&times;</span>
                 <h3>DATA AKUN (LOCKED)</h3>
