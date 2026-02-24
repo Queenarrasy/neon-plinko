@@ -3,38 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Plinko Ultra</title>
+    <title>Neon Plinko VIP</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="gui">
-        <div class="header">
-            <div class="stat-box"><span id="balance">USDT 100.00</span></div>
-        </div>
-
-        <div class="footer-controls">
-            <div class="bet-container">
-                <button class="bet-btn" onclick="changeBet(-0.5)">−</button>
-                <div class="bet-info"><small>TARUHAN</small><div id="bet-amount">1.00</div></div>
-                <button class="bet-btn" onclick="changeBet(0.5)">+</button>
+    <div id="auth-screen">
+        <div class="auth-box">
+            <h2 class="neon-text">NEON PLINKO</h2>
+            <div id="loading-spinner"></div>
+            <div id="auth-form" style="display: none;">
+                <p id="user-info">ID Telegram Terdeteksi...</p>
+                <input type="text" id="reg-username" placeholder="Buat Username">
+                <input type="password" id="reg-password" placeholder="Buat Password">
+                <button onclick="handleAuth('register')" class="btn-main">DAFTAR AKUN</button>
             </div>
-            <div class="action-buttons" style="display:flex; width:92%; gap:8px;">
-                <button class="btn-side" onclick="openDepo()" style="background:#1a1a3a; color:#00f7ff; border:1px solid #00f7ff; flex:1; border-radius:10px;">DEPOSIT</button>
-                <button id="drop-btn" class="btn-main">MAIN</button>
-                <button class="btn-side" style="background:#1a1a3a; color:#00f7ff; border:1px solid #00f7ff; flex:1; border-radius:10px;">WITHDRAW</button>
+            <div id="login-form" style="display: none;">
+                <input type="password" id="login-password" placeholder="Masukkan Password">
+                <button onclick="handleAuth('login')" class="btn-main">MASUK GAME</button>
             </div>
         </div>
     </div>
 
-    <div id="depoModal" class="modal">
-        <div class="modal-content">
-            <h3>Pilih Metode Deposit</h3>
-            <div class="depo-item" onclick="alert('DANA: 0812xxxx\nGOPAY: 0812xxxx')">E-Wallet (DANA, GOPAY)</div>
-            <div class="depo-item" onclick="alert('Mandiri: 123xxx\nBRI: 456xxx')">Rekening Bank</div>
-            <div class="depo-item" onclick="alert('Tampilkan Gambar QRIS Disini')">QRIS</div>
-            <button onclick="closeDepo()" style="margin-top:15px; background:none; color:red; border:none;">Batal</button>
+    <div id="gui" style="display: none;">
+        <div class="header">
+            <div class="multi-balance">
+                <div class="bal-box">💵 <span id="bal-usdt">0.00</span> USDT</div>
+                <div class="bal-box">🇮🇩 <span id="bal-idr">0</span> IDR</div>
+            </div>
+        </div>
+
+        <div class="footer-controls">
+            <div class="currency-selector">
+                <button id="use-usdt" class="active" onclick="switchCurrency('USDT')">USDT</button>
+                <button id="use-idr" onclick="switchCurrency('IDR')">IDR</button>
+            </div>
+            
+            <div class="bet-container">
+                <button class="bet-btn" onclick="changeBet(-1)">−</button>
+                <div class="bet-info"><small>TARUHAN</small><div id="bet-amount">1.00</div></div>
+                <button class="bet-btn" onclick="changeBet(1)">+</button>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn-side" onclick="openDepo()">DEPOSIT</button>
+                <button id="drop-btn" class="btn-main">MAIN</button>
+                <button class="btn-side" onclick="alert('Penarikan Sedang Diproses')">WD</button>
+            </div>
         </div>
     </div>
 
