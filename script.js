@@ -63,6 +63,15 @@ function startPlinko() {
 }
 
 window.spawnBall = () => {
+    // Tambahkan efek getar saat klik (Opsional untuk Telegram)
+    if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+
+    const ball = Matter.Bodies.circle(window.innerWidth/2, 10, 8, { 
+        restitution: 0.5,
+        render: { fillStyle: '#ff0077' } // Bola warna Pink Neon
+    });
+    Matter.Composite.add(world, ball);
+};
     Matter.Composite.add(world, Matter.Bodies.circle(window.innerWidth/2, 10, 8, { restitution: 0.5 }));
 };
 
