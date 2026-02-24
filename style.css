@@ -62,3 +62,12 @@ button:active { transform: scale(0.92); }
     background: rgba(255, 255, 255, 0.05); padding: 5px; border-radius: 8px;
 }
 #admin-panel button { font-size: 8px; padding: 4px 6px; margin: 1px; background: #333; color: white; border-radius: 4px; }
+.multiplier-label {
+    position: absolute;
+    color: black;
+    font-size: 10px;
+    font-weight: bold;
+    pointer-events: none;
+    z-index: 150;
+    text-shadow: 0 0 2px white;
+}
