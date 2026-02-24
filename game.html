@@ -3,16 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cyber-Vault Plinko</title>
+    <title>Plinko Pro - Cyber Vault</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
     <style>
-        :root { --neon-blue: #00f7ff; --neon-pink: #ff0077; --bg: #050510; }
+        :root {
+            --neon-blue: #00d4ff;
+            --neon-pink: #ff007b;
+            --bg-dark: #0a0b1e;
+            --glass: rgba(255, 255, 255, 0.05);
+        }
+
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body {
-            background: var(--bg);
+            background: radial-gradient(circle at center, #1a1c3d 0%, var(--bg-dark) 100%);
             color: white;
-            font-family: sans-serif;
+            font-family: 'Segoe UI', Roboto, sans-serif;
             margin: 0;
             overflow: hidden;
             display: flex;
@@ -20,120 +26,202 @@
             height: 100vh;
         }
 
-        /* Layout Utama: Samping Kiri - Tengah - Samping Kanan */
-        .main-layout {
-            display: flex;
-            flex: 1;
+        /* HEADER: Saldo & Profil (Clean Look) */
+        .game-header {
             width: 100%;
-            padding: 10px;
-            gap: 10px;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
             align-items: center;
+            background: rgba(0,0,0,0.3);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* Sidebar Style */
-        .sidebar {
+        .balance-display {
+            text-align: center;
+            background: var(--glass);
+            padding: 5px 20px;
+            border-radius: 20px;
+            border: 1px solid var(--neon-blue);
+        }
+
+        /* MAIN CONTENT AREA */
+        .main-content {
+            flex: 1;
+            display: flex;
+            position: relative;
+            padding: 10px;
+        }
+
+        /* SIDEBAR KIRI: Navigasi Cepat */
+        .side-nav {
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            width: 70px;
+            gap: 12px;
+            width: 65px;
+            justify-content: center;
         }
 
-        .btn-side {
-            width: 60px;
-            height: 60px;
+        .nav-item {
+            width: 55px;
+            height: 55px;
+            background: var(--glass);
+            border: 1px solid rgba(0, 212, 255, 0.3);
             border-radius: 12px;
-            border: 1px solid #333;
-            background: rgba(255,255,255,0.05);
-            color: white;
-            font-size: 10px;
-            font-weight: bold;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            font-size: 9px;
+            color: #00d4ff;
             cursor: pointer;
+            transition: 0.3s;
         }
 
-        .btn-side.active { border-color: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); color: var(--neon-blue); }
+        .nav-item:active { transform: scale(0.9); background: var(--neon-blue); color: black; }
 
-        /* Area Game (Tengah) */
-        .game-center {
+        /* CENTER: Arena Plinko (Focus) */
+        .game-arena {
             flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            position: relative;
+            justify-content: flex-start;
         }
 
         #plinko-canvas-container {
             width: 100%;
-            height: 450px;
-            background: rgba(255,255,255,0.02);
-            border-radius: 20px;
-            border: 1px solid rgba(0, 247, 255, 0.1);
+            max-width: 380px;
+            height: 420px;
             position: relative;
+            margin-top: 10px;
         }
 
-        /* Header & Footer */
-        .game-header { width: 100%; padding: 15px; text-align: center; border-bottom: 1px solid #222; }
-        .balance-box { background: #111; padding: 10px; border-radius: 10px; border: 1px solid var(--neon-blue); }
-        
-        .play-section { width: 100%; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        /* BUCKET / MULTIPLIER LABELS (Glow Look) */
+        #bucket-labels {
+            display: flex;
+            width: 100%;
+            justify-content: space-around;
+            position: absolute;
+            bottom: 5px;
+            padding: 0 10px;
+        }
+
+        .m-badge {
+            font-size: 10px;
+            font-weight: bold;
+            color: #fbff00;
+            padding: 2px 4px;
+            background: rgba(251, 255, 0, 0.1);
+            border-radius: 4px;
+        }
+
+        /* SIDEBAR KANAN: Risk Level */
+        .side-risk {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 65px;
+            justify-content: center;
+        }
+
+        .risk-btn {
+            padding: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #333;
+            background: #111;
+            color: #777;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .risk-btn.active { border-color: var(--neon-pink); color: white; background: var(--neon-pink); box-shadow: 0 0 10px var(--neon-pink); }
+
+        /* BOTTOM: Play Controls (Sesuai Referensi) */
+        .footer-controls {
+            padding: 20px;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .bet-adjuster {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: rgba(0,0,0,0.4);
+            padding: 5px 20px;
+            border-radius: 30px;
+            border: 1px solid #333;
+        }
+
         .btn-play {
-            width: 80%;
+            width: 200px;
             padding: 15px;
-            background: linear-gradient(45deg, var(--neon-pink), #ff00ff);
+            border-radius: 40px;
             border: none;
-            border-radius: 50px;
+            background: linear-gradient(to right, #00d4ff, #0055ff);
             color: white;
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 900;
-            box-shadow: 0 0 20px var(--neon-pink);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+            cursor: pointer;
+            text-transform: uppercase;
         }
 
-        #bucket-labels { display: flex; position: absolute; bottom: 5px; width: 100%; justify-content: space-around; }
-        .m-box { font-size: 8px; color: var(--neon-pink); font-weight: bold; }
+        .btn-play:active { transform: scale(0.95); }
     </style>
 </head>
 <body onload="initPlinko()">
 
     <div class="game-header">
-        <div class="balance-box">
-            <span style="font-size: 10px; color: #888;">SALDO</span><br>
-            <span id="user-balance" style="font-weight: bold; color: var(--neon-blue);">IDR 0</span>
+        <div class="nav-item" style="border:none" onclick="window.location.href='profile.html'">👤</div>
+        <div class="balance-display">
+            <span style="font-size: 10px; color: #aaa; display:block">CREDITS</span>
+            <span id="user-balance" style="font-weight: bold; font-size: 16px; color: var(--neon-blue);">IDR 0</span>
         </div>
+        <div class="nav-item" style="border:none; color: #fbff00" onclick="window.location.href='deposit.html'">💰</div>
     </div>
 
-    <div class="main-layout">
-        <div class="sidebar">
-            <div class="btn-side" onclick="window.location.href='profile.html'">👤<br>PROFIL</div>
-            <div class="btn-side" onclick="window.location.href='deposit.html'">➕<br>TOPUP</div>
-            <div class="btn-side" onclick="window.location.href='withdraw.html'">💸<br>TARIK</div>
+    <div class="main-content">
+        <div class="side-nav">
+            <div class="nav-item" onclick="window.location.href='deposit.html'">➕<br>TOPUP</div>
+            <div class="nav-item" onclick="window.location.href='withdraw.html'">💸<br>TARIK</div>
+            <div class="nav-item">🏆<br>RANK</div>
         </div>
 
-        <div class="game-center">
+        <div class="game-arena">
             <div id="plinko-canvas-container">
                 <div id="bucket-labels"></div>
             </div>
-            <div style="margin-top: 10px; font-size: 12px; color: #888;">BET: <span id="current-bet" style="color:white">5,000</span></div>
         </div>
 
-        <div class="sidebar">
-            <div class="btn-side active" id="risk-low" onclick="setRisk('low')">LOW</div>
-            <div class="btn-side" id="risk-med" onclick="setRisk('med')">MED</div>
-            <div class="btn-side" id="risk-high" onclick="setRisk('high')">HIGH</div>
-            <div class="btn-side" onclick="adjustBet(5000)">➕<br>BET</div>
-            <div class="btn-side" onclick="adjustBet(-5000)">➖<br>BET</div>
+        <div class="side-risk">
+            <button class="risk-btn active" id="risk-low" onclick="setRisk('low')">LOW</button>
+            <button class="risk-btn" id="risk-med" onclick="setRisk('med')">MED</button>
+            <button class="risk-btn" id="risk-high" onclick="setRisk('high')">HIGH</button>
         </div>
     </div>
 
-    <div class="play-section">
+    <div class="footer-controls">
+        <div class="bet-adjuster">
+            <button onclick="adjustBet(-5000)" style="background:none; border:none; color:var(--neon-blue); font-size:24px; font-weight:bold">-</button>
+            <div style="text-align:center">
+                <span style="font-size:9px; color:#888; display:block">BET AMOUNT</span>
+                <span id="current-bet" style="font-weight:bold; font-size:16px">5,000</span>
+            </div>
+            <button onclick="adjustBet(5000)" style="background:none; border:none; color:var(--neon-blue); font-size:24px; font-weight:bold">+</button>
+        </div>
         <button class="btn-play" onclick="dropBall()">PLAY BALL</button>
     </div>
 
     <script>
         const multipliers = {
-            low: [5, 2, 1, 0.5, 0.2, 0.5, 1, 2, 5],
+            low: [5, 2, 1.2, 0.5, 0.2, 0.5, 1.2, 2, 5],
             med: [15, 8, 3, 0.2, 0.1, 0.2, 3, 8, 15],
             high: [100, 25, 5, 0, 0, 0, 5, 25, 100]
         };
@@ -148,7 +236,7 @@
             render = Matter.Render.create({
                 element: container,
                 engine: engine,
-                options: { width: container.clientWidth, height: 450, wireframes: false, background: 'transparent' }
+                options: { width: container.clientWidth, height: 420, wireframes: false, background: 'transparent' }
             });
             createPins(container.clientWidth);
             updateBuckets();
@@ -158,14 +246,14 @@
         }
 
         function createPins(cw) {
-            const rows = 9;
-            const spacing = cw / 10;
+            const rows = 10;
+            const spacing = cw / 11;
             for (let r = 0; r < rows; r++) {
                 const pinsInRow = r + 2;
                 for (let i = 0; i < pinsInRow; i++) {
                     const x = (cw / 2) + (i - (pinsInRow - 1) / 2) * spacing;
-                    const y = 60 + r * 38;
-                    Matter.World.add(world, Matter.Bodies.circle(x, y, 3, { isStatic: true, render: { fillStyle: '#00f7ff' } }));
+                    const y = 50 + r * 35;
+                    Matter.World.add(world, Matter.Bodies.circle(x, y, 3.5, { isStatic: true, render: { fillStyle: '#ffffff' } }));
                 }
             }
         }
@@ -175,7 +263,7 @@
             container.innerHTML = '';
             multipliers[currentRisk].forEach(m => {
                 const d = document.createElement('div');
-                d.className = 'm-box'; d.innerText = m + 'x';
+                d.className = 'm-badge'; d.innerText = m + 'x';
                 container.appendChild(d);
             });
         }
@@ -186,27 +274,30 @@
             localStorage.setItem('user_balance', saldo - betAmount);
             updateUI();
 
-            const ball = Matter.Bodies.circle(document.getElementById('plinko-canvas-container').clientWidth/2, 20, 7, {
-                restitution: 0.5, render: { fillStyle: '#ff0077' }
+            const ball = Matter.Bodies.circle(document.getElementById('plinko-canvas-container').clientWidth/2, 10, 8, {
+                restitution: 0.5, render: { fillStyle: '#ff007b', shadowBlur: 10, shadowColor: '#ff007b' }
             });
             Matter.World.add(world, ball);
 
             setTimeout(() => {
                 Matter.World.remove(world, ball);
                 const res = multipliers[currentRisk][Math.floor(Math.random() * 9)];
-                localStorage.setItem('user_balance', parseInt(localStorage.getItem('user_balance')) + (betAmount * res));
+                const win = betAmount * res;
+                localStorage.setItem('user_balance', parseInt(localStorage.getItem('user_balance')) + win);
                 updateUI();
+                if(res > 1) alert("WIN! " + res + "x");
             }, 3500);
         }
 
         function setRisk(level) {
             currentRisk = level;
-            document.querySelectorAll('.btn-side').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.risk-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('risk-' + level).classList.add('active');
             updateBuckets();
         }
 
         function adjustBet(v) { betAmount = Math.max(5000, betAmount + v); updateUI(); }
+        
         function updateUI() {
             document.getElementById('user-balance').innerText = "IDR " + parseInt(localStorage.getItem('user_balance') || 0).toLocaleString();
             document.getElementById('current-bet').innerText = betAmount.toLocaleString();
