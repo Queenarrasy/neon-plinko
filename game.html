@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Plinko Game Area</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+</head>
+<body>
+    <div id="game-container">
+        <div class="header">
+            <button onclick="toggleProfile()" class="btn-circle">👤</button>
+            <div class="wallet-display">💵 IDR <span id="main-balance">0</span></div>
+            <button onclick="window.location.href='deposit.html'" class="btn-depo">DEPOSIT</button>
+        </div>
+
+        <div id="plinko-board"></div>
+
+        <div class="controls">
+            <div class="bet-section">
+                <button onclick="changeBet(-1000)">-</button>
+                <div class="bet-value">BET: <span id="current-bet">1000</span></div>
+                <button onclick="changeBet(1000)">+</button>
+            </div>
+            <button onclick="spawnBall()" class="btn-play">PLAY</button>
+        </div>
+
+        <div id="profile-modal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <span onclick="toggleProfile()" class="close">&times;</span>
+                <h3>DATA AKUN (LOCKED)</h3>
+                <p>USER ID: <b id="p-id"></b></p>
+                <p>REK/E-WALLET: <b id="p-rek"></b></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="game-logic.js"></script>
+</body>
+</html>
