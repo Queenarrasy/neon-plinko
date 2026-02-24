@@ -5,72 +5,47 @@
     --bg-dark: #050510;
 }
 
-body {
-    margin: 0; padding: 0;
-    background: radial-gradient(circle at center, #0a0a2e 0%, var(--bg-dark) 100%);
-    color: white; font-family: 'Segoe UI', sans-serif;
-    overflow: hidden; touch-action: none;
-}
+body { margin: 0; background: var(--bg-dark); color: white; font-family: sans-serif; overflow: hidden; }
 
 .nebula {
     position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
     width: 300px; height: 300px;
-    background: radial-gradient(circle, rgba(170, 0, 255, 0.15) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(0, 247, 255, 0.1) 0%, transparent 70%);
     filter: blur(50px); z-index: -1;
 }
 
-/* Auth Screen */
-#auth-screen {
-    position: fixed; z-index: 500; width: 100%; height: 100%;
-    background: var(--bg-dark); display: flex; align-items: center; justify-content: center;
-}
-.auth-box { text-align: center; width: 85%; max-width: 350px; }
+/* Auth & GUI */
+#auth-screen { position: fixed; z-index: 500; width: 100%; height: 100%; background: var(--bg-dark); display: flex; align-items: center; justify-content: center; }
+.auth-box { text-align: center; width: 85%; }
 .neon-text { color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); }
-input { 
-    width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; 
-    border: 1px solid #2a2a5a; background: #1a1a3a; color: white; box-sizing: border-box;
-}
 
-/* GUI Elements */
-#gui { position: absolute; top: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-between; z-index: 100; pointer-events: none; }
-
-#profile-icon {
-    position: absolute; top: 15px; left: 15px; width: 42px; height: 42px;
-    border-radius: 50%; border: 2px solid var(--neon-blue);
-    background: #1a1a3a; overflow: hidden; cursor: pointer; pointer-events: auto;
-}
+#profile-icon { position: absolute; top: 15px; left: 15px; width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--neon-blue); background: #1a1a3a; cursor: pointer; pointer-events: auto; z-index: 100; overflow: hidden; }
 #profile-icon img { width: 100%; height: 100%; }
 
 .header { padding: 15px; display: flex; flex-direction: column; align-items: flex-end; pointer-events: auto; }
-.bal-box {
-    background: rgba(0,0,0,0.6); border: 1px solid var(--neon-blue);
-    padding: 6px 12px; border-radius: 8px; font-size: 12px; color: var(--neon-blue);
-    margin-bottom: 5px; min-width: 120px; text-align: right;
-}
+.bal-box { background: rgba(0,0,0,0.6); border: 1px solid var(--neon-blue); padding: 6px 12px; border-radius: 8px; font-size: 11px; color: var(--neon-blue); margin-bottom: 5px; min-width: 110px; text-align: right; }
 
 /* Controls */
-.footer-controls { width: 100%; padding-bottom: 25px; display: flex; flex-direction: column; align-items: center; gap: 10px; pointer-events: auto; }
-.currency-selector { display: flex; gap: 10px; }
-.currency-selector button { background: #1a1a3a; border: 1px solid #444; color: #888; padding: 5px 15px; border-radius: 5px; font-size: 11px; }
+.footer-controls { position: absolute; bottom: 20px; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px; pointer-events: auto; }
+.currency-selector button { background: #1a1a3a; border: 1px solid #444; color: #888; padding: 5px 12px; border-radius: 5px; font-size: 10px; }
 .currency-selector button.active { border-color: var(--neon-blue); color: var(--neon-blue); }
 
 .bet-container { display: flex; align-items: center; gap: 15px; background: rgba(26,26,58,0.9); padding: 5px 20px; border-radius: 30px; border: 1px solid #333; }
-.bet-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
-.bet-info { text-align: center; min-width: 70px; }
-.bet-info small { font-size: 9px; color: #888; display: block; }
+.bet-btn { background: none; border: none; color: white; font-size: 22px; }
 
 .action-buttons { display: flex; width: 92%; gap: 8px; }
-.btn-main { flex: 2; height: 48px; border-radius: 12px; background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple)); color: white; border: none; font-weight: bold; font-size: 14px; box-shadow: 0 0 15px rgba(255, 0, 119, 0.3); }
-.btn-side { flex: 1; height: 48px; border-radius: 12px; background: #1a1a3a; color: var(--neon-blue); border: 1px solid var(--neon-blue); font-size: 10px; font-weight: bold; }
+.btn-main { flex: 2; height: 45px; border-radius: 12px; background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple)); color: white; border: none; font-weight: bold; }
+.btn-side { flex: 1; height: 45px; border-radius: 12px; background: #1a1a3a; color: var(--neon-blue); border: 1px solid var(--neon-blue); font-size: 10px; font-weight: bold; }
 
 /* Profile Menu */
-.overlay-menu { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,5,16,0.97); z-index: 300; display: flex; justify-content: center; align-items: center; }
-.profile-content { background: #12122b; width: 85%; max-width: 340px; padding: 25px; border-radius: 20px; border: 1px solid var(--neon-blue); position: relative; }
-.close-btn { position: absolute; top: 10px; right: 15px; font-size: 28px; color: var(--neon-pink); }
-.info-group { text-align: left; margin-bottom: 12px; }
-.info-group label { font-size: 9px; color: var(--neon-blue); display: block; margin-bottom: 4px; }
-.read-only-box { background: #0a0a20; padding: 12px; border-radius: 8px; border: 1px solid #333; color: #aaa; font-size: 14px; }
+.overlay-menu { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,5,16,0.95); z-index: 300; display: flex; justify-content: center; align-items: center; pointer-events: auto; }
+.profile-content { background: #12122b; width: 85%; padding: 25px; border-radius: 20px; border: 1px solid var(--neon-blue); position: relative; }
+.profile-input { width: 100%; padding: 12px; margin-top: 5px; border-radius: 8px; border: 1px solid #2a2a5a; background: #1a1a3a; color: white; box-sizing: border-box; }
+.read-only-box { background: #0a0a20; padding: 12px; border-radius: 8px; border: 1px solid #333; color: #888; margin-top: 5px; }
+.close-btn { position: absolute; top: 10px; right: 15px; font-size: 25px; color: var(--neon-pink); cursor: pointer; }
+.info-group { text-align: left; margin-bottom: 15px; }
+.info-group label { font-size: 10px; color: var(--neon-blue); }
 
-.multiplier-label { position: absolute; color: white; font-size: 10px; font-weight: bold; pointer-events: none; }
-.spinner { border: 4px solid rgba(255,255,255,0.1); border-left-color: var(--neon-blue); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; }
+.multiplier-label { position: absolute; color: white; font-size: 9px; font-weight: bold; pointer-events: none; text-shadow: 1px 1px 2px black; }
+.spinner { border: 3px solid rgba(255,255,255,0.1); border-left-color: var(--neon-blue); border-radius: 50%; width: 25px; height: 25px; animation: spin 1s linear infinite; margin: 15px auto; }
 @keyframes spin { to { transform: rotate(360deg); } }
