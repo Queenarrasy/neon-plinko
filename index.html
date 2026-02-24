@@ -9,51 +9,31 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="auth-screen">
-        <div class="auth-box">
-            <h2 class="neon-text">NEON PLINKO</h2>
-            <div id="loading-spinner"></div>
-            <div id="auth-form" style="display: none;">
-                <p id="user-info">ID Telegram Terdeteksi...</p>
-                <input type="text" id="reg-username" placeholder="Buat Username">
-                <input type="password" id="reg-password" placeholder="Buat Password">
-                <button onclick="handleAuth('register')" class="btn-main">DAFTAR AKUN</button>
-            </div>
-            <div id="login-form" style="display: none;">
-                <input type="password" id="login-password" placeholder="Masukkan Password">
-                <button onclick="handleAuth('login')" class="btn-main">MASUK GAME</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="gui" style="display: none;">
+    <div class="nebula"></div>
+    
+    <div id="gui">
         <div class="header">
-            <div class="multi-balance">
-                <div class="bal-box">💵 <span id="bal-usdt">0.00</span> USDT</div>
-                <div class="bal-box">🇮🇩 <span id="bal-idr">0</span> IDR</div>
-            </div>
+            <div class="bal-box">💵 <span id="bal-usdt">0.00</span> USDT</div>
+            <div class="bal-box">🇮🇩 <span id="bal-idr">0</span> IDR</div>
         </div>
 
         <div class="footer-controls">
-            <div class="currency-selector">
-                <button id="use-usdt" class="active" onclick="switchCurrency('USDT')">USDT</button>
-                <button id="use-idr" onclick="switchCurrency('IDR')">IDR</button>
-            </div>
-            
             <div class="bet-container">
-                <button class="bet-btn" onclick="changeBet(-1)">−</button>
-                <div class="bet-info"><small>TARUHAN</small><div id="bet-amount">1.00</div></div>
-                <button class="bet-btn" onclick="changeBet(1)">+</button>
+                <button onclick="changeBet(-1)" style="background:none; border:none; color:white; font-size:20px;">−</button>
+                <div style="text-align:center;">
+                    <small style="font-size:9px; color:#888;">TARUHAN</small>
+                    <div id="bet-amount" style="font-weight:bold; color:var(--neon-blue);">1.00</div>
+                </div>
+                <button onclick="changeBet(1)" style="background:none; border:none; color:white; font-size:20px;">+</button>
             </div>
 
             <div class="action-buttons">
                 <button class="btn-side" onclick="openDepo()">DEPOSIT</button>
                 <button id="drop-btn" class="btn-main">MAIN</button>
-                <button class="btn-side" onclick="alert('Penarikan Sedang Diproses')">WD</button>
+                <button class="btn-side">WITHDRAW</button>
             </div>
         </div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
