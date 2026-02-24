@@ -3,163 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Plinko: Cyber-Vault</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Cyber-Vault Plinko</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
     <style>
-        /* CSS Animasi Tambahan agar lebih hidup */
-        :root {
-            --neon-blue: #00f7ff;
-            --neon-pink: #ff0077;
-        }
-
+        :root { --neon-blue: #00f7ff; --neon-pink: #ff0077; --bg: #050510; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
         body {
-            background: radial-gradient(circle at center, #0a0a20 0%, #050510 100%);
+            background: var(--bg);
+            color: white;
+            font-family: sans-serif;
+            margin: 0;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
         }
 
-        .game-header {
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(10px);
-            border-bottom: 2px solid var(--neon-blue);
-            box-shadow: 0 0 15px var(--neon-blue);
+        /* Layout Utama: Samping Kiri - Tengah - Samping Kanan */
+        .main-layout {
+            display: flex;
+            flex: 1;
+            width: 100%;
+            padding: 10px;
+            gap: 10px;
+            align-items: center;
+        }
+
+        /* Sidebar Style */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 70px;
+        }
+
+        .btn-side {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            border: 1px solid #333;
+            background: rgba(255,255,255,0.05);
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .btn-side.active { border-color: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); color: var(--neon-blue); }
+
+        /* Area Game (Tengah) */
+        .game-center {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
         }
 
         #plinko-canvas-container {
             width: 100%;
             height: 450px;
-            margin: 10px 0;
+            background: rgba(255,255,255,0.02);
+            border-radius: 20px;
+            border: 1px solid rgba(0, 247, 255, 0.1);
             position: relative;
-            background: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
-            box-shadow: inset 0 0 50px rgba(0, 247, 255, 0.1);
-            border-radius: 15px;
         }
 
-        /* Tombol Risiko yang beranimasi */
-        .risk-selector button {
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 1px solid #333;
-            font-weight: bold;
-        }
-
-        .risk-selector button:active { transform: scale(0.9); }
+        /* Header & Footer */
+        .game-header { width: 100%; padding: 15px; text-align: center; border-bottom: 1px solid #222; }
+        .balance-box { background: #111; padding: 10px; border-radius: 10px; border: 1px solid var(--neon-blue); }
         
-        #risk-low.active { background: #00ff88; color: black; box-shadow: 0 0 20px #00ff88; }
-        #risk-med.active { background: #ffcc00; color: black; box-shadow: 0 0 20px #ffcc00; }
-        #risk-high.active { background: #ff0077; color: white; box-shadow: 0 0 20px #ff0077; }
-
-        /* Slot Multiplier Glow */
-        .bucket {
-            transition: transform 0.2s;
-            animation: glowPulse 2s infinite alternate;
-        }
-
-        @keyframes glowPulse {
-            from { opacity: 0.6; }
-            to { opacity: 1; transform: translateY(-2px); }
-        }
-
+        .play-section { width: 100%; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         .btn-play {
-            animation: borderBlink 1.5s infinite;
+            width: 80%;
+            padding: 15px;
+            background: linear-gradient(45deg, var(--neon-pink), #ff00ff);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-size: 18px;
+            font-weight: 900;
+            box-shadow: 0 0 20px var(--neon-pink);
         }
 
-        @keyframes borderBlink {
-            0% { box-shadow: 0 0 5px var(--neon-pink); }
-            50% { box-shadow: 0 0 25px var(--neon-pink); }
-            100% { box-shadow: 0 0 5px var(--neon-pink); }
-        }
+        #bucket-labels { display: flex; position: absolute; bottom: 5px; width: 100%; justify-content: space-around; }
+        .m-box { font-size: 8px; color: var(--neon-pink); font-weight: bold; }
     </style>
 </head>
 <body onload="initPlinko()">
 
     <div class="game-header">
-        <button onclick="window.location.href='profile.html'" class="btn-icon">👤 PROFIL</button>
-        <div class="balance-container">
-            <span style="font-size: 10px; color: #aaa;">CREDITS</span>
-            <div class="balance-text" id="user-balance">IDR 0</div>
+        <div class="balance-box">
+            <span style="font-size: 10px; color: #888;">SALDO</span><br>
+            <span id="user-balance" style="font-weight: bold; color: var(--neon-blue);">IDR 0</span>
         </div>
-        <button onclick="window.location.href='deposit.html'" class="btn-depo">TOP UP</button>
     </div>
 
-    <div class="risk-selector" style="padding: 10px; display: flex; gap: 10px;">
-        <button onclick="setRisk('low')" id="risk-low" class="btn-risk active">LOW</button>
-        <button onclick="setRisk('med')" id="risk-med" class="btn-risk">MED</button>
-        <button onclick="setRisk('high')" id="risk-high" class="btn-risk">HIGH</button>
-    </div>
+    <div class="main-layout">
+        <div class="sidebar">
+            <div class="btn-side" onclick="window.location.href='profile.html'">👤<br>PROFIL</div>
+            <div class="btn-side" onclick="window.location.href='deposit.html'">➕<br>TOPUP</div>
+            <div class="btn-side" onclick="window.location.href='withdraw.html'">💸<br>TARIK</div>
+        </div>
 
-    <div id="plinko-canvas-container">
-        <div id="bucket-labels" style="display: flex; justify-content: space-between; position: absolute; bottom: 5px; width: 100%; padding: 0 5px;"></div>
-    </div>
-
-    <div class="game-footer">
-        <div class="bet-controls" style="display: flex; align-items: center; justify-content: space-around; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 20px;">
-            <button onclick="adjustBet(-5000)" style="width:40px; height:40px; border-radius: 50%;">-</button>
-            <div style="text-align: center;">
-                <span style="font-size: 10px; color: #888;">BET</span>
-                <div id="current-bet" style="font-weight: bold; color: #fff;">5,000</div>
+        <div class="game-center">
+            <div id="plinko-canvas-container">
+                <div id="bucket-labels"></div>
             </div>
-            <button onclick="adjustBet(5000)" style="width:40px; height:40px; border-radius: 50%;">+</button>
+            <div style="margin-top: 10px; font-size: 12px; color: #888;">BET: <span id="current-bet" style="color:white">5,000</span></div>
         </div>
-        <button onclick="dropBall()" id="btn-play" class="btn-play">DROP BALL</button>
+
+        <div class="sidebar">
+            <div class="btn-side active" id="risk-low" onclick="setRisk('low')">LOW</div>
+            <div class="btn-side" id="risk-med" onclick="setRisk('med')">MED</div>
+            <div class="btn-side" id="risk-high" onclick="setRisk('high')">HIGH</div>
+            <div class="btn-side" onclick="adjustBet(5000)">➕<br>BET</div>
+            <div class="btn-side" onclick="adjustBet(-5000)">➖<br>BET</div>
+        </div>
+    </div>
+
+    <div class="play-section">
+        <button class="btn-play" onclick="dropBall()">PLAY BALL</button>
     </div>
 
     <script>
-        // Multiplier config (House Edge Included)
         const multipliers = {
-            low: [5, 2, 1.2, 0.5, 0.2, 0.5, 1.2, 2, 5],
+            low: [5, 2, 1, 0.5, 0.2, 0.5, 1, 2, 5],
             med: [15, 8, 3, 0.2, 0.1, 0.2, 3, 8, 15],
             high: [100, 25, 5, 0, 0, 0, 5, 25, 100]
         };
-
         let currentRisk = 'low';
         let betAmount = 5000;
         let engine, world, render;
 
         function initPlinko() {
             const container = document.getElementById('plinko-canvas-container');
-            const w = container.clientWidth;
-            const h = 420;
-
             engine = Matter.Engine.create();
             world = engine.world;
-            world.gravity.y = 1.4; // Gravitas lebih berat agar bola mantap
-
             render = Matter.Render.create({
                 element: container,
                 engine: engine,
-                options: {
-                    width: w,
-                    height: h,
-                    wireframes: false,
-                    background: 'transparent'
-                }
+                options: { width: container.clientWidth, height: 450, wireframes: false, background: 'transparent' }
             });
-
-            createPins(w);
+            createPins(container.clientWidth);
             updateBuckets();
             updateUI();
-
             Matter.Render.run(render);
             Matter.Runner.run(Matter.Runner.create(), engine);
         }
 
-        function createPins(canvasWidth) {
+        function createPins(cw) {
             const rows = 9;
-            const spacing = canvasWidth / 10;
+            const spacing = cw / 10;
             for (let r = 0; r < rows; r++) {
-                const rowPins = r + 2;
-                for (let i = 0; i < rowPins; i++) {
-                    const x = (canvasWidth / 2) + (i - (rowPins - 1) / 2) * spacing;
+                const pinsInRow = r + 2;
+                for (let i = 0; i < pinsInRow; i++) {
+                    const x = (cw / 2) + (i - (pinsInRow - 1) / 2) * spacing;
                     const y = 60 + r * 38;
-                    const pin = Matter.Bodies.circle(x, y, 3.5, {
-                        isStatic: true,
-                        render: { 
-                            fillStyle: '#00f7ff',
-                            strokeStyle: '#fff',
-                            lineWidth: 1
-                        }
-                    });
-                    Matter.World.add(world, pin);
+                    Matter.World.add(world, Matter.Bodies.circle(x, y, 3, { isStatic: true, render: { fillStyle: '#00f7ff' } }));
                 }
             }
         }
@@ -168,76 +174,43 @@
             const container = document.getElementById('bucket-labels');
             container.innerHTML = '';
             multipliers[currentRisk].forEach(m => {
-                const div = document.createElement('div');
-                div.className = 'bucket';
-                div.style = `flex: 1; margin: 1px; background: rgba(255,0,119,0.2); border: 1px solid var(--neon-pink); 
-                             border-radius: 5px; font-size: 9px; padding: 8px 0; text-align: center; font-weight: bold;`;
-                div.innerText = m + 'x';
-                container.appendChild(div);
+                const d = document.createElement('div');
+                d.className = 'm-box'; d.innerText = m + 'x';
+                container.appendChild(d);
             });
         }
 
         function dropBall() {
             let saldo = parseInt(localStorage.getItem('user_balance') || 0);
-            if (saldo < betAmount) return alert("Saldo IDR 0! Silakan Top Up.");
-
-            saldo -= betAmount;
-            localStorage.setItem('user_balance', saldo);
+            if (saldo < betAmount) return alert("Saldo IDR 0! Top Up dulu.");
+            localStorage.setItem('user_balance', saldo - betAmount);
             updateUI();
 
-            const containerWidth = document.getElementById('plinko-canvas-container').clientWidth;
-            const ball = Matter.Bodies.circle(containerWidth / 2 + (Math.random() * 6 - 3), 20, 7, {
-                restitution: 0.5,
-                friction: 0.02,
-                render: { 
-                    fillStyle: '#ff0077',
-                    shadowBlur: 15,
-                    shadowColor: '#ff0077'
-                }
+            const ball = Matter.Bodies.circle(document.getElementById('plinko-canvas-container').clientWidth/2, 20, 7, {
+                restitution: 0.5, render: { fillStyle: '#ff0077' }
             });
-
             Matter.World.add(world, ball);
 
-            // Logika Sederhana Kemenangan (Simulation)
             setTimeout(() => {
                 Matter.World.remove(world, ball);
-                const currentMults = multipliers[currentRisk];
-                const res = currentMults[Math.floor(Math.random() * currentMults.length)];
-                const win = betAmount * res;
-                
-                let newSaldo = parseInt(localStorage.getItem('user_balance') || 0);
-                newSaldo += win;
-                localStorage.setItem('user_balance', newSaldo);
+                const res = multipliers[currentRisk][Math.floor(Math.random() * 9)];
+                localStorage.setItem('user_balance', parseInt(localStorage.getItem('user_balance')) + (betAmount * res));
                 updateUI();
-                
-                if(res >= 1) {
-                    showWinEffect(res);
-                }
             }, 3500);
-        }
-
-        function showWinEffect(m) {
-            const effect = document.createElement('div');
-            effect.style = `position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-                            font-size: 40px; font-weight: 900; color: #fbff00; text-shadow: 0 0 20px #fbff00; 
-                            z-index: 9999; pointer-events: none; animation: winPop 1s ease-out forwards;`;
-            effect.innerText = m + "x WIN!";
-            document.body.appendChild(effect);
-            setTimeout(() => effect.remove(), 1000);
         }
 
         function setRisk(level) {
             currentRisk = level;
-            document.querySelectorAll('.btn-risk').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.btn-side').forEach(b => b.classList.remove('active'));
             document.getElementById('risk-' + level).classList.add('active');
             updateBuckets();
         }
 
-        function adjustBet(v) {
-            betAmount = Math.max(1000, betAmount + v);
-            updateUI();
-        }
-
+        function adjustBet(v) { betAmount = Math.max(5000, betAmount + v); updateUI(); }
         function updateUI() {
-            const s = localStorage.getItem('user_balance') || 0;
-            document
+            document.getElementById('user-balance').innerText = "IDR " + parseInt(localStorage.getItem('user_balance') || 0).toLocaleString();
+            document.getElementById('current-bet').innerText = betAmount.toLocaleString();
+        }
+    </script>
+</body>
+</html>
