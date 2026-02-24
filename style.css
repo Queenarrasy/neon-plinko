@@ -1,0 +1,56 @@
+/* style.css */
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #050510; /* Hitam pekat */
+    overflow: hidden;
+    user-select: none;
+    touch-action: none;
+}
+
+#gui {
+    position: absolute;
+    top: 15px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    z-index: 100;
+}
+
+.stat-box {
+    color: #00f7ff;
+    font-family: 'Courier New', monospace;
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-shadow: 0 0 10px #00f7ff;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 8px 20px;
+    border-radius: 50px;
+    border: 1px solid #00f7ff;
+}
+
+#drop-btn {
+    background: linear-gradient(45deg, #ff0077, #7700ff);
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 50px;
+    box-shadow: 0 0 20px #ff0077;
+    cursor: pointer;
+    transition: 0.2s;
+    text-transform: uppercase;
+}
+
+#drop-btn:active {
+    transform: scale(0.9);
+    box-shadow: 0 0 5px #ff0077;
+}
+
+/* Canvas styling */
+canvas {
+    display: block;
+}
