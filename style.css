@@ -116,3 +116,72 @@ table {
     width: 100%;
     margin-top: 10px;
     border-collapse
+/* GAME SPECIFIC STYLES */
+#plinko-canvas-container {
+    width: 100%;
+    height: 500px;
+    position: relative;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+#bucket-labels {
+    display: flex;
+    justify-content: space-between;
+    position: absolute;
+    bottom: 10px;
+    width: 100%;
+    padding: 0 5px;
+}
+
+.bucket {
+    flex: 1;
+    margin: 2px;
+    background: rgba(255, 0, 119, 0.2);
+    border: 1px solid var(--neon-pink);
+    font-size: 8px;
+    padding: 5px 0;
+    border-radius: 4px;
+    color: white;
+    text-align: center;
+}
+
+.risk-selector {
+    display: flex;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.btn-risk {
+    flex: 1;
+    padding: 10px;
+    background: #1a1a2e;
+    border: 1px solid #333;
+    color: #888;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.btn-risk.active {
+    border-color: var(--neon-blue);
+    color: var(--neon-blue);
+    box-shadow: 0 0 10px var(--neon-blue);
+}
+
+.bet-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    background: rgba(255,255,255,0.05);
+    padding: 10px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+}
+
+.btn-play {
+    background: linear-gradient(45deg, var(--neon-pink), #ff00ff) !important;
+    color: white !important;
+    font-size: 18px !important;
+}
