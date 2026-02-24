@@ -3,52 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Plinko VIP</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <title>NEON PLINKO VIP</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <div id="auth-layer" class="auth-overlay">
-        <div class="auth-glass-card">
-            <h2 class="neon-title">NEON PLINKO <span class="vip-tag">VIP</span></h2>
+    <div class="auth-overlay">
+        <div class="auth-card">
+            <h1 class="neon-title">NEON PLINKO <span class="vip-tag">VIP</span></h1>
             
-            <div id="reg-container" style="display: none;">
-                <input type="text" id="reg-username" class="neon-input" placeholder="Username">
-                <input type="password" id="reg-password" class="neon-input" placeholder="Password">
-                <input type="text" id="reg-wallet" class="neon-input" placeholder="DANA/GOPAY/BANK">
-                <button onclick="handleAuth('register')" class="btn-glow-blue">DAFTAR & KUNCI ID</button>
-            </div>
-
-            <div id="login-container" style="display: none;">
-                <h3 id="display-greet"></h3>
-                <input type="password" id="login-password" class="neon-input" placeholder="Password">
-                <button onclick="handleAuth('login')" class="btn-glow-pink">MASUK GAME</button>
+            <div id="auth-form">
+                <input type="text" id="reg-username" class="neon-input" placeholder="USERNAME (Untuk User ID)">
+                <input type="password" id="reg-password" class="neon-input" placeholder="PASSWORD">
+                <input type="text" id="reg-wallet" class="neon-input" placeholder="NO REKENING / E-WALLET">
+                <p class="warning">*Data akan dikunci & tidak dapat diubah!</p>
+                <button onclick="simpanDanMasuk()" class="btn-main">DAFTAR & AKTIVASI ID</button>
             </div>
         </div>
     </div>
 
-    <div id="game-layer" style="display: none;">
-        <div id="ui-top">
-            <div class="profile-btn" onclick="toggleProfile()">
-                <img id="main-avatar" src="" alt="Avatar">
-            </div>
-            <div class="footer-controls">
-    <button id="drop-btn" onclick="spawnBall()" class="btn-play">JATUHKAN BOLA</button>
-    <div style="margin-top: 10px;">
-        <button onclick="toggleProfile()" class="btn-side" style="background: #1a1a3a; color: white; padding: 5px 15px; border-radius: 10px; border: 1px solid #333;">PROFIL & WD</button>
-    </div>
-</div>
+    <script>
+        function simpanDanMasuk() {
+            const u = document.getElementById('reg-username').value;
+            const p = document.getElementById('reg-password').value;
+            const w = document.getElementById('reg-wallet').value;
 
+            if (!u || !p || !w) return alert("Lengkapi semua data!");
 
-    <div id="profile-layer" class="overlay-popup" style="display: none;">
-        <div class="profile-content">
-            <span class="close-btn" onclick="toggleProfile()">&times;</span>
-            <div class="read-only-box">ID: <span id="profile-id"></span></div>
-            <div class="read-only-box">REK: <span id="profile-wallet"></span></div>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
+            const userData = { username: u, password: p, wallet: w, balance: 0 };
+            localStorage.setItem('plinko_user_data', JSON.stringify(userData));
+            
+            alert("ID Berhasil Diaktivasi!");
+            window.location.href = "game.html"; // Perintah pindah rumah
+        }
+    </script>
 </body>
 </html>
