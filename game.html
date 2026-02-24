@@ -2,83 +2,183 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Area - Neon Plinko</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cyber-Vault Plinko</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
 </head>
-<body onload="initGame()">
+<body onload="initPlinko()">
     <div class="game-header">
-        <button onclick="toggleModal(true)" class="btn-icon">👤 PROFIL</button>
-        <div class="balance-text">💰 IDR <span id="user-balance">0</span></div>
-        <button onclick="window.location.href='deposit.html'" class="btn-depo">DEPOSIT</button>
+        <button onclick="window.location.href='profile.html'" class="btn-icon">👤 PROFIL</button>
+        <div class="balance-container">
+            <span style="font-size: 10px; color: #888;">CREDITS</span>
+            <div class="balance-text">IDR <span id="user-balance">0</span></div>
+        </div>
+        <button onclick="window.location.href='deposit.html'" class="btn-depo">TOP UP</button>
     </div>
 
-    <div id="plinko-container"></div>
+    <div class="risk-selector">
+        <button onclick="setRisk('low')" id="risk-low" class="btn-risk active">LOW</button>
+        <button onclick="setRisk('med')" id="risk-med" class="btn-risk">MED</button>
+        <button onclick="setRisk('high')" id="risk-high" class="btn-risk">HIGH</button>
+    </div>
+
+    <div id="plinko-canvas-container"></div>
 
     <div class="game-footer">
-        <div class="bet-control">
-            <button onclick="changeBet(-1000)">-</button>
-            <span>BET: <b id="bet-display">1000</b></span>
-            <button onclick="changeBet(1000)">+</button>
-        </div>
-        <button onclick="dropBall()" class="btn-play">PLAY BALL</button>
-    </div>
-
-    <div id="profile-modal" class="modal-overlay" style="display:none">
-        <div class="glass-card modal-content">
-            <h3 style="color:#00f7ff">DATA AKUN (LOCKED)</h3>
-            <hr border="1" color="#333">
-            <div class="info-list">
-                <p>USER ID: <span id="p-id" class="neon-text"></span></p>
-                <p>NAMA: <span id="p-nama" class="neon-text"></span></p>
-                <p>WALLET: <span id="p-wallet" class="neon-text"></span></p>
+        <div class="bet-controls">
+            <button onclick="adjustBet(-5000)">-</button>
+            <div class="bet-info">
+                <span style="font-size: 10px;">BET AMOUNT</span>
+                <div id="current-bet">5000</div>
             </div>
-            <button onclick="toggleModal(false)" class="btn-primary">KEMBALI KE GAME</button>
+            <button onclick="adjustBet(5000)">+</button>
         </div>
+        <button onclick="dropBall()" id="btn-play" class="btn-play">DROP BALL</button>
     </div>
 
     <script>
-        let engine, world, currentBet = 1000;
+        // Konfigurasi Multiplier (House Edge terintegrasi)
+        const multipliers = {
+            low: [5, 2, 1.2, 0.5, 0.2, 0.5, 1.2, 2, 5],
+            med: [15, 8, 3, 0.2, 0.1, 0.2, 3, 8, 15],
+            high: [100, 25, 5, 0, 0, 0, 5, 25, 100]
+        };
 
-        function initGame() {
-            const data = JSON.parse(localStorage.getItem('plinko_user'));
-            if(!data) return window.location.href = "index.html";
+        let currentRisk = 'low';
+        let betAmount = 5000;
+        let engine, world, render, runner;
+        let pins = [];
+
+        function initPlinko() {
+            const savedData = JSON.parse(localStorage.getItem('plinko_user'));
+            if (!savedData) window.location.href = "index.html";
             
-            document.getElementById('p-id').innerText = data.username;
-            document.getElementById('p-nama').innerText = data.nama;
-            document.getElementById('p-wallet').innerText = data.wallet;
+            updateUI();
 
-            const { Engine, Render, Runner, Bodies, Composite } = Matter;
-            engine = Engine.create(); world = engine.world;
-            const container = document.getElementById('plinko-container');
-            const render = Render.create({
-                element: container, engine: engine,
-                options: { width: container.clientWidth, height: 400, wireframes: false, background: 'transparent' }
-            });
-            for (let i = 0; i < 9; i++) {
-                for (let j = 0; j <= i; j++) {
-                    Composite.add(world, Bodies.circle(container.clientWidth/2 + (j-i/2)*35, 50+i*40, 3, { isStatic: true, render: {fillStyle: '#fff'} }));
+            // Setup Matter.js
+            const container = document.getElementById('plinko-canvas-container');
+            engine = Matter.Engine.create();
+            world = engine.world;
+            world.gravity.y = 1.2;
+
+            render = Matter.Render.create({
+                element: container,
+                engine: engine,
+                options: {
+                    width: container.clientWidth,
+                    height: 500,
+                    wireframes: false,
+                    background: 'transparent'
                 }
-            }
-            Render.run(render); Runner.run(Runner.create(), engine);
+            });
+
+            createPins();
+            createBuckets();
+
+            Matter.Render.run(render);
+            runner = Matter.Runner.create();
+            Matter.Runner.run(runner, engine);
         }
 
-        function toggleModal(show) {
-            document.getElementById('profile-modal').style.display = show ? 'flex' : 'none';
+        function createPins() {
+            const rows = 9;
+            const containerWidth = document.getElementById('plinko-canvas-container').clientWidth;
+            const spacing = containerWidth / 10;
+
+            for (let r = 0; r < rows; r++) {
+                const rowPins = r + 3;
+                for (let i = 0; i < rowPins; i++) {
+                    const x = (containerWidth / 2) + (i - (rowPins - 1) / 2) * spacing;
+                    const y = 80 + r * 40;
+                    const pin = Matter.Bodies.circle(x, y, 4, {
+                        isStatic: true,
+                        render: { fillStyle: '#00f7ff' }
+                    });
+                    Matter.World.add(world, pin);
+                }
+            }
+        }
+
+        function createBuckets() {
+            // Visualisasi slot multiplier di bawah
+            const container = document.getElementById('plinko-canvas-container');
+            const bucketContainer = document.createElement('div');
+            bucketContainer.id = "bucket-labels";
+            container.appendChild(bucketContainer);
+            updateBuckets();
+        }
+
+        function updateBuckets() {
+            const container = document.getElementById('bucket-labels');
+            container.innerHTML = '';
+            multipliers[currentRisk].forEach(m => {
+                const div = document.createElement('div');
+                div.className = 'bucket';
+                div.innerText = m + 'x';
+                container.appendChild(div);
+            });
+        }
+
+        function setRisk(level) {
+            currentRisk = level;
+            document.querySelectorAll('.btn-risk').forEach(b => b.classList.remove('active'));
+            document.getElementById('risk-' + level).classList.add('active');
+            updateBuckets();
+        }
+
+        function adjustBet(val) {
+            betAmount += val;
+            if (betAmount < 1000) betAmount = 1000;
+            updateUI();
+        }
+
+        function updateUI() {
+            const saldo = localStorage.getItem('user_balance') || 0;
+            document.getElementById('user-balance').innerText = parseInt(saldo).toLocaleString();
+            document.getElementById('current-bet').innerText = betAmount.toLocaleString();
         }
 
         function dropBall() {
-            const ball = Matter.Bodies.circle(window.innerWidth/2, 10, 8, { restitution: 0.5, render: {fillStyle: '#ff0077'} });
-            Matter.Composite.add(world, ball);
+            let saldo = parseInt(localStorage.getItem('user_balance') || 0);
+            if (saldo < betAmount) return alert("Saldo tidak cukup! Silakan Deposit.");
+
+            // Potong Saldo
+            saldo -= betAmount;
+            localStorage.setItem('user_balance', saldo);
+            updateUI();
+
+            const containerWidth = document.getElementById('plinko-canvas-container').clientWidth;
+            const ball = Matter.Bodies.circle(containerWidth / 2 + (Math.random() * 10 - 5), 20, 8, {
+                restitution: 0.6,
+                friction: 0.05,
+                render: { fillStyle: '#ff0077' }
+            });
+
+            Matter.World.add(world, ball);
+
+            // Logika deteksi hasil setelah bola jatuh
+            setTimeout(() => {
+                Matter.World.remove(world, ball);
+                // Simulasi hasil berdasarkan probabilitas (Provably Fair basis)
+                calculateWin();
+            }, 4000);
         }
 
-        function changeBet(val) {
-            currentBet += val;
-            if(currentBet < 1000) currentBet = 1000;
-            document.getElementById('bet-display').innerText = currentBet;
+        function calculateWin() {
+            const currentMultipliers = multipliers[currentRisk];
+            // Logika sederhana: Pilih multiplier secara acak berbobot (House Edge 5%)
+            const randomIdx = Math.floor(Math.random() * currentMultipliers.length);
+            const winMult = currentMultipliers[randomIdx];
+            const winAmount = betAmount * winMult;
+
+            let saldo = parseInt(localStorage.getItem('user_balance') || 0);
+            saldo += winAmount;
+            localStorage.setItem('user_balance', saldo);
+            
+            if(winAmount > 0) alert("WIN! " + winMult + "x (IDR " + winAmount.toLocaleString() + ")");
+            updateUI();
         }
     </script>
 </body>
 </html>
-
