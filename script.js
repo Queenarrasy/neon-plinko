@@ -37,6 +37,52 @@ window.handleAuth = (mode) => {
     document.getElementById('profile-id').innerText = window.user.username;
     document.getElementById('profile-wallet').innerText = window.user.wallet;
 };
+let engine, world, render;
+
+function startPlinko() {
+    const { Engine, Render, Runner, Bodies, Composite } = Matter;
+    engine = Engine.create();
+    world = engine.world;
+
+    const container = document.getElementById('plinko-canvas-container');
+    render = Render.create({
+        element: container,
+        engine: engine,
+        options: { 
+            width: container.clientWidth, 
+            height: 380, 
+            wireframes: false, 
+            background: 'transparent' 
+        }
+    });
+
+    // Membuat Formasi Paku (Pegs)
+    for (let i = 0; i < 9; i++) {
+        for (let j = 0; j <= i; j++) {
+            const x = container.clientWidth / 2 + (j - i / 2) * 35;
+            const y = 40 + i * 38;
+            const peg = Bodies.circle(x, y, 3, { 
+                isStatic: true, 
+                render: { fillStyle: '#ffffff' } 
+            });
+            Composite.add(world, peg);
+        }
+    }
+
+    Render.run(render);
+    Runner.run(Runner.create(), engine);
+}
+
+// Fungsi Menjatuhkan Bola
+window.spawnBall = () => {
+    const ball = Matter.Bodies.circle(window.innerWidth / 2 + (Math.random() - 0.5) * 5, 10, 7, {
+        restitution: 0.6, 
+        friction: 0.05, 
+        render: { fillStyle: '#00f7ff' }
+    });
+    Matter.Composite.add(world, ball);
+};
+
 
 window.toggleProfile = () => {
     const p = document.getElementById('profile-layer');
