@@ -1,24 +1,3 @@
-const tg = window.Telegram.WebApp;
-tg.expand();
-
-function initApp() {
-    const tgId = tg.initDataUnsafe?.user?.id || "GUEST";
-    const data = localStorage.getItem(`neon_v5_${tgId}`);
-
-    // SEMBUNYIKAN SEMUA TERLEBIH DAHULU
-    document.getElementById('reg-container').style.display = 'none';
-    document.getElementById('login-container').style.display = 'none';
-
-    if (data) {
-        window.user = JSON.parse(data);
-        document.getElementById('login-container').style.display = 'block';
-        document.getElementById('display-greet').innerText = window.user.username;
-        document.getElementById('user-avatar').src = `https://api.dicebear.com/7.x/bottts/svg?seed=${window.user.username}`;
-    } else {
-        document.getElementById('reg-container').style.display = 'block';
-    }
-}
-
 // 1. LOGIKA DAFTAR & MASUK (HANDLING AUTH)
 window.handleAuth = (type) => {
     const tgId = tg.initDataUnsafe?.user?.id || "DEV_USER";
@@ -30,7 +9,7 @@ window.handleAuth = (type) => {
 
         if (!u || !p || !w) return alert("Lengkapi semua data pendaftaran!");
 
-        // Simpan Data Permanen (Saldo Awal 0)
+        // Simpan Data & Kunci secara permanen
         window.userAccount = { 
             username: u, 
             password: p, 
@@ -39,42 +18,47 @@ window.handleAuth = (type) => {
             idr: 0 
         };
         localStorage.setItem(`neon_plinko_v5_${tgId}`, JSON.stringify(window.userAccount));
-        alert("Pendaftaran Berhasil! User ID Anda telah aktif.");
     } else {
         const pInput = document.getElementById('login-password').value;
         if (pInput !== window.userAccount.password) return alert("Password Salah!");
     }
 
-    // TRANSISI KE GAME (NO 3)
+    // TRANSISI KE GAME
     document.getElementById('auth-layer').style.display = 'none';
     document.getElementById('game-layer').style.display = 'block';
     
-    // Aktifkan Papan Game & Sinkronisasi Profil
-    startPlinko(); 
-    syncToProfile();
+    // START GAME & DATA SYNC (Kunci agar tidak mentok logo)
+    setTimeout(() => {
+        startPlinko(); 
+        syncToProfile();
+    }, 100);
 };
 
-// 2. SINKRONISASI DATA KE PROFIL (READ ONLY)
+// 2. SINKRONISASI DATA KE PROFIL
 function syncToProfile() {
-    // Isi data ke Lembar 3 (Profil Popup)
     document.getElementById('profile-id').innerText = window.userAccount.username;
     document.getElementById('profile-wallet').innerText = window.userAccount.wallet;
     
-    // Update Avatar & Saldo di Lembar 2
     document.getElementById('main-avatar').src = `https://api.dicebear.com/7.x/bottts/svg?seed=${window.userAccount.username}`;
     document.getElementById('bal-usdt').innerText = window.userAccount.usdt.toFixed(2);
     document.getElementById('bal-idr').innerText = window.userAccount.idr.toLocaleString('id-ID');
 }
 
-// 3. MESIN FISIKA PLINKO (MATTER.JS)
+// 3. MESIN FISIKA PLINKO (DIPERBAIKI)
 let engine, world, render;
 
 function startPlinko() {
     const { Engine, Render, Runner, Bodies, Composite } = Matter;
+    
+    // Reset Engine jika sudah ada
+    if (engine) Engine.clear(engine);
+
     engine = Engine.create();
     world = engine.world;
 
     const container = document.getElementById('plinko-canvas-container');
+    if (!container) return; // Mencegah error jika elemen tidak ditemukan
+
     render = Render.create({
         element: container,
         engine: engine,
@@ -86,7 +70,7 @@ function startPlinko() {
         }
     });
 
-    // Membuat Formasi Paku (Pegs) Segitiga
+    // Membuat Formasi Paku (Pegs)
     const rows = 9;
     for (let i = 0; i < rows; i++) {
         for (let j = 0; j <= i; j++) {
@@ -104,7 +88,7 @@ function startPlinko() {
     Runner.run(Runner.create(), engine);
 }
 
-// 4. FUNGSI JATUHKAN BOLA
+// 4. JATUHKAN BOLA
 window.spawnBall = () => {
     const ball = Matter.Bodies.circle(window.innerWidth / 2 + (Math.random() - 0.5) * 5, 10, 7, {
         restitution: 0.6, 
