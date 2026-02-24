@@ -1,96 +1,63 @@
 const { Engine, Render, Runner, Bodies, Composite, Events, Body } = Matter;
+const tg = window.Telegram.WebApp;
+tg.expand();
 
-const engine = Engine.create({ positionIterations: 15, velocityIterations: 15 });
-const world = engine.world;
-const width = window.innerWidth;
-const height = window.innerHeight;
-
-const render = Render.create({
-    element: document.body,
-    engine: engine,
-    options: { width, height, wireframes: false, background: 'transparent' }
-});
-
-let currentBalance = 100.00;
+// --- SISTEM DATABASE & AUTH ---
+let userData = null;
+let activeCurrency = 'USDT';
 let currentBet = 1.00;
-let cheatMode = 'normal';
-const multipliers = [5, 2, 0.5, 0.2, 0.2, 0.5, 2, 5];
 
-// Buat Paku
-const rows = 9;
-const spacing = width < 400 ? 35 : 42;
-for (let i = 0; i < rows; i++) {
-    const startX = (width - (i * spacing)) / 2;
-    for (let j = 0; j <= i; j++) {
-        const peg = Bodies.circle(startX + (j * spacing), 140 + (i * 45), 3, {
-            isStatic: true, restitution: 0.8, render: { fillStyle: '#ffffff' }
-        });
-        Composite.add(world, peg);
+function initAuth() {
+    const tgId = tg.initDataUnsafe?.user?.id || "DEBUG_USER";
+    const savedData = localStorage.getItem(`plinko_user_${tgId}`);
+
+    document.getElementById('loading-spinner').style.display = 'none';
+    if (savedData) {
+        userData = JSON.parse(savedData);
+        document.getElementById('login-form').style.display = 'block';
+    } else {
+        document.getElementById('auth-form').style.display = 'block';
     }
 }
 
-// Slot Multiplier
-const slotY = height - 130;
-const slotWidth = width / multipliers.length;
-multipliers.forEach((val, i) => {
-    const x = i * slotWidth + slotWidth / 2;
-    const slot = Bodies.rectangle(x, slotY, slotWidth - 4, 35, {
-        isStatic: true, isSensor: true, label: `slot-${val}`,
-        render: { fillStyle: val >= 1 ? '#00ffcc' : '#ff0055' }
-    });
-    Composite.add(world, slot);
+window.handleAuth = (type) => {
+    const tgId = tg.initDataUnsafe?.user?.id || "DEBUG_USER";
+    if (type === 'register') {
+        const user = document.getElementById('reg-username').value;
+        const pass = document.getElementById('reg-password').value;
+        if (!user || !pass) return alert("Isi data lengkap!");
+        
+        userData = { username: user, password: pass, usdt: 100, idr: 1000000 };
+        localStorage.setItem(`plinko_user_${tgId}`, JSON.stringify(userData));
+        alert("Pendaftaran Berhasil!");
+    } else {
+        const pass = document.getElementById('login-password').value;
+        if (pass !== userData.password) return alert("Password Salah!");
+    }
+    startGame();
+};
 
-    const label = document.createElement('div');
-    label.innerText = val + 'x';
-    label.className = 'multiplier-label';
-    label.style.left = (x - 12) + 'px';
-    label.style.top = (slotY - 15) + 'px';
-    document.body.appendChild(label);
-});
-
-// Drop Bola
-document.getElementById('drop-btn').addEventListener('click', () => {
-    if (currentBalance < currentBet) return alert("Saldo tidak cukup!");
-    currentBalance -= currentBet;
+function startGame() {
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('gui').style.display = 'flex';
     updateUI();
-
-    const ball = Bodies.circle(width / 2 + (Math.random() * 2 - 1), 60, 6, {
-        restitution: 0.6, frictionAir: 0.02,
-        render: { fillStyle: '#ff0077', strokeStyle: '#fff', lineWidth: 1 }
-    });
-    Composite.add(world, ball);
-
-    // EFEK GULIR SMOOTH (Anti-Cheat Natural)
-    Events.on(engine, 'beforeUpdate', () => {
-        if (cheatMode === 'lose' && ball.position.y > height * 0.4) {
-            // Memberikan gaya gravitasi lateral yang sangat lemah ke arah tengah
-            const force = (width / 2 - ball.position.x) * 0.00008; 
-            Body.applyForce(ball, ball.position, { x: force, y: 0 });
-        }
-    });
-});
-
-// Deteksi Goal
-Events.on(engine, 'collisionStart', (event) => {
-    event.pairs.forEach((pair) => {
-        if (pair.bodyA.label && pair.bodyA.label.startsWith('slot-')) {
-            const multi = parseFloat(pair.bodyA.label.split('-')[1]);
-            currentBalance += (currentBet * multi);
-            updateUI();
-            Composite.remove(world, pair.bodyB);
-        }
-    });
-});
-
-// UI & Modal Functions
-function updateUI() {
-    document.getElementById('balance').innerText = `USDT ${currentBalance.toFixed(2)}`;
-    document.getElementById('bet-amount').innerText = currentBet.toFixed(2);
+    // Jalankan Matter.js Engine disini...
 }
-window.changeBet = (v) => { if (currentBet + v > 0) { currentBet += v; updateUI(); } };
-window.openDepo = () => { document.getElementById('depoModal').style.display = 'flex'; };
-window.closeDepo = () => { document.getElementById('depoModal').style.display = 'none'; };
 
-updateUI();
-Render.run(render);
-Runner.run(Runner.create(), engine);
+// --- LOGIKA SALDO GANDA ---
+window.switchCurrency = (type) => {
+    activeCurrency = type;
+    currentBet = type === 'USDT' ? 1.00 : 10000;
+    document.querySelectorAll('.currency-selector button').forEach(b => b.classList.remove('active'));
+    document.getElementById(`use-${type.toLowerCase()}`).classList.add('active');
+    updateUI();
+};
+
+function updateUI() {
+    document.getElementById('bal-usdt').innerText = userData.usdt.toFixed(2);
+    document.getElementById('bal-idr').innerText = userData.idr.toLocaleString('id-ID');
+    document.getElementById('bet-amount').innerText = currentBet.toLocaleString('id-ID');
+}
+
+// Tambahkan sisa logika Matter.js (Paku, Drop Bola, Multiplier) dari script sebelumnya di bawah startGame()
+initAuth();
