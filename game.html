@@ -37,5 +37,30 @@
     </div>
 
     <script src="game-logic.js"></script>
+    <script>
+    let engine, world;
+    function startGame() {
+        const { Engine, Render, Runner, Bodies, Composite } = Matter;
+        engine = Engine.create(); world = engine.world;
+        const container = document.getElementById('plinko-board');
+        const render = Render.create({
+            element: container, engine: engine,
+            options: { width: container.clientWidth, height: 400, wireframes: false, background: 'transparent' }
+        });
+        // Paku-paku
+        for (let i = 0; i < 9; i++) {
+            for (let j = 0; j <= i; j++) {
+                Composite.add(world, Bodies.circle(container.clientWidth/2 + (j-i/2)*35, 50+i*40, 3, { isStatic: true, render: {fillStyle: '#fff'} }));
+            }
+        }
+        Render.run(render); Runner.run(Runner.create(), engine);
+    }
+    window.playBall = () => {
+        const ball = Matter.Bodies.circle(window.innerWidth/2, 10, 8, { restitution: 0.5, render: {fillStyle: '#ff0077'} });
+        Matter.Composite.add(world, ball);
+    }
+    startGame();
+</script>
+
 </body>
 </html>
