@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Plinko Premium USDT</title>
+    <title>Neon Plinko Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
     <link rel="stylesheet" href="style.css">
@@ -17,30 +17,28 @@
         </div>
 
         <div id="admin-panel">
-            <small>MODE:</small>
-            <button onclick="setMode('win')">WIN</button>
-            <button onclick="setMode('lose')">LOSE</button>
-            <button onclick="setMode('normal')">NORM</button>
+            <button onclick="setMode('win')">W</button>
+            <button onclick="setMode('lose')">L</button>
+            <button onclick="setMode('normal')">N</button>
         </div>
 
         <div class="footer-controls">
             <div class="bet-container">
-                <button class="bet-btn" onclick="changeBet(-0.5)">-</button>
+                <button class="bet-btn" onclick="changeBet(-0.5)">−</button>
                 <div class="bet-info">
-                    <small>BET</small>
+                    <small>TARUHAN</small>
                     <div id="bet-amount">1.00</div>
                 </div>
                 <button class="bet-btn" onclick="changeBet(0.5)">+</button>
             </div>
 
             <div class="action-buttons">
-                <button id="deposit-btn" class="btn-side">DEPOSIT</button>
-                <button id="drop-btn" class="btn-main">JATUHKAN BOLA</button>
-                <button id="wd-btn" class="btn-side">WITHDRAW</button>
+                <button id="deposit-btn" class="btn-side" onclick="alert('Menu Deposit')">DEPOSIT</button>
+                <button id="drop-btn" class="btn-main">MAIN</button>
+                <button id="wd-btn" class="btn-side" onclick="alert('Menu Withdraw')">WITHDRAW</button>
             </div>
         </div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
