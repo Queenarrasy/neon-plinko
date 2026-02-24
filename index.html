@@ -1,30 +1,52 @@
-<div id="auth-layer" class="overlay-full">
-    <div class="auth-card">
-        <h2 class="neon-text">NEON PLINKO VIP</h2>
-        <div id="auth-form">
-            <input type="text" id="reg-username" placeholder="Buat ID Username">
-            <input type="password" id="reg-password" placeholder="Buat Password">
-            <button onclick="handleAuth('register')" class="btn-main-neon">DAFTAR</button>
-        </div>
-        <div id="login-form" style="display:none;">
-            <p id="welcome-text"></p>
-            <input type="password" id="login-password" placeholder="Password">
-            <button onclick="handleAuth('login')" class="btn-main-neon">MASUK</button>
-        </div>
-    </div>
-</div>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neon Plinko VIP</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="auth-layer" class="auth-overlay">
+        <div class="auth-glass-card">
+            <div class="brand-section">
+                <h1 class="neon-title">NEON PLINKO <span class="vip-tag">VIP</span></h1>
+            </div>
 
-<div id="game-layer" style="display:none;">
-    <div id="ui-top">
-        <div class="profile-btn" onclick="openProfile()">
-            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Neon" alt="Avatar">
-        </div>
-        <div class="balance-container">
-            <div class="bal-item">💵 <span id="bal-usdt">0.00</span> USDT</div>
-            <div class="bal-item">🇮🇩 <span id="bal-idr">0</span> IDR</div>
-        </div>
-    </div>
-</div>
+            <div id="reg-container" class="auth-box fade-in" style="display: none;">
+                <p class="auth-instruction">Daftar untuk Aktivasi USER ID Permanen</p>
+                <div class="input-wrapper">
+                    <input type="text" id="reg-username" class="neon-input" placeholder="Buat Username">
+                </div>
+                <div class="input-wrapper">
+                    <input type="password" id="reg-password" class="neon-input" placeholder="Buat Password">
+                </div>
+                <div class="input-wrapper">
+                    <input type="text" id="reg-wallet" class="neon-input" placeholder="DANA/GOPAY/BANK - Nomor Rekening">
+                </div>
+                <button onclick="handleAuth('register')" class="btn-glow-blue">DAFTAR & DAPATKAN ID</button>
+                <p class="note-text">*Data Rekening & ID tidak dapat diubah setelah disimpan.</p>
+            </div>
 
-<div id="profile-layer" class="overlay-popup" style="display:none;">
+            <div id="login-container" class="auth-box fade-in" style="display: none;">
+                <div class="user-info-preview">
+                    <img id="user-avatar" src="" alt="Avatar">
+                    <h3 id="display-greet"></h3>
+                </div>
+                <div class="input-wrapper">
+                    <input type="password" id="login-password" class="neon-input" placeholder="Masukkan Password">
+                </div>
+                <button onclick="handleAuth('login')" class="btn-glow-pink">MASUK KE GAME</button>
+            </div>
+        </div>
     </div>
+
+    <div id="game-layer" style="display: none;">
+        <div id="ui-top">
+            <div class="profile-btn" onclick="toggleProfile()">
+                <img id="main-avatar" src="" alt="Avatar">
+            </div>
+            <div class="balance-container">
+                <div class="bal-item">💵 <span id="bal-usdt">0.
