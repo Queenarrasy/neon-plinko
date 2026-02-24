@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Withdrawal - Neon Plinko</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body onload="initWithdraw()">
+    <div class="page-container">
+        <h2 class="neon-title">PENARIKAN DANA</h2>
+
+        <div class="glass-card">
+            <div class="balance-display" style="background: rgba(0, 247, 255, 0.05); padding: 15px; border-radius: 15px; border: 1px solid var(--neon-blue);">
+                <p style="margin:0; font-size: 14px;">SALDO TERSEDIA:</p>
+                <h3 id="display-saldo" style="color:#00f7ff; margin: 5px 0 0 0; font-size: 24px;">IDR 0</h3>
+            </div>
+
+            <div style="margin-top: 20px; padding: 10px; border-radius: 10px; background: rgba(255, 0, 119, 0.1); border: 1px solid var(--neon-pink);">
+                <p style="color: #ff0077; font-weight: bold; margin: 0; font-size: 14px;">⚠️ SYARAT MINIMAL WD: IDR 50,000</p>
+            </div>
+            
+            <div class="input-group" style="margin-top: 20px; text-align: left;">
+                <label style="font-size: 12px; color: #aaa; margin-left: 5px;">JUMLAH PENARIKAN (IDR):</label>
+                <input type="number" id="wd-amount" class="main-input" placeholder="Minimal 50000" min="50000">
+            </div>
+
+            <div class="input-group" style="margin-top: 15px; text-align: left;">
+                <label style="font-size: 12px; color: #aaa; margin-left: 5px;">REKENING/WALLET TUJUAN:</label>
+                <input type="text" id="wd-target" class="main-input" readonly style="background: rgba(255,255,255,0.05); color: #00f7ff !important; border-style: dashed;">
+                <p style="font-size: 10px; color: #666; margin: 5px 0 0 5px;">*Dana dikirim sesuai data pendaftaran (Locked)</p>
+            </div>
+
+            <button onclick="prosesWithdraw()" class="btn-primary" style="background: linear-gradient(45deg, #ff0077, #aa0055); color: white; margin-top: 25px;">KONFIRMASI PENARIKAN</button>
+        </div>
+
+        <div class="glass-card" style="margin-top: 30px;">
+            <h3 style="font-size: 16px;">📋 LOG PENARIKAN TERBARU</h3>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; font-size: 11px; text-align: left; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #333; color: #888;">
+                            <th style="padding: 10px;">WAKTU (DETIK)</th>
+                            <th>NOMINAL</th>
+                            <th>STATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="list-riwayat-wd"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <br>
+        <button onclick="window.location.href='game.html'" class="btn-back" style="color: #888; background: none; border: 1px solid #333; padding: 10px 20px; border-radius: 10px;">KEMBALI KE GAME</button>
+    </div>
+
+    <script>
+        function initWithdraw() {
+            // Ambil data profil (cite: 25978.jpg)
+            const userData = JSON.parse(localStorage.getItem('plinko_user'));
+            if(!userData) window.location.href = "index.html";
+            
+            document.getElementById('wd-target').value = userData.wallet;
+            
+            // Ambil Saldo Real-time
+            const saldoSaatIni = localStorage.getItem('user_balance') || 0;
+            document.getElementById('display-saldo').innerText = "IDR " + parseInt(saldoSaatIni).toLocaleString();
+            
+            muatRiwayatWD();
+        }
+
+        function prosesWithdraw() {
+            const amountInput = document.getElementById('wd-amount').value;
+            const amount = parseInt(amountInput);
+            const saldoSaatIni = parseInt(localStorage.getItem('user_balance') || 0);
+
+            // Validasi Minimal 50 Ribu
+            if (!amountInput || amount < 50000) {
+                return alert("❌ GAGAL: Minimal penarikan dana adalah IDR 50,000");
+            }
+
+            // Validasi Kecukupan Saldo
+            if (amount > saldoSaatIni) {
+                return alert("❌ GAGAL: Saldo Anda tidak mencukupi untuk melakukan penarikan ini.");
+            }
+
+            // Catat Waktu Presisi (cite: 25933.jpg)
+            const skrg = new Date();
+            const waktu = skrg.toLocaleString('id-ID', { 
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit', second: '2-digit' 
+            });
+
+            const dataWD = { waktu, jumlah: amount, status: "MENUNGGU" };
+            
+            // Simpan ke Riwayat Lokal
+            let riwayat = JSON.parse(localStorage.getItem('riwayat_wd')) || [];
+            riwayat.unshift(dataWD);
+            localStorage.setItem('riwayat_wd', JSON.stringify(riwayat));
+
+            // Potong Saldo Sementara (Hold)
+            const saldoBaru = saldoSaatIni - amount;
+            localStorage.setItem('user_balance', saldoBaru);
+            document.getElementById('display-saldo').innerText = "IDR " + saldoBaru.toLocaleString();
+
+            alert("✅ BERHASIL!\nPermintaan WD IDR " + amount.toLocaleString() + " telah dikirim ke Admin.\nStatus: MENUNGGU VERIFIKASI");
+            
+            document.getElementById('wd-amount').value = "";
+            muatRiwayatWD();
+        }
+
+        function muatRiwayatWD() {
+            const list = document.getElementById('list-riwayat-wd');
+            const riwayat = JSON.parse(localStorage.getItem('riwayat_wd')) || [];
+            list.innerHTML = "";
+            
+            if(riwayat.length === 0) {
+                list.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:20px; color:#555;'>Belum ada riwayat penarikan</td></tr>";
+                return;
+            }
+
+            riwayat.forEach(item => {
+                const warnaStatus = item.status === "SUKSES" ? "#00f7ff" : "#ffcc00";
+                list.innerHTML += `
+                    <tr style="border-bottom: 1px solid #1a1a1a;">
+                        <td style="padding: 12px 10px; color: #ccc;">${item.waktu}</td>
+                        <td style="font-weight: bold;">IDR ${parseInt(item.jumlah).toLocaleString()}</td>
+                        <td style="color:${warnaStatus}; font-weight:bold; font-size:10px;">${item.status}</td>
+                    </tr>`;
+            });
+        }
+    </script>
+</body>
+</html>
