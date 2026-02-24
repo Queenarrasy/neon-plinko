@@ -1,9 +1,20 @@
 body {
     margin: 0; padding: 0;
-    background-color: #050510;
+    background: radial-gradient(circle at center, #0a0a2e 0%, #050510 100%);
     color: white; font-family: 'Segoe UI', Roboto, sans-serif;
     overflow: hidden; touch-action: none;
 }
+
+/* Efek Partikel di Area Kosong */
+body::before {
+    content: "";
+    position: absolute; width: 100%; height: 100%;
+    background-image: radial-gradient(#ffffff 1px, transparent 1px);
+    background-size: 50px 50px;
+    opacity: 0.1; animation: moveStars 100s linear infinite;
+}
+
+@keyframes moveStars { from { background-position: 0 0; } to { background-position: 1000px 1000px; } }
 
 #gui {
     position: absolute; top: 0; width: 100%; height: 100%;
@@ -11,63 +22,47 @@ body {
     display: flex; flex-direction: column; justify-content: space-between;
 }
 
-/* Bagian Atas: Saldo */
+/* Header & Footer */
 .header { margin-top: 15px; display: flex; justify-content: flex-end; padding-right: 15px; pointer-events: auto; }
 .stat-box {
-    background: rgba(0, 255, 200, 0.1);
-    padding: 8px 15px; border-radius: 10px;
-    border: 1px solid #00f7ff; font-weight: bold;
-    box-shadow: 0 0 10px rgba(0, 247, 255, 0.3); color: #00f7ff;
+    background: rgba(0, 255, 200, 0.1); padding: 8px 15px; border-radius: 10px;
+    border: 1px solid #00f7ff; font-weight: bold; color: #00f7ff;
 }
 
-/* Bagian Bawah: Kontrol Utama */
 .footer-controls {
     width: 100%; padding-bottom: 20px;
     display: flex; flex-direction: column; align-items: center;
-    gap: 12px; pointer-events: auto;
+    gap: 12px; pointer-events: auto; background: linear-gradient(transparent, rgba(5,5,16,0.9));
 }
 
-/* Kontrol Taruhan (Bet) */
 .bet-container {
     display: flex; align-items: center; gap: 15px;
-    background: #12122b; padding: 5px 20px; border-radius: 30px;
-    border: 1px solid #2a2a5a;
+    background: #12122b; padding: 5px 20px; border-radius: 30px; border: 1px solid #2a2a5a;
 }
-.bet-btn { background: #2a2a5a; color: white; border-radius: 50%; width: 28px; height: 28px; border: none; font-size: 18px; display: flex; align-items: center; justify-content: center; }
-.bet-info { text-align: center; min-width: 70px; }
-.bet-info small { font-size: 9px; color: #888; display: block; }
-#bet-amount { font-weight: bold; font-size: 16px; color: #00f7ff; }
-
-/* Barisan Tombol Aksi */
-.action-buttons {
-    display: flex; width: 92%; gap: 8px; align-items: flex-end;
-}
-button { border: none; cursor: pointer; font-weight: bold; transition: 0.2s; outline: none; }
-button:active { transform: scale(0.92); }
 
 .btn-main {
     background: linear-gradient(135deg, #ff0077, #aa00ff);
     color: white; flex: 2; height: 50px; border-radius: 12px;
-    font-size: 14px; text-transform: uppercase; letter-spacing: 1px;
-    box-shadow: 0 4px 15px rgba(255, 0, 119, 0.4);
-}
-.btn-side {
-    background: #1a1a3a; color: #00f7ff; border: 1px solid #00f7ff;
-    height: 40px; border-radius: 10px; flex: 1; font-size: 10px;
+    font-size: 14px; font-weight: bold; box-shadow: 0 4px 15px rgba(255, 0, 119, 0.4);
 }
 
-/* Admin Panel (Kecil di kiri atas) */
-#admin-panel {
-    position: absolute; top: 15px; left: 10px; pointer-events: auto;
-    background: rgba(255, 255, 255, 0.05); padding: 5px; border-radius: 8px;
+/* Modal Deposit */
+.modal {
+    display: none; position: fixed; z-index: 200; top: 0; left: 0;
+    width: 100%; height: 100%; background: rgba(0,0,0,0.9);
+    pointer-events: auto; justify-content: center; align-items: center;
 }
-#admin-panel button { font-size: 8px; padding: 4px 6px; margin: 1px; background: #333; color: white; border-radius: 4px; }
+.modal-content {
+    background: #1a1a3a; padding: 20px; border-radius: 20px;
+    width: 85%; max-width: 400px; border: 1px solid #00f7ff; text-align: center;
+}
+.depo-item {
+    background: #2a2a5a; padding: 12px; margin: 10px 0;
+    border-radius: 10px; cursor: pointer; border: 1px solid transparent;
+}
+.depo-item:active { border-color: #00f7ff; }
+
 .multiplier-label {
-    position: absolute;
-    color: black;
-    font-size: 10px;
-    font-weight: bold;
-    pointer-events: none;
-    z-index: 150;
-    text-shadow: 0 0 2px white;
+    position: absolute; color: white; font-size: 10px;
+    font-weight: bold; pointer-events: none; z-index: 150;
 }
