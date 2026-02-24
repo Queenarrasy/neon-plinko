@@ -11,99 +11,79 @@ const render = Render.create({
     options: { width, height, wireframes: false, background: 'transparent' }
 });
 
-// --- SISTEM SALDO & PENGATURAN BANDAR ---
+// PENGATURAN GAME
 let currentBalance = 100.00;
-let cheatMode = 'normal'; // Pilihan: 'win', 'lose', 'normal'
-const multipliers = [10, 5, 2, 0.5, 0.2, 0.5, 2, 5, 10]; // Pinggir besar, tengah rugi
+let cheatMode = 'normal'; 
+const multipliers = [5, 2, 0.5, 0.2, 0.2, 0.5, 2, 5]; // Kotak hadiah di bawah
 
-// 1. Membuat Paku (Pegs) Statis
+// 1. Membuat Paku (Pegs)
 for (let i = 0; i < 9; i++) {
-    const spacing = 40;
+    const spacing = 45;
     const offsetX = (width / 2) - (i * spacing / 2);
     for (let j = 0; j <= i; j++) {
-        const peg = Bodies.circle(offsetX + (j * spacing), 180 + (i * 45), 4, {
-            isStatic: true,
-            render: { fillStyle: '#ffffff' }
+        const peg = Bodies.circle(offsetX + (j * spacing), 150 + (i * 45), 4, {
+            isStatic: true, render: { fillStyle: '#ffffff' }
         });
         Composite.add(world, peg);
     }
 }
 
-// 2. Membuat Lubang Multiplier di Bawah
+// 2. Membuat Kotak Perkalian (Multiplier) di bawah
 const slotWidth = width / multipliers.length;
 multipliers.forEach((val, i) => {
     const x = i * slotWidth + slotWidth / 2;
-    const slot = Bodies.rectangle(x, height - 25, slotWidth - 4, 50, {
-        isStatic: true,
-        isSensor: true, // Sensor agar bola terdeteksi tanpa memantul balik
-        label: `slot-${val}`,
+    const slot = Bodies.rectangle(x, height - 100, slotWidth - 5, 40, {
+        isStatic: true, isSensor: true, label: `slot-${val}`,
         render: { fillStyle: val >= 1 ? '#00ffcc' : '#ff0055' }
     });
     Composite.add(world, slot);
+    
+    // Teks angka perkalian (Opsional, muncul di console log)
+    console.log("Slot created: " + val);
 });
 
-// 3. Logika Menjatuhkan Bola & Manipulasi Hasil
+// 3. Logika Jatuhkan Bola
 document.getElementById('drop-btn').addEventListener('click', () => {
-    if (currentBalance < 1) return alert("Saldo tidak cukup untuk taruhan (Min 1 TON)");
-    
-    currentBalance -= 1; // Biaya per bola
-    updateUI();
+    if (currentBalance < 1) return alert("Saldo Habis!");
+    currentBalance -= 1;
+    document.getElementById('balance').innerText = currentBalance.toFixed(2);
 
-    const ball = Bodies.circle(width / 2 + (Math.random() * 6 - 3), 60, 10, {
-        restitution: 0.6,
-        friction: 0.01,
-        render: { fillStyle: '#ff0077', strokeStyle: '#fff', lineWidth: 2 }
+    const ball = Bodies.circle(width / 2 + (Math.random() * 4 - 2), 50, 10, {
+        restitution: 0.5, render: { fillStyle: '#ff0077' }
     });
     Composite.add(world, ball);
 
-    // LOGIKA MANIPULASI (House Edge / Cheat)
+    // Manipulasi Menang/Kalah
     Events.on(engine, 'beforeUpdate', () => {
-        if (ball.position.y > height * 0.6) { // Mulai manipulasi di area bawah
-            if (cheatMode === 'lose' || (cheatMode === 'normal' && Math.random() > 0.6)) {
-                // Dorong halus bola ke arah tengah (0.2x) agar bandar untung
-                const force = (width / 2 - ball.position.x) * 0.0004;
+        if (ball.position.y > height / 2) {
+            if (cheatMode === 'lose') {
+                const force = (width / 2 - ball.position.x) * 0.0005;
                 Body.applyForce(ball, ball.position, { x: force, y: 0 });
             } else if (cheatMode === 'win') {
-                // Dorong bola ke arah pinggir (5x atau 10x)
-                const pushDirection = ball.position.x > width / 2 ? 1 : -1;
-                Body.applyForce(ball, ball.position, { x: 0.0006 * pushDirection, y: 0 });
+                const dir = ball.position.x > width / 2 ? 1 : -1;
+                Body.applyForce(ball, ball.position, { x: 0.0008 * dir, y: 0 });
             }
         }
     });
 });
 
-// 4. Deteksi Kemenangan & Update Saldo
+// 4. Deteksi Bola Masuk Slot
 Events.on(engine, 'collisionStart', (event) => {
     event.pairs.forEach((pair) => {
-        if (pair.bodyA.label.startsWith('slot-')) {
+        if (pair.bodyA.label && pair.bodyA.label.startsWith('slot-')) {
             const multi = parseFloat(pair.bodyA.label.split('-')[1]);
-            const winAmount = 1 * multi;
-            currentBalance += winAmount;
-            updateUI();
+            currentBalance += (1 * multi);
+            document.getElementById('balance').innerText = currentBalance.toFixed(2);
+            Composite.remove(world, pair.bodyB); // Hapus bola
             
-            // Efek Getar di Telegram jika menang
             if (window.Telegram && window.Telegram.WebApp) {
-                window.Telegram.WebApp.HapticFeedback.notificationOccurred(multi >= 1 ? 'success' : 'warning');
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
             }
-
-            Composite.remove(world, pair.bodyB); // Hapus bola setelah masuk lubang
         }
     });
 });
 
-function updateUI() {
-    document.getElementById('balance').innerText = currentBalance.toFixed(2);
-}
-
-// Fungsi Admin (Global agar bisa dipanggil dari HTML)
-window.setMode = function(mode) {
-    cheatMode = mode;
-    document.getElementById('status-mode').innerText = "Mode: " + mode.toUpperCase();
-};
-
-// Integrasi dummy untuk Deposit/Withdraw
-document.getElementById('deposit-btn').onclick = () => alert("Hubungkan Wallet TON Anda di BotFather > Payments");
-document.getElementById('wd-btn').onclick = () => alert("Penarikan diproses otomatis ke Wallet Anda.");
+window.setMode = (m) => { cheatMode = m; alert("Mode: " + m); };
 
 Render.run(render);
 Runner.run(Runner.create(), engine);
