@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="depo-container">
+        <h2>PILIH METODE DEPOSIT</h2>
+        <div class="methods">
+            <button onclick="showMethod('REKENING')">🏦 REKENING</button>
+            <button onclick="showMethod('EWALLET')">📱 E-WALLET</button>
+            <button onclick="showMethod('QRIS')">🖼️ QRIS</button>
+        </div>
+
+        <div id="method-detail" class="detail-box" style="display:none;">
+            <h4 id="method-title"></h4>
+            <p id="method-info"></p>
+            <input type="number" id="depo-amount" placeholder="Jumlah Deposit">
+            <button onclick="konfirmasiDepo()" class="btn-confirm">KONFIRMASI</button>
+        </div>
+        
+        <button onclick="window.location.href='game.html'" class="btn-back">KEMBALI KE GAME</button>
+    </div>
+
+    <script>
+        function showMethod(type) {
+            document.getElementById('method-detail').style.display = 'block';
+            document.getElementById('method-title').innerText = "TRANSFER VIA " + type;
+            document.getElementById('method-info').innerText = type === 'REKENING' ? "BCA: 12345678 (A/N ADMIN)" : "DANA: 0812345678";
+        }
+
+        function konfirmasiDepo() {
+            alert("Permintaan Deposit Terkirim! Saldo akan masuk otomatis setelah diverifikasi.");
+            // Logika notifikasi otomatis bisa dihubungkan dengan API Bot Telegram nantinya
+            window.location.href = 'game.html';
+        }
+    </script>
+</body>
+</html>
