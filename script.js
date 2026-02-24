@@ -1,114 +1,93 @@
 const { Engine, Render, Runner, Bodies, Composite, Events, Body } = Matter;
 
-const engine = Engine.create({
-    positionIterations: 10, // Membuat tabrakan lebih akurat
-    velocityIterations: 10
-});
+const engine = Engine.create({ positionIterations: 10, velocityIterations: 10 });
 const world = engine.world;
 const width = window.innerWidth;
 const height = window.innerHeight;
 
+// SETTING KURS & SALDO (Contoh USDT)
+let currentBalance = 100.00; // Saldo awal dalam USDT
+let currentBet = 1.00;      // Taruhan awal
+const currency = "USDT";    // Bisa diganti "Rp"
+
 const render = Render.create({
     element: document.body,
     engine: engine,
-    options: { 
-        width, 
-        height, 
-        wireframes: false, 
-        background: 'transparent',
-        pixelRatio: window.devicePixelRatio // Gerakan lebih tajam & halus
-    }
+    options: { width, height, wireframes: false, background: 'transparent' }
 });
 
-let currentBalance = 100.00;
-let cheatMode = 'normal'; 
-const multipliers = [5, 2, 0.5, 0.2, 0.2, 0.5, 2, 5]; 
+const multipliers = [5, 2, 0.5, 0.2, 0.2, 0.5, 2, 5];
+let cheatMode = 'normal';
 
-// 1. Membuat Paku (Pegs)
-for (let i = 0; i < 9; i++) {
-    const spacing = 45;
-    const offsetX = (width / 2) - (i * spacing / 2);
-    for (let j = 0; j <= i; j++) {
-        const peg = Bodies.circle(offsetX + (j * spacing), 150 + (i * 45), 4, {
-            isStatic: true,
-            restitution: 0.8, // Membuat bola memantul lebih alami
-            render: { fillStyle: '#ffffff' }
-        });
-        Composite.add(world, peg);
-    }
-}
+// Update Tampilan Saldo & Bet di UI
+const updateUI = () => {
+    document.getElementById('balance').innerText = `${currency} ${currentBalance.toFixed(2)}`;
+    document.getElementById('bet-amount').innerText = currentBet.toFixed(2);
+};
 
-// 2. Membuat Kotak Perkalian dengan Teks
+// 1. Membuat Kotak Perkalian
 const slotWidth = width / multipliers.length;
 multipliers.forEach((val, i) => {
     const x = i * slotWidth + slotWidth / 2;
     const slot = Bodies.rectangle(x, height - 100, slotWidth - 5, 45, {
-        isStatic: true,
-        isSensor: true,
-        label: `slot-${val}`,
+        isStatic: true, isSensor: true, label: `slot-${val}`,
         render: { fillStyle: val >= 1 ? '#00ffcc' : '#ff0055' }
     });
     Composite.add(world, slot);
 
-    // Menambahkan elemen teks angka di atas kotak (Agar muncul di UI)
     const label = document.createElement('div');
     label.innerText = val + 'x';
-    label.style.position = 'absolute';
-    label.style.left = (x - 15) + 'px';
-    label.style.top = (height - 105) + 'px';
-    label.style.color = 'black';
-    label.style.fontWeight = 'bold';
-    label.style.fontSize = '12px';
-    label.style.pointerEvents = 'none';
-    label.style.zIndex = '10';
+    label.style = `position:absolute; left:${x-15}px; top:${height-105}px; color:black; font-weight:bold; z-index:10; pointer-events:none;`;
     document.body.appendChild(label);
 });
 
-// 3. Logika Jatuhkan Bola (Smooth Motion)
-document.getElementById('drop-btn').addEventListener('click', () => {
-    if (currentBalance < 1) return alert("Saldo Habis!");
-    currentBalance -= 1;
-    document.getElementById('balance').innerText = currentBalance.toFixed(2);
+// 2. Logika Tombol BET (Tambah/Kurang)
+window.changeBet = (amount) => {
+    if (currentBet + amount > 0) {
+        currentBet += amount;
+        updateUI();
+    }
+};
 
-    const ball = Bodies.circle(width / 2 + (Math.random() * 4 - 2), 50, 10, {
-        restitution: 0.6, // Pantulan bola lebih empuk
-        friction: 0.001,
-        frictionAir: 0.02, // Membuat bola jatuh lebih elegan/tidak terlalu cepat
+// 3. Jatuhkan Bola (UKURAN DIPERKECIL & ANTI-CHEAT MENCOLOK)
+document.getElementById('drop-btn').addEventListener('click', () => {
+    if (currentBalance < currentBet) return alert("Saldo tidak cukup!");
+    
+    currentBalance -= currentBet;
+    updateUI();
+
+    // Ukuran bola diperkecil dari 10 menjadi 7
+    const ball = Bodies.circle(width / 2 + (Math.random() * 2 - 1), 50, 7, {
+        restitution: 0.5,
+        frictionAir: 0.025,
         render: { fillStyle: '#ff0077' }
     });
     Composite.add(world, ball);
 
-    // Gaya Dorong Admin/House Edge
+    // Perbaikan Mode Kalah (Gaya gravitasi halus, bukan melayang tiba-tiba)
     Events.on(engine, 'beforeUpdate', () => {
-        if (ball.position.y > height / 2) {
-            if (cheatMode === 'lose') {
-                const force = (width / 2 - ball.position.x) * 0.0006;
-                Body.applyForce(ball, ball.position, { x: force, y: 0 });
-            } else if (cheatMode === 'win') {
-                const dir = ball.position.x > width / 2 ? 1 : -1;
-                Body.applyForce(ball, ball.position, { x: 0.0009 * dir, y: 0 });
-            }
+        if (cheatMode === 'lose' && ball.position.y > height * 0.4) {
+            // Gaya halus menarik bola ke tengah (multiplayer kecil)
+            const targetX = width / 2;
+            const forceX = (targetX - ball.position.x) * 0.00015; 
+            Body.applyForce(ball, ball.position, { x: forceX, y: 0 });
         }
     });
 });
 
-// 4. Deteksi Kemenangan
+// 4. Deteksi Kemenangan Berdasarkan Taruhan
 Events.on(engine, 'collisionStart', (event) => {
     event.pairs.forEach((pair) => {
         if (pair.bodyA.label && pair.bodyA.label.startsWith('slot-')) {
             const multi = parseFloat(pair.bodyA.label.split('-')[1]);
-            currentBalance += (1 * multi);
-            document.getElementById('balance').innerText = currentBalance.toFixed(2);
+            const winAmount = currentBet * multi;
+            currentBalance += winAmount;
+            updateUI();
             Composite.remove(world, pair.bodyB);
-            
-            if (window.Telegram && window.Telegram.WebApp) {
-                window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
-            }
         }
     });
 });
 
-window.setMode = (m) => { cheatMode = m; };
-
+updateUI();
 Render.run(render);
 Runner.run(Runner.create(), engine);
