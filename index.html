@@ -1,93 +1,30 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Plinko VIP</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="nebula"></div>
-
-    <div id="auth-screen">
-        <div class="auth-box">
-            <h2 class="neon-text">NEON PLINKO VIP</h2>
-            <div id="loading-spinner" class="spinner"></div>
-            <div id="auth-form" style="display: none;">
-                <input type="text" id="reg-username" placeholder="Buat Username">
-                <input type="password" id="reg-password" placeholder="Buat Password">
-                <button onclick="handleAuth('register')" class="btn-main" style="width:100%">DAFTAR</button>
-            </div>
-            <div id="login-form" style="display: none;">
-                <h3 id="welcome-back"></h3>
-                <input type="password" id="login-password" placeholder="Password">
-                <button onclick="handleAuth('login')" class="btn-main" style="width:100%">MASUK</button>
-            </div>
+<div id="auth-layer" class="overlay-full">
+    <div class="auth-card">
+        <h2 class="neon-text">NEON PLINKO VIP</h2>
+        <div id="auth-form">
+            <input type="text" id="reg-username" placeholder="Buat ID Username">
+            <input type="password" id="reg-password" placeholder="Buat Password">
+            <button onclick="handleAuth('register')" class="btn-main-neon">DAFTAR</button>
+        </div>
+        <div id="login-form" style="display:none;">
+            <p id="welcome-text"></p>
+            <input type="password" id="login-password" placeholder="Password">
+            <button onclick="handleAuth('login')" class="btn-main-neon">MASUK</button>
         </div>
     </div>
+</div>
 
-    <div id="gui" style="display: none;">
-        <div id="profile-icon" onclick="toggleProfile()">
-            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Neon&backgroundColor=b6e3f4" alt="Avatar">
+<div id="game-layer" style="display:none;">
+    <div id="ui-top">
+        <div class="profile-btn" onclick="openProfile()">
+            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Neon" alt="Avatar">
         </div>
-
-        <div class="header">
-            <div class="bal-box">💵 <span id="bal-usdt">0.00</span> USDT</div>
-            <div class="bal-box">🇮🇩 <span id="bal-idr">0</span> IDR</div>
-        </div>
-
-        <div class="footer-controls">
-            <div class="currency-selector">
-                <button id="use-usdt" class="active" onclick="switchCurrency('USDT')">USDT</button>
-                <button id="use-idr" onclick="switchCurrency('IDR')">IDR</button>
-            </div>
-            <div class="bet-container">
-                <button class="bet-btn" onclick="changeBet(-1)">−</button>
-                <div class="bet-info"><small>TARUHAN</small><div id="bet-amount">1.00</div></div>
-                <button class="bet-btn" onclick="changeBet(1)">+</button>
-            </div>
-            <div class="action-buttons">
-                <button class="btn-side" onclick="alert('Menu Deposit Segera Hadir')">DEPOSIT</button>
-                <button id="drop-btn" class="btn-main">MAIN</button>
-                <button class="btn-side" onclick="toggleProfile()">WITHDRAW</button>
-            </div>
+        <div class="balance-container">
+            <div class="bal-item">💵 <span id="bal-usdt">0.00</span> USDT</div>
+            <div class="bal-item">🇮🇩 <span id="bal-idr">0</span> IDR</div>
         </div>
     </div>
+</div>
 
-    <div id="profile-menu" class="overlay-menu" style="display: none;">
-        <div class="profile-content">
-            <span class="close-btn" onclick="toggleProfile()">&times;</span>
-            <h2 class="neon-text" style="font-size: 18px;">PROFIL PENGGUNA</h2>
-            
-            <div class="info-group">
-                <label>USER ID</label>
-                <div id="display-username" class="read-only-box"></div>
-            </div>
-
-            <div class="info-group">
-                <label>METODE PENCAIRAN (WD)</label>
-                <select id="user-method" class="profile-input">
-                    <option value="">-- Pilih Metode --</option>
-                    <option value="DANA">E-WALLET: DANA</option>
-                    <option value="GOPAY">E-WALLET: GOPAY</option>
-                    <option value="BANK">REKENING BANK</option>
-                </select>
-            </div>
-
-            <div class="info-group">
-                <label>NOMOR TUJUAN (NOMOR HP / REKENING)</label>
-                <input type="text" id="user-account" class="profile-input" placeholder="Masukkan Nomor Anda">
-            </div>
-
-            <div id="save-section">
-                <button id="btn-save-profile" onclick="saveProfile()" class="btn-main" style="width: 100%; margin-top: 10px;">SIMPAN DATA</button>
-                <p style="font-size: 9px; color: #ff0077; margin-top: 5px;">*Data yang sudah disimpan tidak dapat diubah kembali.</p>
-            </div>
-        </div>
+<div id="profile-layer" class="overlay-popup" style="display:none;">
     </div>
-
-    <script src="script.js"></script>
-</body>
-</html>
