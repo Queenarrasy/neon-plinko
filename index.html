@@ -10,30 +10,81 @@
 </head>
 <body>
     <div class="nebula"></div>
-    
-    <div id="gui">
+
+    <div id="auth-screen">
+        <div class="auth-box">
+            <h2 class="neon-text">NEON PLINKO VIP</h2>
+            <div id="loading-spinner" class="spinner"></div>
+            <div id="auth-form" style="display: none;">
+                <input type="text" id="reg-username" placeholder="Buat Username">
+                <input type="password" id="reg-password" placeholder="Buat Password">
+                <button onclick="handleAuth('register')" class="btn-main" style="width:100%">DAFTAR AKUN</button>
+            </div>
+            <div id="login-form" style="display: none;">
+                <h3 id="welcome-back"></h3>
+                <input type="password" id="login-password" placeholder="Masukkan Password">
+                <button onclick="handleAuth('login')" class="btn-main" style="width:100%">MASUK GAME</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="gui" style="display: none;">
+        <div id="profile-icon" onclick="toggleProfile()">
+            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile">
+        </div>
+
         <div class="header">
             <div class="bal-box">💵 <span id="bal-usdt">0.00</span> USDT</div>
             <div class="bal-box">🇮🇩 <span id="bal-idr">0</span> IDR</div>
         </div>
 
         <div class="footer-controls">
+            <div class="currency-selector">
+                <button id="use-usdt" class="active" onclick="switchCurrency('USDT')">USDT</button>
+                <button id="use-idr" onclick="switchCurrency('IDR')">IDR</button>
+            </div>
+
             <div class="bet-container">
-                <button onclick="changeBet(-1)" style="background:none; border:none; color:white; font-size:20px;">−</button>
-                <div style="text-align:center;">
-                    <small style="font-size:9px; color:#888;">TARUHAN</small>
-                    <div id="bet-amount" style="font-weight:bold; color:var(--neon-blue);">1.00</div>
+                <button class="bet-btn" onclick="changeBet(-1)">−</button>
+                <div class="bet-info">
+                    <small>TARUHAN</small>
+                    <div id="bet-amount">1.00</div>
                 </div>
-                <button onclick="changeBet(1)" style="background:none; border:none; color:white; font-size:20px;">+</button>
+                <button class="bet-btn" onclick="changeBet(1)">+</button>
             </div>
 
             <div class="action-buttons">
                 <button class="btn-side" onclick="openDepo()">DEPOSIT</button>
                 <button id="drop-btn" class="btn-main">MAIN</button>
-                <button class="btn-side">WITHDRAW</button>
+                <button class="btn-side" onclick="toggleProfile()">WITHDRAW</button>
             </div>
         </div>
     </div>
+
+    <div id="profile-menu" class="overlay-menu" style="display: none;">
+        <div class="profile-content">
+            <span class="close-btn" onclick="toggleProfile()">&times;</span>
+            <h2 class="neon-text" style="font-size: 18px;">PROFIL PENGGUNA</h2>
+            <div class="info-group">
+                <label>USER ID</label>
+                <div id="display-username" class="read-only-box"></div>
+            </div>
+            <div class="info-group">
+                <label>NOMOR HP</label>
+                <input type="tel" id="user-phone">
+            </div>
+            <div class="info-group">
+                <label>EMAIL</label>
+                <input type="email" id="user-email">
+            </div>
+            <div class="info-group">
+                <label>REKENING BANK (UNTUK WD)</label>
+                <input type="text" id="user-bank">
+            </div>
+            <button onclick="saveProfile()" class="btn-main" style="width: 100%; margin-top: 10px;">SIMPAN DATA</button>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
