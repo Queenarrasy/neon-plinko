@@ -3,22 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PROFIL SAYA</title>
+    <title>PROFIL MEMBER VIP - NEON PLINKO</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background: #070816; color: white; font-family: sans-serif; text-align: center; padding: 40px; }
-        .card { background: rgba(255,255,255,0.05); padding: 30px; border-radius: 20px; border: 1px solid #00d4ff; }
+        :root { --neon-pink: #ff0077; --neon-blue: #00d4ff; --neon-gold: #fbff00; --bg-dark: #070816; }
+        body { background: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        
+        /* CARD PROFIL */
+        .profile-card { 
+            width: 100%; max-width: 400px; background: rgba(255, 255, 255, 0.03); 
+            border: 2px solid var(--neon-blue); border-radius: 25px; padding: 30px 20px; 
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2); text-align: center; margin-top: 20px;
+        }
+        
+        .avatar-circle { 
+            width: 80px; height: 80px; background: var(--neon-pink); border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; font-size: 40px; 
+            margin: 0 auto 15px; box-shadow: 0 0 15px var(--neon-pink);
+        }
+
+        h2 { color: white; margin: 5px 0; text-transform: uppercase; letter-spacing: 1px; }
+        .username-tag { color: var(--neon-blue); font-size: 12px; font-weight: bold; margin-bottom: 20px; display: block; }
+
+        /* SALDO BOX */
+        .balance-display { 
+            background: #000; border: 1px solid var(--neon-gold); border-radius: 15px; 
+            padding: 15px; margin: 20px 0; box-shadow: 0 0 10px rgba(251, 255, 0, 0.1);
+        }
+        .balance-display small { color: var(--neon-gold); font-size: 10px; font-weight: bold; text-transform: uppercase; }
+        .balance-display h1 { margin: 5px 0 0; font-size: 28px; color: white; }
+
+        /* DATA REKENING */
+        .info-grid { text-align: left; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 15px; margin-bottom: 25px; }
+        .info-item { margin-bottom: 12px; border-bottom: 1px solid #222; padding-bottom: 8px; }
+        .info-item:last-child { border: none; }
+        .label { font-size: 10px; color: #666; font-weight: bold; display: block; margin-bottom: 2px; }
+        .value { font-size: 14px; color: #ddd; font-weight: 500; }
+
+        /* BUTTONS */
+        .btn-back { 
+            width: 100%; padding: 15px; background: var(--neon-blue); color: black; 
+            border: none; border-radius: 12px; font-weight: 900; cursor: pointer; 
+            text-transform: uppercase; margin-bottom: 10px; transition: 0.3s;
+        }
+        .btn-logout { 
+            width: 100%; padding: 12px; background: transparent; color: #ff4444; 
+            border: 1px solid #ff4444; border-radius: 12px; font-weight: bold; cursor: pointer;
+        }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h2 id="u-name">USER</h2>
-        <p>SALDO PERMAINAN</p>
-        <h1 id="display-saldo">IDR 0</h1>
-        <button onclick="location.href='game.html'" style="padding:10px 20px; border-radius:10px; border:none; background:#00d4ff; cursor:pointer;">KEMBALI</button>
+
+    <div class="profile-card">
+        <div class="avatar-circle"><i class="fa-solid fa-user-tie"></i></div>
+        <h2 id="prof-fullname">MEMUAT...</h2>
+        <span class="username-tag" id="prof-username">@username</span>
+
+        <div class="balance-display">
+            <small>SALDO PERMAINAN</small>
+            <h1 id="display-saldo">IDR 0</h1>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="label">METODE PEMBAYARAN</span>
+                <span class="value" id="prof-bank">-</span>
+            </div>
+            <div class="info-item">
+                <span class="label">NOMOR REKENING / WALLET</span>
+                <span class="value" id="prof-rek">-</span>
+            </div>
+        </div>
+
+        <button class="btn-back" onclick="location.href='game.html'">KEMBALI KE PERMAINAN</button>
+        <button class="btn-logout" onclick="handleLogout()">KELUAR AKUN</button>
     </div>
+
     <script src="global.js"></script>
     <script>
-        document.getElementById('u-name').innerText = (localStorage.getItem('username_neon') || "USER").toUpperCase();
+        // MENGAMBIL DATA DARI LOCAL STORAGE
+        function loadProfile() {
+            const username = localStorage.getItem('user_vip') || "Guest";
+            const fullname = localStorage.getItem('full_name') || "Pemain VIP";
+            const bank = localStorage.getItem('bank_name') || "-";
+            const rek = localStorage.getItem('acc_number') || "-";
+
+            document.getElementById('prof-username').innerText = "@" + username.toLowerCase();
+            document.getElementById('prof-fullname').innerText = fullname;
+            document.getElementById('prof-bank').innerText = bank;
+            document.getElementById('prof-rek').innerText = rek;
+        }
+
+        function handleLogout() {
+            // Hapus sesi saja, database_users tetap aman
+            localStorage.removeItem('user_vip');
+            localStorage.removeItem('full_name');
+            localStorage.removeItem('bank_name');
+            localStorage.removeItem('acc_number');
+            window.location.href = 'auth.html';
+        }
+
+        window.onload = loadProfile;
     </script>
 </body>
 </html>
