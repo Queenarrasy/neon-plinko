@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DASHBOARD ADMIN - NEON PLINKO</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --neon-pink: #ff0077;
+            --neon-blue: #00d4ff;
+            --neon-gold: #fbff00;
+            --bg-dark: #0a0b1e;
+        }
+
+        body {
+            background: var(--bg-dark);
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .header {
+            border-bottom: 2px solid var(--neon-blue);
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 15px 0;
+        }
+
+        input[type="range"] {
+            width: 60%;
+            accent-color: var(--neon-pink);
+        }
+
+        .btn-save {
+            width: 100%;
+            padding: 15px;
+            background: var(--neon-pink);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 0 15px var(--neon-pink);
+            cursor: pointer;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-win { background: var(--neon-pink); color: white; }
+        .status-lose { background: var(--neon-blue); color: black; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2><i class="fa-solid fa-gears"></i> KENDALI ADMIN</h2>
+        <button onclick="location.href='game.html'" style="background:none; border:1px solid var(--neon-blue); color:var(--neon-blue); padding:5px 15px; border-radius:5px;">KE GAME</button>
+    </div>
+
+    <div class="card">
+        <h3><i class="fa-solid fa-chart-line"></i> Setelan Win Rate</h3>
+        <p style="font-size: 12px; color: #aaa;">Geser untuk mengatur peluang bola mendarat di slot UNTUNG (5x, 2x).</p>
+        
+        <div class="setting-row">
+            <span>Probabilitas</span>
+            <input type="range" id="winRange" min="0" max="100" value="30" oninput="updateVal(this.value)">
+            <b id="winVal" style="color: var(--neon-pink);">30%</b>
+        </div>
+
+        <div class="setting-row">
+            <span>Mode Paksa</span>
+            <select id="forceResult" style="background:#000; color:white; border:1px solid #444; padding:5px;">
+                <option value="none">Normal (Acak)</option>
+                <option value="0">Pojok Kiri (5x)</option>
+                <option value="3">Tengah (0.2x)</option>
+                <option value="6">Pojok Kanan (5x)</option>
+            </select>
+        </div>
+        
+        <button class="btn-save" onclick="saveSettings()">SIMPAN PERUBAHAN</button>
+    </div>
+
+    <div class="card">
+        <h3><i class="fa-solid fa-users"></i> Ringkasan User</h3>
+        <div class="setting-row">
+            <span>Total Saldo User:</span>
+            <span id="totalUserBalance" style="color: var(--neon-gold); font-weight: bold;">IDR 27.480</span>
+        </div>
+        <div class="setting-row">
+            <span>Status Akun:</span>
+            <span class="status-badge status-win">BRONZE MEMBER</span>
+        </div>
+    </div>
+
+    <script>
+        function updateVal(v) {
+            document.getElementById('winVal').innerText = v + "%";
+        }
+
+        function saveSettings() {
+            const winRate = document.getElementById('winRange').value / 100;
+            const force = document.getElementById('forceResult').value;
+            
+            // Simpan ke LocalStorage agar dibaca oleh game.html
+            const settings = {
+                winRate: winRate,
+                forceResult: force === "none" ? null : parseInt(force)
+            };
+            
+            localStorage.setItem('admin_plinko_settings', JSON.stringify(settings));
+            alert("Setelan Berhasil Disimpan! Bola sekarang akan mengikuti aturan baru.");
+        }
+
+        // Load data awal
+        window.onload = () => {
+            const saved = JSON.parse(localStorage.getItem('admin_plinko_settings'));
+            if(saved) {
+                document.getElementById('winRange').value = saved.winRate * 100;
+                document.getElementById('winVal').innerText = (saved.winRate * 100) + "%";
+                if(saved.forceResult !== null) document.getElementById('forceResult').value = saved.forceResult;
+            }
+            
+            const balance = localStorage.getItem('user_balance') || "27.480";
+            document.getElementById('totalUserBalance').innerText = "IDR " + balance;
+        };
+    </script>
+</body>
+</html>
