@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Arena - NEON PLINKO VIP</title>
+    <title>Arena VIP - NEON PLINKO VIP</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -31,116 +31,187 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 20px;
-            box-sizing: border-box;
+            padding: 10px 20px;
+            margin-top: 10px;
         }
 
-        .nav-item { text-align: center; cursor: pointer; text-decoration: none; }
-        .nav-icon { width: 45px; height: 45px; margin-bottom: 5px; filter: drop-shadow(0 0 5px var(--neon-pink)); }
-        .nav-label { font-size: 9px; font-weight: 900; color: var(--neon-pink); text-transform: uppercase; }
+        .nav-item { text-align: center; cursor: pointer; text-decoration: none; width: 60px; }
+        
+        /* Profile Image Neon */
+        .profile-img { 
+            width: 50px; height: 50px; border-radius: 50%; 
+            border: 2px solid var(--neon-pink); 
+            box-shadow: 0 0 15px var(--neon-pink);
+        }
 
-        .saldo-box {
-            background: rgba(0, 212, 255, 0.1);
+        .saldo-display {
+            background: rgba(0, 0, 0, 0.6);
             border: 2px solid var(--neon-blue);
-            border-radius: 25px;
-            padding: 8px 25px;
+            border-radius: 20px;
+            padding: 5px 25px;
             text-align: center;
-            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
         }
-        .saldo-label { font-size: 8px; color: var(--neon-blue); font-weight: bold; display: block; }
-        .saldo-amount { font-size: 16px; font-weight: 900; color: white; }
+        .saldo-label { font-size: 8px; color: var(--neon-blue); font-weight: 900; display: block; }
+        .saldo-amount { font-size: 16px; font-weight: 900; color: #fff; }
 
-        /* MAIN GAME AREA */
-        .plinko-board { margin: 20px 0; /* Area Papan Pasak */ }
+        /* Hadiah Box Neon */
+        .hadiah-img { 
+            width: 45px; height: 45px; 
+            filter: drop-shadow(0 0 8px var(--neon-pink));
+        }
 
-        /* BOTTOM ACTION BUTTONS */
-        .action-grid {
+        /* GAME BOARD AREA */
+        .board-container {
+            flex: 1;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        .board-placeholder {
+            width: 90%;
+            height: 350px;
+            border: 1px dashed rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        /* ACTION BUTTONS (Visual Mewah) */
+        .action-row {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
+            gap: 12px;
             width: 90%;
-            max-width: 400px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
-        .action-card {
+        .action-btn {
             background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 15px;
             padding: 15px 5px;
             text-align: center;
             cursor: pointer;
-            transition: 0.3s;
+            transition: 0.2s;
         }
-        .action-card:active { transform: scale(0.95); border-color: var(--neon-blue); }
-        .action-card i { font-size: 24px; margin-bottom: 8px; display: block; }
-        .label-action { font-size: 9px; font-weight: bold; text-transform: uppercase; }
+        .action-btn:active { transform: scale(0.9); border-color: var(--neon-blue); }
+        
+        /* Ikon Mewah */
+        .icon-gold { color: var(--gold); font-size: 24px; margin-bottom: 5px; text-shadow: 0 0 10px var(--gold); }
+        .icon-blue { color: var(--neon-blue); font-size: 24px; margin-bottom: 5px; text-shadow: 0 0 10px var(--neon-blue); }
+        .icon-pink { color: var(--neon-pink); font-size: 24px; margin-bottom: 5px; text-shadow: 0 0 10px var(--neon-pink); }
+        
+        .label-btn { font-size: 9px; font-weight: 900; color: var(--neon-pink); text-transform: uppercase; }
 
-        /* TOMBOL MAIN */
-        .btn-play {
+        /* BET CONTROL */
+        .bet-control {
+            background: rgba(0,0,0,0.5);
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 180px;
+            padding: 5px 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .bet-btn { background: none; border: none; color: var(--neon-blue); font-size: 20px; font-weight: bold; cursor: pointer; }
+        .bet-info { text-align: center; }
+        .bet-label { font-size: 7px; color: #666; display: block; }
+        .bet-val { font-size: 14px; font-weight: 900; color: var(--gold); }
+
+        /* BUTTON MULAI */
+        .btn-main-play {
             width: 85%;
             padding: 18px;
-            background: linear-gradient(180deg, var(--neon-blue), #0088ff);
+            background: linear-gradient(180deg, var(--neon-blue), #0077ff);
             border: none;
-            border-radius: 30px;
+            border-radius: 35px;
             color: white;
             font-size: 18px;
             font-weight: 900;
             text-transform: uppercase;
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
             cursor: pointer;
+            margin-bottom: 30px;
         }
     </style>
 </head>
 <body>
 
     <div class="top-nav">
-        <a href="profile.html" class="nav-item">
-            <img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" class="nav-icon">
-            <span class="nav-label">PROFILE</span>
-        </a>
+        <div class="nav-item" onclick="window.location.href='profile.html'">
+            <img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" class="profile-img">
+            <span class="label-btn">PROFILE</span>
+        </div>
 
-        <div class="saldo-box">
+        <div class="saldo-display">
             <span class="saldo-label">SALDO VIP</span>
-            <span class="saldo-amount" id="displayBalance">IDR 0</span>
+            <span class="saldo-amount" id="balance">IDR 0</span>
         </div>
 
-        <a href="hadiah.html" class="nav-item">
-            <img src="https://cdn-icons-png.flaticon.com/512/679/679821.png" class="nav-icon">
-            <span class="nav-label">HADIAH</span>
-        </a>
-    </div>
-
-    <div class="plinko-board">
-        <div style="height: 300px; width: 300px; border: 1px dashed #333; display: flex; align-items: center; justify-content: center; color: #444;">
-            PAPAN PLINKO
+        <div class="nav-item" onclick="window.location.href='hadiah.html'">
+            <img src="https://cdn-icons-png.flaticon.com/512/679/679821.png" class="hadiah-img">
+            <span class="label-btn">HADIAH</span>
         </div>
     </div>
 
-    <div class="action-grid">
-        <div class="action-card" onclick="window.location.href='tarik.html'">
-            <i class="fa-solid fa-money-bill-transfer" style="color: #888;"></i>
-            <span class="label-action" style="color: var(--neon-pink);">TARIK</span>
+    <div class="board-container">
+        <div class="board-placeholder">PAPAN PLINKO</div>
+    </div>
+
+    <div class="action-row">
+        <div class="action-btn" onclick="window.location.href='tarik.html'">
+            <i class="fa-solid fa-money-bill-transfer icon-pink"></i>
+            <span class="label-btn">TARIK</span>
         </div>
         
-        <div class="action-card" onclick="window.location.href='deposit.html'">
-            <i class="fa-solid fa-file-invoice-dollar" style="color: var(--neon-blue);"></i>
-            <span class="label-action" style="color: var(--neon-pink);">DEPOSIT</span>
+        <div class="action-btn" onclick="window.location.href='deposit.html'">
+            <i class="fa-solid fa-file-invoice-dollar icon-blue"></i>
+            <span class="label-btn">DEPOSIT</span>
         </div>
 
-        <div class="action-card">
-            <i class="fa-solid fa-trophy" style="color: var(--gold);"></i>
-            <span class="label-action" style="color: var(--neon-pink);">RANK</span>
+        <div class="action-btn">
+            <i class="fa-solid fa-trophy icon-gold"></i>
+            <span class="label-btn">RANK</span>
         </div>
     </div>
 
-    <button class="btn-play">MULAI MAIN</button>
+    <div class="bet-control">
+        <button class="bet-btn" onclick="changeBet(-100)">-</button>
+        <div class="bet-info">
+            <span class="bet-label">TARUHAN</span>
+            <span class="bet-val" id="betVal">400</span>
+        </div>
+        <button class="bet-btn" onclick="changeBet(100)">+</button>
+    </div>
+
+    <button class="btn-main-play" onclick="playBall()">MULAI MAIN</button>
 
     <script>
+        let currentBet = 400;
+
+        function changeBet(val) {
+            currentBet += val;
+            if (currentBet < 400) currentBet = 400;
+            document.getElementById('betVal').innerText = currentBet.toLocaleString();
+        }
+
         window.onload = () => {
-            const balance = localStorage.getItem('user_balance') || 0;
-            document.getElementById('displayBalance').innerText = "IDR " + parseInt(balance).toLocaleString();
+            const savedBalance = localStorage.getItem('user_balance') || 0;
+            document.getElementById('balance').innerText = "IDR " + parseInt(savedBalance).toLocaleString();
         };
+
+        function playBall() {
+            // Logika Drop Bola Plinko Anda
+            console.log("Bola meluncur dengan bet: " + currentBet);
+        }
     </script>
 </body>
 </html>
