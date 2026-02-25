@@ -3,218 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEON PLINKO PRO</title>
+    <title>NEON PLINKO VIP - GAME</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --neon-pink: #ff0077; --neon-blue: #00d4ff; --neon-gold: #fbff00; --bg-dark: #070816;
         }
 
-        body {
+        body, html {
             background: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif;
-            margin: 0; display: flex; flex-direction: column; align-items: center; 
-            height: 100vh; overflow: hidden;
-            background-image: radial-gradient(circle at 50% 40%, rgba(255, 0, 119, 0.12) 0%, transparent 60%);
+            margin: 0; padding: 0; height: 100vh; overflow: hidden;
         }
 
-        /* HEADER NAV */
+        /* HEADER & TOMBOL ATAS */
         .top-nav {
+            position: relative; z-index: 1000; /* Memastikan tombol di atas canvas */
             width: 100%; display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 20px; box-sizing: border-box; z-index: 10;
+            padding: 15px 20px; box-sizing: border-box;
         }
-        .profile-btn { width: 55px; height: 55px; border-radius: 50%; border: 3px solid var(--neon-pink); box-shadow: 0 0 15px var(--neon-pink); cursor: pointer; }
+        
+        /* Tombol Profil */
+        .profile-btn { 
+            width: 55px; height: 55px; border-radius: 50%; 
+            border: 3px solid var(--neon-pink); cursor: pointer; 
+            box-shadow: 0 0 10px var(--neon-pink);
+        }
+
         .saldo-badge {
             background: rgba(0, 0, 0, 0.8); border: 2px solid var(--neon-blue);
-            border-radius: 20px; padding: 6px 20px; box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+            border-radius: 20px; padding: 5px 20px; text-align: center;
         }
 
-        /* GAME ZONE */
-        .game-zone { position: relative; margin-top: 5px; text-align: center; }
-        canvas { display: block; background: transparent; }
+        /* Tombol Hadiah */
+        .gift-btn { width: 50px; cursor: pointer; transition: 0.3s; }
+        .gift-btn:active { transform: scale(0.9); }
 
-        /* MULTIPLIER SLOTS */
-        .multiplier-wrap { display: flex; justify-content: center; gap: 4px; margin-top: 15px; width: 360px; }
-        .slot { flex: 1; padding: 8px 0; font-size: 11px; font-weight: 900; text-align: center; border-radius: 6px; }
-        .high { background: var(--neon-pink); box-shadow: 0 0 12px var(--neon-pink); color: white; }
-        .mid  { background: var(--neon-gold); box-shadow: 0 0 12px var(--neon-gold); color: #000; }
-        .low  { background: var(--neon-blue); box-shadow: 0 0 12px var(--neon-blue); color: #000; }
+        /* AREA GAME */
+        .game-zone { position: relative; width: 100%; height: 320px; display: flex; justify-content: center; }
+        canvas { position: absolute; top: 0; z-index: 1; pointer-events: none; }
 
-        /* ACTION AREA */
-        .action-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 90%; margin: 15px 0; }
-        .action-card { 
-            background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); 
-            border-radius: 18px; padding: 12px 0; text-align: center; cursor: pointer;
+        /* TOMBOL NAVIGASI BARU (Deposit, Withdraw, Rank) */
+        .action-row { 
+            position: relative; z-index: 1000;
+            display: grid; grid-template-columns: repeat(3, 1fr); 
+            gap: 15px; width: 90%; margin: 15px auto; 
         }
+        .nav-card { 
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 15px; padding: 12px 0; text-align: center; cursor: pointer;
+            text-decoration: none; color: white; transition: 0.3s;
+        }
+        .nav-card:active { background: rgba(255, 255, 255, 0.2); }
+        .nav-card i { font-size: 20px; margin-bottom: 5px; display: block; }
+        .nav-label { font-size: 9px; font-weight: 900; color: var(--neon-pink); letter-spacing: 1px; }
 
-        /* BET CONTROL */
+        /* KONTROL TARUHAN & MULAI */
+        .controls { position: relative; z-index: 1000; width: 100%; display: flex; flex-direction: column; align-items: center; }
         .bet-bar {
             background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 30px; display: flex; align-items: center; padding: 5px 25px; margin-bottom: 10px;
+            border-radius: 30px; display: flex; align-items: center; padding: 5px 25px; margin-bottom: 15px;
         }
-        .bet-btn { background: none; border: none; color: var(--neon-blue); font-size: 28px; cursor: pointer; font-weight: bold; }
-
         .btn-main {
-            width: 88%; padding: 18px; background: linear-gradient(180deg, var(--neon-blue), #0055ff);
-            border: none; border-radius: 40px; color: white; font-size: 22px; font-weight: 900;
-            box-shadow: 0 0 30px rgba(0, 212, 255, 0.5); cursor: pointer; margin-bottom: 15px;
-        }
-
-        /* ANIMASI MENANG NEON */
-        #win-display {
-            position: absolute; top: 40%; left: 50%; transform: translateX(-50%);
-            font-size: 32px; font-weight: 900; color: var(--neon-gold);
-            text-shadow: 0 0 20px var(--neon-gold); opacity: 0; pointer-events: none; z-index: 100;
-        }
-        .animate-win { animation: winFly 1.5s ease-out forwards; }
-        @keyframes winFly {
-            0% { opacity: 0; top: 50%; }
-            20% { opacity: 1; }
-            100% { opacity: 0; top: 20%; }
+            width: 85%; padding: 18px; background: linear-gradient(180deg, var(--neon-blue), #0055ff);
+            border: none; border-radius: 40px; color: white; font-size: 20px; font-weight: 900;
+            box-shadow: 0 0 25px rgba(0, 212, 255, 0.5); cursor: pointer;
         }
     </style>
 </head>
 <body>
 
     <div class="top-nav">
-        <img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" class="profile-btn" onclick="location.reload()">
+        <img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" class="profile-btn" onclick="location.href='profile.html'">
         <div class="saldo-badge">
-            <span style="font-size: 8px; color: var(--neon-blue); font-weight: bold; display: block; text-align: center;">SALDO VIP</span>
-            <div id="balanceDisplay" style="font-size: 18px; font-weight: 900;">IDR 0</div>
+            <span style="font-size: 8px; color: var(--neon-blue); font-weight: bold; display: block;">SALDO VIP</span>
+            <div id="balance" style="font-size: 18px; font-weight: 900;">IDR 50.000</div>
         </div>
-        <img src="https://cdn-icons-png.flaticon.com/512/4213/4213958.png" style="width:50px; filter: drop-shadow(0 0 10px var(--neon-pink));">
+        <img src="https://cdn-icons-png.flaticon.com/512/4213/4213958.png" class="gift-btn" onclick="location.href='hadiah.html'">
     </div>
 
     <div class="game-zone">
-        <div id="win-display">WIN IDR 0</div>
         <canvas id="plinkoCanvas"></canvas>
-        <div class="multiplier-wrap">
-            <div class="slot high">5x</div>
-            <div class="slot mid">2x</div>
-            <div class="slot mid">1.2x</div>
-            <div class="slot low">0.2x</div>
-            <div class="slot mid">1.2x</div>
-            <div class="slot mid">2x</div>
-            <div class="slot high">5x</div>
         </div>
-    </div>
 
     <div class="action-row">
-        <div class="action-card"><i class="fa-solid fa-hand-holding-dollar" style="color: var(--neon-gold); font-size: 20px;"></i><div style="font-size: 9px; color: var(--neon-pink); margin-top:4px;">TARIK</div></div>
-        <div class="action-card"><i class="fa-solid fa-building-columns" style="color: var(--neon-blue); font-size: 20px;"></i><div style="font-size: 9px; color: var(--neon-pink); margin-top:4px;">DEPOSIT</div></div>
-        <div class="action-card"><i class="fa-solid fa-crown" style="color: var(--neon-gold); font-size: 20px;"></i><div style="font-size: 9px; color: var(--neon-pink); margin-top:4px;">RANK</div></div>
+        <a href="withdraw.html" class="nav-card">
+            <i class="fa-solid fa-money-bill-transfer" style="color: var(--neon-gold);"></i>
+            <span class="nav-label">WITHDRAW</span>
+        </a>
+        <a href="deposit.html" class="nav-card">
+            <i class="fa-solid fa-wallet" style="color: var(--neon-blue);"></i>
+            <span class="nav-label">DEPOSIT</span>
+        </a>
+        <a href="rank.html" class="nav-card">
+            <i class="fa-solid fa-crown" style="color: var(--neon-gold);"></i>
+            <span class="nav-label">RANK</span>
+        </a>
     </div>
 
-    <div class="bet-bar">
-        <button class="bet-btn" onclick="changeBet(-1)">-</button>
-        <div style="margin: 0 25px; text-align: center; min-width: 100px;">
-            <span style="font-size: 8px; color:#555; display:block; font-weight:bold;">TARUHAN</span>
-            <span id="betValDisplay" style="font-size: 18px; font-weight:900; color: var(--neon-gold);">400</span>
+    <div class="controls">
+        <div class="bet-bar">
+            <button style="background:none; border:none; color:var(--neon-blue); font-size:25px; cursor:pointer;" onclick="changeBet(-1)">-</button>
+            <div style="margin: 0 30px; text-align: center;">
+                <span style="font-size: 8px; color:#777; display:block;">TARUHAN</span>
+                <span id="betDisplay" style="font-size: 18px; font-weight:900; color: var(--neon-gold);">400</span>
+            </div>
+            <button style="background:none; border:none; color:var(--neon-blue); font-size:25px; cursor:pointer;" onclick="changeBet(1)">+</button>
         </div>
-        <button class="bet-btn" onclick="changeBet(1)">+</button>
+        <button class="btn-main" onclick="dropBall()">MULAI MAIN</button>
     </div>
-
-    <button class="btn-main" onclick="spawnBall()">MULAI MAIN</button>
 
     <script>
-        // --- KONFIGURASI BET LIST ---
-        const betLevels = [400, 600, 800, 1000, 1200, 1600, 1800, 2000, 4000, 8000, 10000, 15000, 20000, 25000, 30000];
-        let currentBetIdx = 0;
-        let userBalance = parseInt(localStorage.getItem('user_balance')) || 27480;
-        const multipliers = [5, 2, 1.2, 0.2, 1.2, 2, 5];
-
-        // --- ADMIN SETTINGS ---
-        const savedSettings = JSON.parse(localStorage.getItem('admin_plinko_settings'));
-        const ADMIN = savedSettings || { winRate: 0.3, forceIndex: null };
-
-        const canvas = document.getElementById('plinkoCanvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = 360; canvas.height = 300;
-
-        const pins = [];
-        const activeBalls = [];
-        const rows = 9;
-
-        // Init Pins
-        for (let i = 2; i <= rows; i++) {
-            for (let j = 0; j < i; j++) {
-                pins.push({ x: canvas.width/2 + (j - (i-1)/2) * 35, y: i * 30 + 10 });
-            }
+        // Memastikan link GitHub terbaca, tambahkan logika script Anda di sini
+        function changeBet(val) {
+            // Logika ubah taruhan
         }
-
-        function updateUI() {
-            document.getElementById('balanceDisplay').innerText = "IDR " + userBalance.toLocaleString();
-            document.getElementById('betValDisplay').innerText = betLevels[currentBetIdx].toLocaleString();
-            localStorage.setItem('user_balance', userBalance);
+        function dropBall() {
+            // Logika jatuhkan bola neon
         }
-
-        function changeBet(dir) {
-            currentBetIdx = Math.max(0, Math.min(betLevels.length - 1, currentBetIdx + dir));
-            updateUI();
-        }
-
-        function showWinEffect(amt) {
-            const el = document.getElementById('win-display');
-            el.innerText = "WIN IDR " + amt.toLocaleString();
-            el.classList.remove('animate-win');
-            void el.offsetWidth; // trigger reflow
-            el.classList.add('animate-win');
-        }
-
-        function spawnBall() {
-            const betAmount = betLevels[currentBetIdx];
-            if (userBalance < betAmount) return alert("Saldo tidak cukup!");
-
-            userBalance -= betAmount;
-            updateUI();
-
-            // Logika gravitasi dan arah
-            let moveDir = (Math.random() - 0.5) * 2;
-            if (Math.random() < ADMIN.winRate) moveDir = Math.random() > 0.5 ? 4.5 : -4.5;
-
-            activeBalls.push({
-                x: canvas.width/2 + (Math.random()-0.5)*10, y: 10,
-                vx: moveDir * 0.4, vy: 2,
-                targetMove: moveDir, bet: betAmount
-            });
-        }
-
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "rgba(255,255,255,0.7)";
-            pins.forEach(p => { ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fill(); });
-
-            activeBalls.forEach((ball, i) => {
-                ball.y += ball.vy; ball.x += ball.vx; ball.vy += 0.35; // Berat visual
-
-                pins.forEach(p => {
-                    if (Math.hypot(ball.x - p.x, ball.y - p.y) < 8) {
-                        ball.vy *= -0.3;
-                        ball.vx += (ball.x - p.x) * 0.12 + (ball.targetMove * 0.04);
-                    }
-                });
-
-                // Visual Neon Bola
-                ctx.save();
-                ctx.shadowBlur = 15; ctx.shadowColor = "#00d4ff";
-                ctx.fillStyle = "#00d4ff";
-                ctx.beginPath(); ctx.arc(ball.x, ball.y, 7, 0, Math.PI*2); ctx.fill();
-                ctx.restore();
-
-                if (ball.y > canvas.height) {
-                    const slotIdx = Math.floor(ball.x / (canvas.width / 7));
-                    const finalIdx = Math.max(0, Math.min(6, slotIdx));
-                    const win = ball.bet * multipliers[finalIdx];
-                    
-                    userBalance += win;
-                    updateUI();
-                    if(win > 0) showWinEffect(win);
-                    activeBalls.splice(i, 1);
-                }
-            });
-            requestAnimationFrame(draw);
-        }
-
-        window.onload = () => { updateUI(); draw(); };
     </script>
 </body>
 </html>
