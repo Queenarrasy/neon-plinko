@@ -1,187 +1,385 @@
-/* TEMA NEON LUXURY - DISUSUN OLEH BOT */
-:root {
-    --neon-blue: #00f7ff;
-    --neon-pink: #ff0077;
-    --dark-bg: #050510;
-    --glass: rgba(255, 255, 255, 0.05);
-    --glass-border: rgba(0, 247, 255, 0.2);
-}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NEON PLINKO VIP</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root { 
+            --pink: #ff0077; 
+            --blue: #00d4ff; 
+            --yellow: #fbff00; 
+            --bg: #070816; 
+            --glass: rgba(255, 255, 255, 0.07);
+            --border: rgba(255, 255, 255, 0.15);
+        }
+        
+        body { 
+            background: var(--bg);
+            /* Gradasi Minimalis Senada agar halaman tampak hidup */
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 0, 119, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 212, 255, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(251, 255, 0, 0.05) 0%, transparent 50%);
+            color: white; 
+            font-family: 'Segoe UI', Roboto, sans-serif; 
+            margin: 0; 
+            overflow: hidden; 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            transition: box-shadow 0.3s ease;
+            user-select: none;
+        }
 
-* {
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-}
+        /* --- HEADER --- */
+        .header { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 15px; 
+            position: relative; 
+            background: linear-gradient(to bottom, rgba(255, 0, 119, 0.1), transparent);
+        }
+        .prof-link { 
+            position: absolute; 
+            left: 20px; 
+            font-size: 26px; 
+            color: var(--pink); 
+            filter: drop-shadow(0 0 8px var(--pink));
+            cursor: pointer; 
+        }
+        .balance-box { 
+            background: rgba(0,0,0,0.6); 
+            border: 2px solid var(--blue); 
+            border-radius: 20px; 
+            padding: 5px 20px; 
+            text-align: center; 
+            min-width: 140px; 
+            box-shadow: 0 0 20px rgba(0,212,255,0.4), inset 0 0 10px rgba(0,212,255,0.2);
+            backdrop-filter: blur(5px);
+        }
+        #tier-name { font-size: 8px; font-weight: 900; display: block; letter-spacing: 2px; color: var(--yellow); text-shadow: 0 0 5px var(--yellow); }
+        #display-saldo { font-size: 18px; font-weight: 900; color: #fff; }
 
-body {
-    background-color: var(--dark-bg);
-    color: #ffffff;
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-}
+        /* --- GAME AREA --- */
+        #game-container { position: relative; width: 100%; height: 280px; margin-top: 10px; }
+        .peg { 
+            position: absolute; 
+            width: 6px; 
+            height: 6px; 
+            background: #fff; 
+            border-radius: 50%; 
+            box-shadow: 0 0 10px #fff, 0 0 15px var(--blue); 
+            transform: translate(-50%, -50%); 
+        }
+        .ball { 
+            position: absolute; 
+            width: 13px; 
+            height: 13px; 
+            background: var(--pink); 
+            border-radius: 50%; 
+            box-shadow: 0 0 20px var(--pink), 0 0 10px #fff; 
+            z-index: 10; 
+            transform: translate(-50%, -50%); 
+        }
 
-/* CONTAINER UTAMA */
-.page-container {
-    width: 100%;
-    max-width: 450px;
-    padding: 20px;
-    text-align: center;
-}
+        /* --- MULTIPLIERS --- */
+        .multipliers { display: flex; justify-content: center; gap: 6px; padding: 0 10px; margin-top: 35px; }
+        .slot { 
+            flex: 1; padding: 10px 0; border-radius: 8px; text-align: center; font-size: 10px; font-weight: 900; 
+            border: 1px solid rgba(255,255,255,0.2); transition: 0.2s;
+        }
+        .m-pink { background: var(--pink); box-shadow: 0 0 15px var(--pink); color: white; }
+        .m-yellow { background: var(--yellow); color: black; box-shadow: 0 0 15px var(--yellow); }
+        .m-blue { background: var(--blue); color: black; box-shadow: 0 0 15px var(--blue); }
+        .m-loss { background: #fff; color: black; box-shadow: 0 0 10px #fff; }
 
-/* JUDUL GLOW */
-.neon-title {
-    color: var(--neon-blue);
-    text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
-    font-size: 24px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin: 30px 0;
-}
+        /* --- NAVIGATION --- */
+        .nav-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 0 20px; margin-top: 25px; }
+        .btn-nav { 
+            background: var(--glass); 
+            border: 1px solid var(--border); 
+            padding: 12px 5px; border-radius: 15px; text-align: center; cursor: pointer;
+            backdrop-filter: blur(10px); transition: 0.3s;
+        }
+        .btn-nav:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
+        .c-pink { color: var(--pink); text-shadow: 0 0 10px var(--pink); }
+        .c-blue { color: var(--blue); text-shadow: 0 0 10px var(--blue); }
+        .c-yellow { color: var(--yellow); text-shadow: 0 0 10px var(--yellow); }
 
-/* KARTU GLASSMORPISM (Perbaikan cite: 25978.jpg) */
-.glass-card {
-    background: var(--glass);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 25px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    margin-bottom: 20px;
-}
+        /* --- CONTROLS --- */
+        .play-area { 
+            text-align: center; padding: 20px; flex-grow: 1; margin-top: 20px;
+            background: linear-gradient(to top, rgba(0, 212, 255, 0.1), rgba(255, 0, 119, 0.1));
+            border-top: 1px solid var(--border); border-radius: 30px 30px 0 0;
+        }
 
-/* INPUT FIELD (Perbaikan cite: 25977.jpg) */
-input, .main-input, select {
-    width: 100%;
-    padding: 15px;
-    margin: 10px 0;
-    background: #111122 !important;
-    border: 1px solid #333;
-    border-radius: 12px;
-    color: #ffffff !important; /* Teks wajib putih agar terlihat */
-    font-size: 16px;
-    outline: none;
-    transition: 0.3s ease;
-}
+        .mode-toggles { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
+        .toggle { 
+            padding: 10px 15px; border-radius: 20px; font-size: 10px; font-weight: 900; cursor: pointer; 
+            border: 1px solid var(--border); background: rgba(0,0,0,0.5); color: #888; transition: 0.3s;
+        }
+        .toggle.active { color: #fff; border-color: var(--yellow); box-shadow: 0 0 15px var(--yellow); }
 
-input:focus {
-    border-color: var(--neon-blue);
-    box-shadow: 0 0 10px rgba(0, 247, 255, 0.3);
-}
+        .bet-selector { 
+            display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.7); 
+            border-radius: 50px; padding: 10px 25px; margin-bottom: 20px; border: 1px solid var(--blue);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
+        }
+        .bet-btn { background: none; border: none; color: var(--blue); font-size: 24px; font-weight: 900; cursor: pointer; }
 
-/* TOMBOL UTAMA */
-button, .btn-primary {
-    width: 100%;
-    padding: 16px;
-    margin-top: 15px;
-    border-radius: 12px;
-    border: none;
-    background: linear-gradient(45deg, var(--neon-blue), #008cff);
-    color: #000;
-    font-weight: 800;
-    font-size: 14px;
-    text-transform: uppercase;
-    cursor: pointer;
-    box-shadow: 0 5px 15px rgba(0, 247, 255, 0.3);
-    transition: 0.2s;
-}
+        .btn-main { 
+            width: 100%; padding: 18px; border-radius: 50px; border: none; font-weight: 900; font-size: 18px;
+            text-transform: uppercase; cursor: pointer; color: white;
+            background: linear-gradient(90deg, var(--pink), var(--blue));
+            box-shadow: 0 0 25px rgba(255, 0, 119, 0.6);
+            transition: 0.3s; letter-spacing: 2px;
+        }
+        .btn-main:active { transform: scale(0.95); }
+        .btn-main.auto-active { background: var(--yellow); color: #000; box-shadow: 0 0 30px var(--yellow); }
 
-button:active {
-    transform: scale(0.96);
-}
+        /* --- CUSTOM NEON MODAL (POP UP) --- */
+        #custom-alert {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+            display: none; justify-content: center; align-items: center; z-index: 9999;
+        }
+        .alert-content {
+            background: #070816; border: 2px solid var(--pink); border-radius: 25px;
+            padding: 30px; text-align: center; width: 80%; max-width: 300px;
+            box-shadow: 0 0 30px var(--pink);
+        }
+        .alert-content h2 { color: var(--pink); margin-top: 0; font-size: 22px; text-shadow: 0 0 10px var(--pink); }
+        .alert-content p { color: #fff; font-size: 14px; margin-bottom: 25px; }
+        .alert-btn {
+            background: var(--blue); border: none; padding: 12px 30px; border-radius: 50px;
+            color: #000; font-weight: 900; cursor: pointer; box-shadow: 0 0 15px var(--blue);
+        }
 
-/* TAB PEMBAYARAN */
-.btn-tab {
-    background: #1a1a2e;
-    color: #888;
-    border: 1px solid #333;
-    padding: 12px;
-    border-radius: 10px;
-    font-size: 12px;
-    cursor: pointer;
-    flex: 1;
-}
+        .win-popup { 
+            position: absolute; font-weight: 900; color: var(--yellow); 
+            text-shadow: 0 0 15px var(--yellow), 0 0 5px #fff; 
+            z-index: 1000; animation: floatUp 1.2s ease-out forwards; font-size: 28px; 
+        }
+        @keyframes floatUp { 
+            0% { transform: translateY(0) scale(0.5); opacity: 0; } 
+            50% { opacity: 1; transform: translateY(-30px) scale(1.2); }
+            100% { transform: translateY(-100px) scale(1); opacity: 0; } 
+        }
+    </style>
+</head>
+<body>
 
-.btn-tab:focus {
-    background: var(--neon-blue);
-    color: black;
-    border-color: var(--neon-blue);
-}
+    <div id="custom-alert">
+        <div class="alert-content">
+            <h2 id="alert-title">OPS!</h2>
+            <p id="alert-msg">Saldo anda tidak mencukupi untuk bermain.</p>
+            <button class="alert-btn" onclick="closeAlert()">MENGERTI</button>
+        </div>
+    </div>
 
-/* TABEL RIWAYAT (Waktu Lengkap) */
-table {
-    width: 100%;
-    margin-top: 10px;
-    border-collapse
-/* GAME SPECIFIC STYLES */
-#plinko-canvas-container {
-    width: 100%;
-    height: 500px;
-    position: relative;
-    overflow: hidden;
-    margin-top: 10px;
-}
+    <div class="header">
+        <i class="fa-solid fa-circle-user prof-link" onclick="location.href='profil.html'"></i>
+        <div class="balance-box">
+            <span id="tier-name">VIP PLATINUM</span>
+            <span id="display-saldo">IDR 0</span>
+        </div>
+    </div>
 
-#bucket-labels {
-    display: flex;
-    justify-content: space-between;
-    position: absolute;
-    bottom: 10px;
-    width: 100%;
-    padding: 0 5px;
-}
+    <div id="game-container"></div>
 
-.bucket {
-    flex: 1;
-    margin: 2px;
-    background: rgba(255, 0, 119, 0.2);
-    border: 1px solid var(--neon-pink);
-    font-size: 8px;
-    padding: 5px 0;
-    border-radius: 4px;
-    color: white;
-    text-align: center;
-}
+    <div class="multipliers">
+        <div class="slot m-pink">5x</div>
+        <div class="slot m-yellow">2x</div>
+        <div class="slot m-blue">1.2x</div>
+        <div class="slot m-loss">0.2x</div>
+        <div class="slot m-blue">1.2x</div>
+        <div class="slot m-yellow">2x</div>
+        <div class="slot m-pink">5x</div>
+    </div>
 
-.risk-selector {
-    display: flex;
-    gap: 10px;
-    margin: 15px 0;
-}
+    <div class="nav-grid">
+        <div class="btn-nav c-pink" onclick="location.href='withdraw.html'">
+            <i class="fa-solid fa-wallet"></i> 
+            <span style="font-size: 9px; font-weight: 900;">WITHDRAW</span>
+        </div>
+        <div class="btn-nav c-blue" onclick="location.href='deposit.html'">
+            <i class="fa-solid fa-building-columns"></i>
+            <span style="font-size: 9px; font-weight: 900;">DEPOSIT</span>
+        </div>
+        <div class="btn-nav c-yellow" onclick="location.href='reward.html'">
+            <i class="fa-solid fa-gift"></i>
+            <span style="font-size: 9px; font-weight: 900;">REWARD</span>
+        </div>
+    </div>
 
-.btn-risk {
-    flex: 1;
-    padding: 10px;
-    background: #1a1a2e;
-    border: 1px solid #333;
-    color: #888;
-    border-radius: 8px;
-    font-size: 12px;
-    cursor: pointer;
-}
+    <div class="play-area">
+        <div class="mode-toggles">
+            <div id="btn-normal" class="toggle active" onclick="setSpeed('normal')">NORMAL</div>
+            <div id="btn-turbo" class="toggle" onclick="setSpeed('turbo')">TURBO</div>
+            <div id="btn-auto" class="toggle" onclick="toggleAuto()">AUTO</div>
+        </div>
 
-.btn-risk.active {
-    border-color: var(--neon-blue);
-    color: var(--neon-blue);
-    box-shadow: 0 0 10px var(--neon-blue);
-}
+        <div class="bet-selector">
+            <button class="bet-btn" onclick="changeBet(-1)">-</button>
+            <div style="text-align: center;">
+                <small style="font-size: 8px; color: var(--blue); display: block; font-weight: 900;">BET AMOUNT</small>
+                <span id="current-bet" style="font-weight: 900; color: var(--yellow); font-size: 20px;">1,000</span>
+            </div>
+            <button class="bet-btn" onclick="changeBet(1)">+</button>
+        </div>
 
-.bet-controls {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    background: rgba(255,255,255,0.05);
-    padding: 10px;
-    border-radius: 12px;
-    margin-bottom: 10px;
-}
+        <button class="btn-main" id="play-text" onclick="handlePlay()">MULAI MAIN</button>
+    </div>
 
-.btn-play {
-    background: linear-gradient(45deg, var(--neon-pink), #ff00ff) !important;
-    color: white !important;
-    font-size: 18px !important;
-}
+    <script src="global.js"></script>
+    <script>
+        // --- Custom Alert System ---
+        function showAlert(msg) {
+            document.getElementById('alert-msg').innerText = msg;
+            document.getElementById('custom-alert').style.display = 'flex';
+        }
+        function closeAlert() {
+            document.getElementById('custom-alert').style.display = 'none';
+        }
+
+        const bets = [400,600,800,1000,1200,1400,1600,1800,2000,4000,6000,8000,10000,12000,14000,16000,18000,20000];
+        let betIdx = 3; 
+        let isTurbo = false;
+        let isAuto = false;
+        let autoInterval = null;
+        let isAlerting = false; 
+        let activeBalls = [];
+
+        const container = document.getElementById('game-container');
+        const slots = [5, 2, 1.2, 0.2, 1.2, 2, 5];
+
+        for (let r = 2; r <= 8; r++) {
+            for (let i = 0; i < r; i++) {
+                const peg = document.createElement('div');
+                peg.className = 'peg';
+                peg.style.top = (r * 35) + 'px'; 
+                peg.style.left = `calc(50% + ${(i - (r - 1) / 2) * 32}px)`;
+                container.appendChild(peg);
+            }
+        }
+
+        function changeBet(dir) {
+            betIdx = Math.max(0, Math.min(bets.length - 1, betIdx + dir));
+            document.getElementById('current-bet').innerText = bets[betIdx].toLocaleString();
+        }
+
+        function setSpeed(mode) {
+            isTurbo = (mode === 'turbo');
+            document.getElementById('btn-normal').classList.toggle('active', !isTurbo);
+            document.getElementById('btn-turbo').classList.toggle('active', isTurbo);
+            if(isAuto) restartAuto();
+        }
+
+        function toggleAuto() {
+            isAuto = !isAuto;
+            isAlerting = false;
+            const btn = document.getElementById('play-text');
+            document.getElementById('btn-auto').classList.toggle('active', isAuto);
+            
+            if(isAuto) {
+                btn.innerText = "STOP AUTO";
+                btn.classList.add('auto-active');
+                startAuto();
+            } else {
+                btn.innerText = "MULAI MAIN";
+                btn.classList.remove('auto-active');
+                stopAuto();
+            }
+        }
+
+        function startAuto() {
+            dropBall();
+            autoInterval = setInterval(dropBall, isTurbo ? 300 : 800);
+        }
+        function stopAuto() { clearInterval(autoInterval); }
+        function restartAuto() { stopAuto(); startAuto(); }
+
+        function handlePlay() {
+            isAlerting = false;
+            if(isAuto) toggleAuto();
+            else dropBall();
+        }
+
+        function showFloatingWin(amount, x, y) {
+            const popup = document.createElement('div');
+            popup.className = 'win-popup';
+            popup.innerText = `+${amount.toLocaleString()}`;
+            popup.style.left = (x - 40) + 'px';
+            popup.style.top = (y - 20) + 'px';
+            document.body.appendChild(popup);
+            setTimeout(() => popup.remove(), 1200);
+        }
+
+        function dropBall() {
+            const currentBet = bets[betIdx];
+            if (!updateSaldo(-currentBet)) {
+                if (!isAlerting) {
+                    isAlerting = true;
+                    if(isAuto) toggleAuto();
+                    showAlert("Saldo Tidak Cukup! Silahkan lakukan deposit.");
+                }
+                return;
+            }
+
+            const winRate = typeof getWinRate === "function" ? getWinRate() : 30;
+            const isSettinganMenang = (Math.random() * 100) <= winRate;
+
+            const ballEl = document.createElement('div');
+            ballEl.className = 'ball';
+            const ballObj = { el: ballEl, x: container.offsetWidth / 2, y: 15, vx: 0, vy: 0, row: 0, radius: 6, isFinished: false, inPegArea: true };
+
+            container.appendChild(ballEl);
+            activeBalls.push(ballObj);
+
+            let gravity = 0.25;
+            let bounce = 0.45;
+            const speedFactor = isTurbo ? 2.5 : 1;
+
+            const move = setInterval(() => {
+                if (ballObj.isFinished) { clearInterval(move); return; }
+
+                ballObj.vy += gravity * speedFactor;
+                ballObj.x += ballObj.vx * speedFactor;
+                ballObj.y += ballObj.vy * speedFactor;
+
+                let targetY = (ballObj.row + 2) * 35;
+                if (ballObj.y >= targetY && ballObj.row < 7) {
+                    ballObj.row++;
+                    let dir = (isSettinganMenang) ? (ballObj.x > container.offsetWidth / 2 ? 1 : -1) : (ballObj.x > container.offsetWidth / 2 ? -1 : 1);
+                    if (Math.random() > 0.8) dir *= -1; 
+                    ballObj.vx += dir * (1.2 + Math.random() * 1.5);
+                    ballObj.vy *= -bounce;
+                    ballObj.y = targetY - 1;
+                }
+
+                ballEl.style.left = ballObj.x + 'px';
+                ballEl.style.top = ballObj.y + 'px';
+
+                if (ballObj.y > 320) {
+                    ballObj.isFinished = true;
+                    clearInterval(move);
+                    let finalIdx = Math.max(0, Math.min(6, Math.round((ballObj.x - container.offsetWidth/2)/32 + 3)));
+                    
+                    setTimeout(() => {
+                        const ballRect = ballEl.getBoundingClientRect();
+                        ballEl.remove();
+                        activeBalls = activeBalls.filter(b => b !== ballObj);
+                        const winMult = slots[finalIdx];
+                        const totalWin = currentBet * winMult;
+                        updateSaldo(totalWin);
+                        if(totalWin > 0) showFloatingWin(totalWin, ballRect.left, ballRect.top);
+                    }, 100);
+                }
+            }, 16);
+        }
+    </script>
+</body>
+</html>
