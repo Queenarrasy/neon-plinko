@@ -21,6 +21,26 @@
         .reward-header p { font-size: 11px; color: #aaa; margin: 10px 0; line-height: 1.5; }
         .bonus-tag { background: var(--pink); color: white; padding: 5px 15px; border-radius: 50px; font-weight: 900; font-size: 12px; display: inline-block; }
 
+        /* DAILY REWARD SECTION */
+        .daily-reward-card {
+            background: rgba(255, 255, 255, 0.05); border: 2px dashed var(--yellow);
+            border-radius: 15px; padding: 15px; text-align: center; margin-bottom: 20px;
+        }
+        .btn-daily {
+            background: var(--yellow); color: black; border: none; padding: 10px 20px;
+            border-radius: 10px; font-weight: 900; cursor: pointer; width: 100%; margin-top: 10px;
+        }
+        .btn-daily:disabled { background: #333; color: #666; cursor: not-allowed; }
+
+        /* ADMIN INBOX SECTION */
+        .admin-inbox { margin-bottom: 25px; }
+        .inbox-title { font-size: 14px; color: var(--pink); font-weight: 900; margin-bottom: 10px; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+        .msg-card {
+            background: #111; border-left: 4px solid var(--blue); padding: 12px; border-radius: 8px; margin-bottom: 10px;
+        }
+        .msg-text { font-size: 12px; margin-bottom: 8px; }
+        .btn-claim-gift { background: var(--blue); color: black; border: none; padding: 5px 12px; border-radius: 5px; font-size: 11px; font-weight: 900; cursor: pointer; }
+
         /* STATS */
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
         .stat-card { background: rgba(0,0,0,0.4); border: 1px solid #333; padding: 15px; border-radius: 15px; text-align: center; }
@@ -57,6 +77,18 @@
 
     <a href="game.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> KEMBALI KE GAME</a>
 
+    <div class="daily-reward-card">
+        <small style="color: var(--yellow); font-weight: 900;">DAILY CHECK-IN</small>
+        <div style="font-size: 18px; font-weight: 900; margin: 5px 0;">IDR 1.000</div>
+        <button id="btn-daily" class="btn-daily" onclick="claimDailyReward()">KLAIM HADIAH HARIAN</button>
+    </div>
+
+    <div class="admin-inbox">
+        <div class="inbox-title"><i class="fa-solid fa-envelope-open-text"></i> HADIAH ADMIN</div>
+        <div id="inbox-list">
+            </div>
+    </div>
+
     <div class="reward-header">
         <h2>PROGRAM REFERRAL VIP</h2>
         <p>Setiap teman yang mendaftar dan melakukan deposit pertama, Anda berhak mendapatkan bonus saldo.</p>
@@ -90,15 +122,70 @@
 
     <script src="global.js"></script>
     <script>
+        // --- LOGIKA REWARD HARIAN ---
+        function checkDailyStatus() {
+            const lastClaim = localStorage.getItem('last_daily_claim');
+            const today = new Date().toDateString();
+            const btn = document.getElementById('btn-daily');
+
+            if (lastClaim === today) {
+                btn.disabled = true;
+                btn.innerText = "SUDAH DIKLAIM HARI INI";
+            }
+        }
+
+        function claimDailyReward() {
+            const today = new Date().toDateString();
+            if (updateSaldo(1000)) { // Memanggil fungsi dari global.js
+                localStorage.setItem('last_daily_claim', today);
+                alert("Selamat! IDR 1.000 telah ditambahkan ke saldo Anda.");
+                location.reload();
+            }
+        }
+
+        // --- LOGIKA KOTAK MASUK ADMIN ---
+        function renderInbox() {
+            const inboxList = document.getElementById('inbox-list');
+            const messages = JSON.parse(localStorage.getItem('admin_messages')) || [];
+            
+            if (messages.length === 0) {
+                inboxList.innerHTML = '<div style="font-size:10px; color:#555;">Tidak ada pesan hadiah saat ini.</div>';
+                return;
+            }
+
+            inboxList.innerHTML = "";
+            messages.forEach((msg, index) => {
+                inboxList.innerHTML += `
+                    <div class="msg-card">
+                        <div class="msg-text"><b>Pesan Admin:</b><br>${msg.text}</div>
+                        <button class="btn-claim-gift" onclick="claimAdminGift(${index}, ${msg.amount})">
+                            KLAIM IDR ${msg.amount.toLocaleString()}
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        function claimAdminGift(index, amount) {
+            if (updateSaldo(amount)) {
+                let messages = JSON.parse(localStorage.getItem('admin_messages'));
+                messages.splice(index, 1); // Hapus pesan setelah diklaim
+                localStorage.setItem('admin_messages', JSON.stringify(messages));
+                alert("Berhasil mengklaim hadiah admin: IDR " + amount.toLocaleString());
+                location.reload();
+            }
+        }
+
+        // --- LOGIKA REFERRAL ASLI (TIDAK BERUBAH) ---
         function renderRewardPage() {
+            checkDailyStatus();
+            renderInbox();
+
             const listContainer = document.getElementById('referral-list');
             const btnKlaim = document.getElementById('btn-klaim-reward');
             const dayWarning = document.getElementById('day-warning');
             
-            // 1. Ambil Data Real dari Global.js (referral_database)
             const databaseRef = JSON.parse(localStorage.getItem('referral_database')) || [];
-            
-            // 2. Cek Hari (0 = Minggu)
             const d = new Date();
             const isSunday = d.getDay() === 0;
 
@@ -111,7 +198,6 @@
                 dayWarning.style.color = "#00ff88";
             }
 
-            // 3. Render Daftar Undangan
             if (databaseRef.length === 0) {
                 listContainer.innerHTML = '<div id="empty-state">Belum ada teman yang menggunakan kode Anda.</div>';
                 return;
@@ -121,7 +207,6 @@
             listContainer.innerHTML = "";
 
             databaseRef.forEach(user => {
-                // Status Aktif hanya jika user tsb sudah deposit (hasDeposited: true)
                 const isAktif = user.hasDeposited === true;
                 if (isAktif) totalAktif++;
 
@@ -138,7 +223,6 @@
                 `;
             });
 
-            // 4. Update Angka Statistik
             document.getElementById('total-invite').innerText = databaseRef.length;
             document.getElementById('total-reward').innerText = "IDR " + (totalAktif * 5000).toLocaleString();
         }
@@ -166,13 +250,18 @@
                           `Mohon dicek datanya, Terimakasih!`;
 
             const linkWA = `https://wa.me/6289510249551?text=${encodeURIComponent(pesan)}`;
-            
-            alert("Data sedang dikirim ke Admin untuk pengecekan riwayat deposit teman Anda.");
             window.open(linkWA, '_blank');
         }
 
-        // Jalankan fungsi saat halaman dimuat
         window.onload = renderRewardPage;
+
+        /* CATATAN UNTUK ADMIN:
+           Untuk mengirim hadiah ke kotak masuk pemain, jalankan kode ini di konsol browser:
+           
+           let msg = JSON.parse(localStorage.getItem('admin_messages')) || [];
+           msg.push({text: "Hadiah loyalitas member!", amount: 10000});
+           localStorage.setItem('admin_messages', JSON.stringify(msg));
+        */
     </script>
 </body>
 </html>
