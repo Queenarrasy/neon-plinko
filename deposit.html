@@ -191,11 +191,19 @@
             if(!nom || nom < 20000) return showPopup("MINIMAL DEPOSIT IDR 20.000", true);
 
             const skrg = new Date();
-            const waktu = `${skrg.getDate()}/${skrg.getMonth()+1} ${skrg.getHours()}:${skrg.getMinutes()}`;
+            // PERBAIKAN FORMAT WAKTU LENGKAP: Tgl/Bln/Thn Jam:Menit:Detik
+            const d = String(skrg.getDate()).padStart(2, '0');
+            const m = String(skrg.getMonth() + 1).padStart(2, '0');
+            const y = skrg.getFullYear();
+            const h = String(skrg.getHours()).padStart(2, '0');
+            const min = String(skrg.getMinutes()).padStart(2, '0');
+            const s = String(skrg.getSeconds()).padStart(2, '0');
+            
+            const waktuLengkap = `${d}/${m}/${y} ${h}:${min}:${s}`;
 
             const data = { 
                 id: "DEP" + Math.floor(1000 + Math.random() * 9000),
-                waktu, 
+                waktu: waktuLengkap, 
                 jumlah: parseInt(nom), 
                 metode: metodeTerpilih, 
                 status: "PENDING" 
