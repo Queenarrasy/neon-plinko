@@ -2,40 +2,104 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>WITHDRAW VIP</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --pink: #ff0077; --blue: #00d4ff; --bg: #070816; }
-        body { background: var(--bg); color: white; font-family: sans-serif; text-align: center; padding: 20px; }
-        .card { background: rgba(255,255,255,0.03); border: 2px solid var(--pink); border-radius: 25px; padding: 25px; max-width: 400px; margin: auto; }
+        body { background: var(--bg); color: white; font-family: sans-serif; text-align: center; padding: 20px; margin: 0; }
+        
+        .card { 
+            background: rgba(255,255,255,0.03); 
+            border: 2px solid var(--pink); 
+            border-radius: 25px; 
+            padding: 25px; 
+            max-width: 400px; 
+            margin: auto; 
+            box-shadow: 0 0 20px rgba(255, 0, 119, 0.2);
+        }
         
         .info-box { background: #000; padding: 15px; border-radius: 12px; text-align: left; margin-bottom: 20px; border-left: 4px solid var(--blue); }
-        input { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid #333; background: #000; color: white; margin-top: 10px; box-sizing: border-box; outline: none; }
-        input:focus { border-color: var(--blue); }
         
-        .btn-wd { width: 100%; padding: 15px; background: var(--pink); color: white; border: none; border-radius: 10px; font-weight: bold; margin-top: 20px; cursor: pointer; box-shadow: 0 0 15px var(--pink); }
+        input { 
+            width: 100%; 
+            padding: 15px; 
+            border-radius: 12px; 
+            border: 1px solid #333; 
+            background: #000; 
+            color: white; 
+            margin-top: 10px; 
+            box-sizing: border-box; 
+            outline: none; 
+            font-weight: bold;
+        }
+        input:focus { border-color: var(--blue); box-shadow: 0 0 10px rgba(0, 212, 255, 0.2); }
+        
+        .btn-wd { 
+            width: 100%; 
+            padding: 15px; 
+            background: linear-gradient(90deg, var(--pink), #ff4d94); 
+            color: white; 
+            border: none; 
+            border-radius: 12px; 
+            font-weight: 900; 
+            margin-top: 20px; 
+            cursor: pointer; 
+            box-shadow: 0 0 15px var(--pink); 
+            text-transform: uppercase;
+        }
 
-        /* TABLE RIWAYAT */
-        .history-section { margin-top: 30px; text-align: left; width: 100%; max-width: 400px; margin-left: auto; margin-right: auto; }
-        .history-title { font-size: 14px; color: var(--blue); font-weight: 900; margin-bottom: 10px; border-bottom: 1px solid #222; padding-bottom: 5px; }
+        /* RIWAYAT - Disamakan dengan gaya Deposit */
+        .history-section { 
+            margin-top: 30px; 
+            background: rgba(0,0,0,0.4); 
+            border-radius: 15px; 
+            padding: 15px; 
+            border: 1px solid #222;
+        }
+        .history-title { 
+            font-size: 12px; 
+            color: var(--blue); 
+            font-weight: 900; 
+            margin-bottom: 15px; 
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .history-title::before { content: ""; width: 3px; height: 12px; background: var(--blue); display: inline-block; }
         
         table { width: 100%; border-collapse: collapse; font-size: 11px; }
-        th { color: #666; text-align: left; padding: 8px; border-bottom: 1px solid #333; }
-        td { padding: 10px 8px; border-bottom: 1px solid #111; }
+        th { color: #666; text-align: left; padding: 10px 8px; border-bottom: 1px solid #333; font-weight: 900; text-transform: uppercase; }
+        td { padding: 12px 8px; border-bottom: 1px solid #111; font-family: monospace; }
         
         .status-proses { color: #ffcc00; font-weight: bold; }
         .status-berhasil { color: #00ff88; font-weight: bold; }
+
+        /* Tombol Kembali ke Game - Dibuat lebih elegan */
+        .btn-back {
+            display: block;
+            margin-top: 25px;
+            padding: 12px;
+            text-decoration: none;
+            color: #888;
+            font-size: 12px;
+            font-weight: 900;
+            border: 1px solid #222;
+            border-radius: 10px;
+            transition: 0.3s;
+        }
+        .btn-back:hover { color: white; border-color: #444; background: rgba(255,255,255,0.05); }
     </style>
 </head>
 <body>
     <div class="card">
-        <h2 style="color: var(--pink);"><i class="fa-solid fa-money-bill-transfer"></i> WITHDRAW</h2>
+        <h2 style="color: var(--pink); margin-top: 0;"><i class="fa-solid fa-money-bill-transfer"></i> WITHDRAW</h2>
         
         <div class="info-box">
             <small style="color: #666; font-weight: 900; font-size: 9px;">TUJUAN TRANSFER:</small><br>
-            <b id="wd-bank" style="color: var(--blue);">-</b><br>
-            <span id="wd-rek" style="letter-spacing: 1px;">-</span>
+            <b id="wd-bank" style="color: var(--blue); text-transform: uppercase;">-</b><br>
+            <span id="wd-rek" style="letter-spacing: 1px; font-family: monospace; font-size: 16px;">-</span>
         </div>
 
         <input type="number" id="wd-amount" placeholder="Jumlah Penarikan (Min: 50.000)">
@@ -56,7 +120,9 @@
             </table>
         </div>
 
-        <button onclick="location.href='game.html'" style="background:none; border:none; color:#666; margin-top:20px; cursor:pointer;"> Kembali ke Game</button>
+        <a href="game.html" class="btn-back">
+            <i class="fa-solid fa-arrow-left"></i> KEMBALI KE PERMAINAN
+        </a>
     </div>
 
     <script src="global.js"></script>
@@ -68,13 +134,13 @@
         function renderHistory() {
             const history = JSON.parse(localStorage.getItem('history_wd') || "[]");
             const list = document.getElementById('wd-history-list');
-            list.innerHTML = history.length === 0 ? "<tr><td colspan='3' style='text-align:center; color:#444;'>Belum ada penarikan</td></tr>" : "";
+            list.innerHTML = history.length === 0 ? "<tr><td colspan='3' style='text-align:center; color:#444; padding: 20px;'>Belum ada penarikan</td></tr>" : "";
             
-            // Tampilkan dari yang terbaru
-            history.reverse().forEach(item => {
+            // Tampilkan dari yang terbaru (slice().reverse() agar tidak merubah array asli)
+            history.slice().reverse().forEach(item => {
                 const row = `<tr>
                     <td>${item.tanggal}</td>
-                    <td>IDR ${parseInt(item.total).toLocaleString('id-ID')}</td>
+                    <td style="color: var(--yellow)">IDR ${parseInt(item.total).toLocaleString('id-ID')}</td>
                     <td class="${item.status === 'Berhasil' ? 'status-berhasil' : 'status-proses'}">${item.status}</td>
                 </tr>`;
                 list.innerHTML += row;
@@ -95,6 +161,9 @@
                 return;
             }
 
+            // Konfirmasi sebelum WD
+            if(!confirm("Yakin ingin menarik saldo sebesar IDR " + amt.toLocaleString('id-ID') + "?")) return;
+
             // Potong Saldo
             if (updateSaldo(-amt)) {
                 const sekarang = new Date();
@@ -105,11 +174,11 @@
                 history.push({
                     tanggal: tglString,
                     total: amt,
-                    status: "Proses" // Default awal adalah Proses
+                    status: "Proses" 
                 });
                 localStorage.setItem('history_wd', JSON.stringify(history));
 
-                alert("Penarikan IDR " + amt.toLocaleString('id-ID') + " sedang diproses admin.");
+                alert("Berhasil! Penarikan sedang diproses admin.");
                 location.reload();
             }
         }
