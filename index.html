@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEON PLINKO VIP - Official Login</title>
+    <title>NEON PLINKO VIP - Official Portal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -42,8 +42,8 @@
         .neon-gold { color: var(--gold); text-shadow: 0 0 15px var(--gold); font-style: italic; }
 
         .auth-tabs { display: flex; background: rgba(0,0,0,0.4); border-radius: 15px; margin-bottom: 15px; padding: 5px; }
-        .tab { flex: 1; padding: 10px; cursor: pointer; font-size: 11px; font-weight: bold; border-radius: 10px; color: #555; }
-        .tab.active { background: rgba(0, 212, 255, 0.1); color: var(--neon-blue); }
+        .tab { flex: 1; padding: 10px; cursor: pointer; font-size: 11px; font-weight: bold; border-radius: 10px; color: #555; transition: 0.3s; }
+        .tab.active { background: rgba(0, 212, 255, 0.1); color: var(--neon-blue); box-shadow: inset 0 0 10px rgba(0, 212, 255, 0.1); }
 
         .input-group { text-align: left; margin-bottom: 12px; position: relative; }
         label { font-size: 9px; color: var(--neon-pink); font-weight: bold; margin-left: 10px; text-transform: uppercase; }
@@ -53,31 +53,31 @@
             background: rgba(0,0,0,0.6); border: 1px solid rgba(0, 212, 255, 0.2);
             border-radius: 12px; color: white; box-sizing: border-box; outline: none; font-size: 13px;
         }
-        input:focus { border-color: var(--neon-blue); }
+        input:focus { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0,212,255,0.1); }
 
-        /* Icon Mata Password */
-        .toggle-password {
-            position: absolute; right: 15px; top: 32px;
-            color: var(--neon-blue); cursor: pointer; font-size: 14px;
-        }
+        .toggle-password { position: absolute; right: 15px; top: 32px; color: var(--neon-blue); cursor: pointer; font-size: 14px; }
 
         .btn-action {
             width: 100%; padding: 15px; background: linear-gradient(45deg, var(--neon-pink), #ff0055);
             border: none; border-radius: 15px; color: white; font-weight: 900; text-transform: uppercase; cursor: pointer;
-            box-shadow: 0 5px 15px rgba(255, 0, 119, 0.4); margin-top: 10px;
+            box-shadow: 0 5px 15px rgba(255, 0, 119, 0.4); margin-top: 10px; transition: 0.2s;
         }
+        .btn-action:active { transform: scale(0.98); }
 
-        /* POPUP NOTIFIKASI NEON */
+        /* NEON POPUP SYSTEM */
+        .popup-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 999; backdrop-filter: blur(5px); }
         .neon-popup {
             display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 80%; max-width: 300px; background: var(--bg-dark);
-            border: 2px solid var(--neon-blue); border-radius: 20px;
-            padding: 25px; text-align: center; z-index: 1000;
-            box-shadow: 0 0 30px var(--neon-blue);
+            width: 80%; max-width: 320px; background: #0f112a;
+            border: 2px solid var(--neon-blue); border-radius: 25px;
+            padding: 30px 20px; text-align: center; z-index: 1000;
+            box-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
         }
-        .popup-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 999; }
+        .popup-icon { font-size: 50px; margin-bottom: 15px; }
+        .popup-title { font-weight: 900; letter-spacing: 1px; margin-bottom: 10px; color: #fff; }
+        .popup-msg { font-size: 12px; color: #bbb; line-height: 1.5; margin-bottom: 20px; }
 
-        .footer-note { font-size: 9px; color: #444; margin-top: 15px; line-height: 1.4; }
+        .footer-note { font-size: 8px; color: #444; margin-top: 15px; line-height: 1.4; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -94,7 +94,7 @@
 
         <div class="input-group">
             <label>Username Game</label>
-            <input type="text" id="userInput" placeholder="Contoh: ABCD">
+            <input type="text" id="userInput" placeholder="Masukkan Username">
         </div>
 
         <div id="extra-fields">
@@ -108,8 +108,11 @@
             </div>
             <div class="input-group">
                 <label>Nomor Rekening / E-Wallet</label>
-                <input type="number" id="bankAccInput" placeholder="Untuk pencairan saldo">
+                <input type="number" id="bankAccInput" placeholder="Nomor rekening unik">
             </div>
+            <p style="font-size: 8px; color: var(--neon-blue); text-align: left; margin: -5px 0 10px 10px;">
+                *Pastikan akun E-Wallet sudah Premium/Plus.
+            </p>
         </div>
 
         <div class="input-group">
@@ -121,31 +124,33 @@
         <button class="btn-action" id="btnSubmit" onclick="handleAuth()">DAFTAR SEKARANG</button>
 
         <div class="footer-note">
-            Data pendaftaran Anda akan terkunci secara otomatis demi keamanan pencairan dana.
+            Satu HP bisa banyak akun dengan rekening berbeda.<br>
+            Data terkunci otomatis demi keamanan pencairan.
         </div>
     </div>
 
     <div class="popup-overlay" id="overlay"></div>
     <div class="neon-popup" id="popup">
-        <i class="fa-solid fa-circle-check" style="color: var(--neon-blue); font-size: 40px; margin-bottom: 15px;"></i>
-        <h3 style="color: #fff; margin: 0;">BERHASIL!</h3>
-        <p id="popupMsg" style="color: #888; font-size: 12px; margin: 10px 0 20px;">Akun Anda telah aktif.</p>
-        <button class="btn-action" style="padding: 10px;" onclick="closePopup()">OK, MASUK GAME</button>
+        <div id="popupIcon" class="popup-icon"></div>
+        <h3 id="popupTitle" class="popup-title">NOTIFIKASI</h3>
+        <p id="popupMsg" class="popup-msg"></p>
+        <button class="btn-action" style="padding: 12px; background: var(--neon-blue); color: #000;" id="popupBtn" onclick="closePopup()">MENGERTI</button>
     </div>
 
     <script>
         let currentMode = 'register';
 
+        // Inisialisasi Database Akun (Local Storage)
+        if (!localStorage.getItem('all_accounts')) {
+            localStorage.setItem('all_accounts', JSON.stringify([]));
+        }
+
         function togglePass() {
             const passField = document.getElementById('passInput');
             const icon = document.querySelector('.toggle-password');
-            if (passField.type === "password") {
-                passField.type = "text";
-                icon.classList.replace('fa-eye-slash', 'fa-eye');
-            } else {
-                passField.type = "password";
-                icon.classList.replace('fa-eye', 'fa-eye-slash');
-            }
+            const isPass = passField.type === "password";
+            passField.type = isPass ? "text" : "password";
+            icon.classList.replace(isPass ? 'fa-eye-slash' : 'fa-eye', isPass ? 'fa-eye' : 'fa-eye-slash');
         }
 
         function switchMode(mode) {
@@ -156,44 +161,88 @@
             document.getElementById('tabReg').classList.toggle('active', mode === 'register');
         }
 
-        function handleAuth() {
-            const user = document.getElementById('userInput').value;
-            const pass = document.getElementById('passInput').value;
-
-            if (pass.length < 6) return alert("Password harus minimal 6 karakter!");
-
-            if (currentMode === 'register') {
-                const name = document.getElementById('nameInput').value;
-                const bank = document.getElementById('bankNameInput').value;
-                const acc = document.getElementById('bankAccInput').value;
-
-                if (!user || !name || !bank || !acc) return alert("Mohon lengkapi semua data!");
-
-                localStorage.setItem('plinko_user', JSON.stringify({ 
-                    username: user, fullName: name, bankName: bank, accountNumber: acc, password: pass 
-                }));
-                localStorage.setItem('user_balance', '0');
-                showPopup("Registrasi Berhasil! Selamat datang di NEON PLINKO VIP.");
-            } else {
-                const saved = JSON.parse(localStorage.getItem('plinko_user'));
-                if (saved && user === saved.username && pass === saved.password) {
-                    localStorage.setItem('is_logged_in', 'true');
-                    window.location.href = 'game.html';
-                } else {
-                    alert("Username atau Password salah!");
-                }
-            }
-        }
-
-        function showPopup(msg) {
+        function showNeonPopup(title, msg, type) {
+            const popup = document.getElementById('popup');
+            const overlay = document.getElementById('overlay');
+            const iconDiv = document.getElementById('popupIcon');
+            
+            document.getElementById('popupTitle').innerText = title;
             document.getElementById('popupMsg').innerText = msg;
-            document.getElementById('overlay').style.display = 'block';
-            document.getElementById('popup').style.display = 'block';
+            
+            if(type === 'success') {
+                iconDiv.innerHTML = '<i class="fa-solid fa-circle-check" style="color: var(--neon-blue);"></i>';
+                popup.style.borderColor = "var(--neon-blue)";
+                popup.style.boxShadow = "0 0 40px rgba(0, 212, 255, 0.4)";
+            } else {
+                iconDiv.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color: var(--neon-pink);"></i>';
+                popup.style.borderColor = "var(--neon-pink)";
+                popup.style.boxShadow = "0 0 40px rgba(255, 0, 119, 0.4)";
+            }
+
+            overlay.style.display = 'block';
+            popup.style.display = 'block';
         }
 
         function closePopup() {
-            localStorage.setItem('is_logged_in', 'true');
-            window.location.href = 'game.html';
+            if(document.getElementById('popupTitle').innerText === "BERHASIL") {
+                window.location.href = 'game.html';
+            } else {
+                document.getElementById('overlay').style.display = 'none';
+                document.getElementById('popup').style.display = 'none';
+            }
+        }
+
+        function handleAuth() {
+            const user = document.getElementById('userInput').value.trim();
+            const pass = document.getElementById('passInput').value;
+            const accounts = JSON.parse(localStorage.getItem('all_accounts'));
+
+            if (pass.length < 6) {
+                return showNeonPopup("ERROR", "Password minimal 6 karakter!", "error");
+            }
+
+            if (currentMode === 'register') {
+                const name = document.getElementById('nameInput').value.trim();
+                const bank = document.getElementById('bankNameInput').value.trim();
+                const acc = document.getElementById('bankAccInput').value.trim();
+
+                if (!user || !name || !bank || !acc) return showNeonPopup("DATA KOSONG", "Lengkapi semua kolom pendaftaran!", "error");
+
+                // Cek Username Ganda
+                if (accounts.some(a => a.username.toLowerCase() === user.toLowerCase())) {
+                    return showNeonPopup("NAMA TELAH TERPAKAI", "Username sudah ada. Mohon gunakan nama lain!", "error");
+                }
+
+                // Cek Rekening Ganda (Walaupun nama sama, rekening harus beda)
+                if (accounts.some(a => a.accountNumber === acc)) {
+                    return showNeonPopup("REKENING TERDAFTAR", "Nomor rekening ini sudah digunakan di akun lain!", "error");
+                }
+
+                // Simpan Akun Baru
+                const newAcc = { 
+                    username: user, fullName: name, bankName: bank, accountNumber: acc, password: pass,
+                    balance: 0, totalDepo: 0, id: "#VIP" + Math.floor(100000 + Math.random() * 899999)
+                };
+                accounts.push(newAcc);
+                localStorage.setItem('all_accounts', JSON.stringify(accounts));
+                
+                // Set Akun Aktif
+                localStorage.setItem('plinko_user', JSON.stringify(newAcc));
+                localStorage.setItem('is_logged_in', 'true');
+                
+                showNeonPopup("BERHASIL", "Registrasi Berhasil! Selamat datang di NEON PLINKO VIP.", "success");
+
+            } else {
+                // Proses Login Multi Account
+                const found = accounts.find(a => a.username.toLowerCase() === user.toLowerCase() && a.password === pass);
+                if (found) {
+                    localStorage.setItem('plinko_user', JSON.stringify(found));
+                    localStorage.setItem('is_logged_in', 'true');
+                    window.location.href = 'game.html';
+                } else {
+                    showNeonPopup("GAGAL MASUK", "Username atau Password salah!", "error");
+                }
+            }
         }
 
         window.onload = () => {
