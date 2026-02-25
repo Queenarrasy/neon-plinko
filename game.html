@@ -19,142 +19,148 @@
         /* HEADER */
         .header {
             width: 100%; display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 20px; box-sizing: border-box; position: relative; z-index: 10;
+            padding: 15px 20px; box-sizing: border-box; z-index: 100;
         }
-        .p-img { width: 55px; height: 55px; border-radius: 50%; border: 3px solid var(--neon-pink); cursor: pointer; }
-        .saldo-box { 
-            background: rgba(0,0,0,0.8); border: 2px solid var(--neon-blue); 
-            border-radius: 20px; padding: 5px 20px; text-align: center; min-width: 120px;
-            box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+        .nav-btn-top {
+            width: 50px; height: 50px; background: rgba(255,255,255,0.1);
+            border: 2px solid var(--neon-pink); border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; box-shadow: 0 0 10px var(--neon-pink);
         }
-
-        /* JUDUL NEON TEBAL */
-        .title-container { text-align: center; margin: 10px 0; }
-        .neon-title { 
-            font-size: 28px; font-weight: 900; color: var(--neon-blue); 
-            text-transform: uppercase; margin: 0;
-            text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
-        }
-        .sub-tile { font-size: 10px; color: #888; letter-spacing: 3px; font-weight: bold; }
-
-        /* GRID MENU 6 TOMBOL (SESUAI GAMBAR BARU) */
-        .menu-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr);
-            gap: 15px; width: 90%; margin: 15px 0; z-index: 10;
-        }
-        .menu-item {
-            background: white; border-radius: 15px; padding: 15px 5px;
-            display: flex; flex-direction: column; align-items: center;
-            text-decoration: none; cursor: pointer; transition: 0.2s;
-        }
-        .menu-item:active { transform: scale(0.95); }
-        .menu-item i { font-size: 24px; color: var(--neon-pink); margin-bottom: 5px; }
-        .menu-item span { color: var(--neon-pink); font-size: 11px; font-weight: 900; }
-
-        /* MULTIPLIER SLOTS */
-        .slots { display: flex; justify-content: center; gap: 5px; width: 95%; margin: 15px 0; }
-        .slot { 
-            flex: 1; padding: 8px 0; font-size: 10px; font-weight: 900; 
-            text-align: center; border-radius: 6px; color: black;
-        }
-        .s-pink { background: #ff0077; box-shadow: 0 0 10px #ff0077; color: white; }
-        .s-gold { background: #fbff00; box-shadow: 0 0 10px #fbff00; }
-        .s-blue { background: #00d4ff; box-shadow: 0 0 10px #00d4ff; }
-
-        /* BOLA NEON BIRU */
-        #ball-visual {
-            width: 50px; height: 50px; background: #00d4ff;
-            border-radius: 50%; margin: 10px 0;
-            box-shadow: 0 0 30px #00d4ff, 0 0 60px #00d4ff;
-            background: radial-gradient(circle, #fff, #00d4ff);
-        }
-
-        /* BET CONTROL */
-        .bet-ctrl { 
-            background: rgba(0,0,0,0.6); border-radius: 30px; display: flex; 
-            align-items: center; padding: 5px 25px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1); 
-        }
-        .b-btn { background: none; border: none; color: var(--neon-blue); font-size: 25px; cursor: pointer; font-weight: bold; }
+        .nav-btn-top i { font-size: 20px; color: white; }
         
-        /* TOMBOL MULAI */
-        .btn-play { 
-            width: 88%; padding: 18px; background: linear-gradient(180deg, var(--neon-blue), #0055ff); 
+        .saldo-display { 
+            background: rgba(0,0,0,0.8); border: 2px solid var(--neon-blue); 
+            border-radius: 20px; padding: 5px 20px; text-align: center;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
+        }
+
+        /* AREA PIRAMIDA PAKU */
+        .game-container { position: relative; width: 100%; flex-grow: 1; display: flex; flex-direction: column; align-items: center; }
+        canvas { background: transparent; margin-top: 10px; }
+
+        /* PERKALIAN (SLOTS) */
+        .multiplier-bar { display: flex; justify-content: center; gap: 4px; width: 90%; margin: 10px 0; }
+        .m-slot { 
+            flex: 1; padding: 8px 0; font-size: 10px; font-weight: 900; 
+            text-align: center; border-radius: 6px; color: white;
+        }
+        .pink { background: var(--neon-pink); box-shadow: 0 0 8px var(--neon-pink); }
+        .gold { background: var(--neon-gold); color: black; box-shadow: 0 0 8px var(--neon-gold); }
+        .blue { background: var(--neon-blue); color: black; box-shadow: 0 0 8px var(--neon-blue); }
+
+        /* NAVIGASI BAWAH (DEPOSIT, WD, RANK) */
+        .action-nav { 
+            display: grid; grid-template-columns: repeat(3, 1fr); 
+            gap: 10px; width: 90%; margin-bottom: 15px; 
+        }
+        .nav-box {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px; padding: 12px 0; text-align: center;
+            cursor: pointer; transition: 0.3s; text-decoration: none;
+        }
+        .nav-box:active { background: rgba(255,255,255,0.2); }
+        .nav-box i { font-size: 22px; margin-bottom: 5px; display: block; }
+        .nav-box span { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* KONTROL TARUHAN & MULAI */
+        .bet-area { 
+            background: rgba(0,0,0,0.6); border-radius: 30px; display: flex; 
+            align-items: center; padding: 5px 20px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1); 
+        }
+        .bet-btn { background: none; border: none; color: var(--neon-blue); font-size: 25px; cursor: pointer; font-weight: bold; }
+        
+        .btn-spin { 
+            width: 85%; padding: 16px; background: linear-gradient(180deg, var(--neon-blue), #0055ff); 
             border: none; border-radius: 40px; color: white; font-size: 20px; font-weight: 900; 
-            box-shadow: 0 0 30px rgba(0, 212, 255, 0.5); cursor: pointer; text-transform: uppercase;
+            box-shadow: 0 0 25px rgba(0, 212, 255, 0.5); cursor: pointer; text-transform: uppercase;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" class="p-img" onclick="location.href='profile.html'">
-        <div class="saldo-box">
-            <small style="color: var(--neon-blue); font-size: 8px; font-weight: bold;">SALDO VIP</small>
-            <div style="font-size: 18px; font-weight: 900;">IDR 91.200</div>
-        </div>
-        <img src="https://cdn-icons-png.flaticon.com/512/4213/4213958.png" style="width:50px; filter: drop-shadow(0 0 10px red);" onclick="location.href='hadiah.html'">
-    </div>
-
-    <div class="title-container">
-        <h1 class="neon-title">NEON PLINKO VIP</h1>
-        <div class="sub-tile">SUB-TILE MPER</div>
-    </div>
-
-    <div class="menu-grid">
-        <div class="menu-item" onclick="location.href='deposit.html'">
-            <i class="fa-solid fa-star"></i>
-            <span>Deposit</span>
-        </div>
-        <div class="menu-item" onclick="location.href='withdraw.html'">
-            <i class="fa-solid fa-folder-open"></i>
-            <span>Withdraw</span>
-        </div>
-        <div class="menu-item" onclick="location.href='profile.html'">
-            <i class="fa-solid fa-circle-info"></i>
-            <span>Profile</span>
-        </div>
-        <div class="menu-item" onclick="location.href='rank.html'">
-            <i class="fa-solid fa-life-ring"></i>
-            <span>Rank</span>
-        </div>
-        <div class="menu-item" onclick="location.href='profile.html'">
-            <i class="fa-solid fa-gear"></i>
-            <span>Profile</span>
-        </div>
-        <div class="menu-item" style="background: white;">
+        <div class="nav-btn-top" onclick="location.href='profile.html'">
             <i class="fa-solid fa-user"></i>
-            <span>White</span>
+        </div>
+        <div class="saldo-display">
+            <small style="color: var(--neon-blue); font-size: 8px; font-weight: bold; display: block;">SALDO VIP</small>
+            <div id="display-saldo" style="font-size: 18px; font-weight: 900;">IDR 91.200</div>
+        </div>
+        <div class="nav-btn-top" style="border-color: var(--neon-gold); box-shadow: 0 0 10px var(--neon-gold);" onclick="location.href='reward.html'">
+            <i class="fa-solid fa-gift" style="color: var(--neon-gold);"></i>
         </div>
     </div>
 
-    <div class="slots">
-        <div class="slot s-pink">5x</div>
-        <div class="slot s-gold">2x</div>
-        <div class="slot s-gold">1.2x</div>
-        <div class="slot s-blue">0.2x</div>
-        <div class="slot s-gold">1.2x</div>
-        <div class="slot s-blue">2x</div>
-        <div class="slot s-pink">5x</div>
-    </div>
+    <div class="game-container">
+        <canvas id="plinkoCanvas"></canvas>
 
-    <div id="ball-visual"></div>
-
-    <div class="bet-ctrl">
-        <button class="b-btn" onclick="changeBet(-100)">-</button>
-        <div style="text-align: center; min-width: 100px;">
-            <small style="color:#555; display:block; font-size: 8px;">TARUHAN</small>
-            <span id="bet-val" style="font-size: 18px; font-weight: 900; color: var(--neon-gold);">300</span>
+        <div class="multiplier-bar">
+            <div class="m-slot pink">5x</div>
+            <div class="m-slot gold">2x</div>
+            <div class="m-slot gold">1.2x</div>
+            <div class="m-slot blue">0.2x</div>
+            <div class="m-slot gold">1.2x</div>
+            <div class="m-slot gold">2x</div>
+            <div class="m-slot pink">5x</div>
         </div>
-        <button class="b-btn" onclick="changeBet(100)">+</button>
-    </div>
 
-    <button class="btn-play">MULAI MAIN</button>
+        <div class="action-nav">
+            <a href="withdraw.html" class="nav-box">
+                <i class="fa-solid fa-hand-holding-dollar" style="color: var(--neon-gold);"></i>
+                <span style="color: var(--neon-pink);">Tarik</span>
+            </a>
+            <a href="deposit.html" class="nav-box">
+                <i class="fa-solid fa-building-columns" style="color: var(--neon-blue);"></i>
+                <span style="color: var(--neon-pink);">Deposit</span>
+            </a>
+            <a href="rank.html" class="nav-box">
+                <i class="fa-solid fa-crown" style="color: var(--neon-gold);"></i>
+                <span style="color: var(--neon-pink);">Rank</span>
+            </a>
+        </div>
+
+        <div class="bet-area">
+            <button class="bet-btn" onclick="adjustBet(-100)">-</button>
+            <div style="text-align: center; min-width: 100px;">
+                <small style="color:#666; display:block; font-size: 8px;">TARUHAN</small>
+                <span id="bet-amount" style="font-size: 18px; font-weight: 900; color: var(--neon-gold);">400</span>
+            </div>
+            <button class="bet-btn" onclick="adjustBet(100)">+</button>
+        </div>
+
+        <button class="btn-spin" onclick="dropBall()">MULAI MAIN</button>
+    </div>
 
     <script>
-        let bet = 300;
-        function changeBet(val) {
-            bet = Math.max(100, bet + val);
-            document.getElementById('bet-val').innerText = bet;
+        const canvas = document.getElementById('plinkoCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 340; canvas.height = 300;
+
+        // Gambar piramida paku statis
+        function drawPins() {
+            ctx.fillStyle = "white";
+            for (let r = 2; r <= 10; r++) {
+                for (let c = 0; c < r; c++) {
+                    let x = canvas.width / 2 + (c - (r - 1) / 2) * 30;
+                    let y = r * 25;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+        }
+        drawPins();
+
+        function adjustBet(val) {
+            let current = parseInt(document.getElementById('bet-amount').innerText);
+            document.getElementById('bet-amount').innerText = Math.max(100, current + val);
+        }
+
+        function dropBall() {
+            // Logika jatuhkan bola neon biru
+            console.log("Bola dilepaskan...");
         }
     </script>
 </body>
