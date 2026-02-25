@@ -123,6 +123,42 @@
                 alert("Username tidak boleh kosong!");
                 return;
             }
+function handleAuth() {
+    const user = document.getElementById('username').value;
+    const pass = document.getElementById('password').value;
+    
+    // Ambil input tambahan untuk profil
+    const fullName = document.getElementById('fullname').value; // Pastikan ID ini ada di HTML Anda
+    const bankName = document.getElementById('bank').value;     // Pastikan ID ini ada di HTML Anda
+    const accNumber = document.getElementById('rekening').value; // Pastikan ID ini ada di HTML Anda
+
+    // Validasi Password Minimal 6 Karakter
+    if (pass.length < 6) {
+        alert("Password minimal harus 6 karakter!");
+        return;
+    }
+
+    if (user === "") {
+        alert("Username tidak boleh kosong!");
+        return;
+    }
+
+    // --- TAMBAHKAN BARIS INI DI SINI ---
+    // Simpan data ke memori browser agar muncul di profile.html
+    localStorage.setItem('user_vip', user);
+    localStorage.setItem('full_name', fullName);
+    localStorage.setItem('bank_name', bankName);
+    localStorage.setItem('acc_number', accNumber);
+    
+    // Set saldo & deposit awal jika pengguna baru
+    if (!localStorage.getItem('total_deposit')) {
+        localStorage.setItem('total_deposit', 0); 
+    }
+    // -----------------------------------
+
+    // Jika validasi lolos, masuk ke game
+    location.href = 'game.html';
+}
 
             // Jika validasi lolos, masuk ke game
             location.href = 'game.html';
