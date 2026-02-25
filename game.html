@@ -7,51 +7,65 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         :root { --pink: #ff0077; --blue: #00d4ff; --yellow: #fbff00; --bg: #070816; }
-        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; overflow: hidden; }
+        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
         
-        .header { display: flex; justify-content: center; align-items: center; padding: 15px; position: relative; }
+        .header { display: flex; justify-content: center; align-items: center; padding: 15px; position: relative; flex-shrink: 0; }
         .prof-link { position: absolute; left: 20px; font-size: 24px; color: var(--pink); cursor: pointer; }
         .balance-box { background: #000; border: 2px solid var(--blue); border-radius: 20px; padding: 5px 25px; text-align: center; min-width: 150px; box-shadow: 0 0 15px rgba(0,212,255,0.3); }
         #tier-name { font-size: 8px; font-weight: 900; display: block; text-transform: uppercase; }
         #display-saldo { font-size: 18px; font-weight: 900; }
 
-        /* WIN SCORE BOARD */
-        .win-board { position: absolute; right: 10px; top: 80px; background: rgba(0,0,0,0.6); padding: 10px; border-radius: 10px; border: 1px solid var(--yellow); min-width: 80px; text-align: center; z-index: 100; }
-        .win-board small { font-size: 8px; color: var(--yellow); display: block; }
-        #last-win { font-weight: 900; color: #fff; font-size: 14px; }
-
-        /* Plinko Board */
-        #game-container { position: relative; width: 100%; height: 320px; margin-top: 10px; }
+        /* Plinko Board Area */
+        #game-container { position: relative; width: 100%; height: 320px; margin-top: 10px; flex-shrink: 0; }
         .peg { position: absolute; width: 6px; height: 6px; background: white; border-radius: 50%; box-shadow: 0 0 5px #fff; }
         .ball { position: absolute; width: 12px; height: 12px; background: var(--pink); border-radius: 50%; box-shadow: 0 0 10px var(--pink); z-index: 10; }
 
-        /* Multipliers */
-        .multipliers { display: flex; justify-content: center; gap: 4px; padding: 10px; }
+        /* Multipliers - Added Margin Top for Space */
+        .multipliers { display: flex; justify-content: center; gap: 4px; padding: 10px; margin-top: 25px; flex-shrink: 0; }
         .slot { flex: 1; padding: 10px 0; border-radius: 6px; text-align: center; font-size: 10px; font-weight: 900; }
         .m-pink { background: var(--pink); box-shadow: 0 0 10px var(--pink); }
         .m-yellow { background: var(--yellow); color: black; box-shadow: 0 0 10px var(--yellow); }
         .m-blue { background: var(--blue); color: black; box-shadow: 0 0 10px var(--blue); }
 
-        /* Nav Buttons */
-        .nav-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 0 15px; margin-top: 5px; }
+        /* Nav Buttons - Added Margin Top */
+        .nav-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 0 15px; margin-top: 20px; flex-shrink: 0; }
         .btn-nav { background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 12px 5px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.3s; }
-        .btn-nav i { display: block; font-size: 22px; margin-bottom: 5px; } /* Ukuran Ikon */
+        .btn-nav i { display: block; font-size: 22px; margin-bottom: 5px; }
         .c-pink { color: var(--pink); border-color: var(--pink); }
         .c-blue { color: var(--blue); border-color: var(--blue); }
         .c-yellow { color: var(--yellow); border-color: var(--yellow); }
 
-        /* CONTROLS */
-        .play-area { text-align: center; padding: 10px 15px; }
-        .mode-toggles { display: flex; justify-content: center; gap: 6px; margin-bottom: 10px; }
-        .toggle { padding: 6px 12px; border-radius: 20px; font-size: 9px; font-weight: 900; cursor: pointer; border: 1px solid #333; background: #000; color: #555; transition: 0.2s; }
+        /* CONTROLS AREA */
+        .play-area { text-align: center; padding: 10px 15px; margin-top: auto; padding-bottom: 20px; }
+        .mode-toggles { display: flex; justify-content: center; gap: 6px; margin-bottom: 15px; }
+        .toggle { padding: 8px 14px; border-radius: 20px; font-size: 9px; font-weight: 900; cursor: pointer; border: 1px solid #333; background: #000; color: #555; transition: 0.2s; }
         .toggle.active { color: #fff; border-color: var(--pink); box-shadow: 0 0 10px var(--pink); }
         .btn-stop { border-color: #ff3333; color: #ff3333; }
 
-        .bet-selector { display: flex; align-items: center; justify-content: center; gap: 15px; background: #000; border-radius: 50px; padding: 5px; margin-bottom: 10px; border: 1px solid #333; }
+        /* Added Space between Bet and Play Button */
+        .bet-selector { display: flex; align-items: center; justify-content: center; gap: 15px; background: #000; border-radius: 50px; padding: 5px; margin-bottom: 20px; border: 1px solid #333; }
         .bet-btn { background: none; border: none; color: var(--blue); font-size: 20px; font-weight: 900; cursor: pointer; }
 
         .btn-main { width: 100%; padding: 18px; border-radius: 50px; border: none; font-weight: 900; font-size: 18px; text-transform: uppercase; cursor: pointer; background: linear-gradient(90deg, var(--pink), var(--blue)); box-shadow: 0 0 20px var(--pink); color: white; }
         .btn-main.auto-active { background: var(--yellow); color: #000; box-shadow: 0 0 20px var(--yellow); }
+
+        /* Floating Win Pop Up Style */
+        .win-popup {
+            position: absolute;
+            font-weight: 900;
+            color: var(--yellow);
+            text-shadow: 0 0 10px #000, 0 0 20px var(--yellow);
+            pointer-events: none;
+            z-index: 1000;
+            animation: floatUp 1.5s ease-out forwards;
+            font-size: 24px;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(0.5); opacity: 0; }
+            20% { opacity: 1; transform: translateY(-20px) scale(1.2); }
+            100% { transform: translateY(-100px) scale(1); opacity: 0; }
+        }
     </style>
 </head>
 <body>
@@ -62,11 +76,6 @@
             <span id="tier-name">LOADING...</span>
             <span id="display-saldo">IDR 0</span>
         </div>
-    </div>
-
-    <div class="win-board">
-        <small>LAST WIN</small>
-        <div id="last-win">IDR 0</div>
     </div>
 
     <div id="game-container"></div>
@@ -191,6 +200,18 @@
             else dropBall();
         }
 
+        // Floating Popup Logic
+        function showFloatingWin(amount, x, y) {
+            const popup = document.createElement('div');
+            popup.className = 'win-popup';
+            popup.innerText = `+${amount.toLocaleString()}`;
+            popup.style.left = (x - 40) + 'px';
+            popup.style.top = y + 'px';
+            
+            document.body.appendChild(popup);
+            setTimeout(() => popup.remove(), 1500);
+        }
+
         function dropBall() {
             const currentBet = bets[betIdx];
             if (!updateSaldo(-currentBet)) {
@@ -245,13 +266,18 @@
                 if (row >= 7) {
                     clearInterval(move);
                     setTimeout(() => {
+                        const ballRect = ball.getBoundingClientRect();
                         ball.remove();
                         const finalIdx = Math.max(0, Math.min(6, Math.round(idx + 3)));
                         const winMult = slots[finalIdx];
                         const totalWin = currentBet * winMult;
                         
                         updateSaldo(totalWin);
-                        document.getElementById('last-win').innerText = "IDR " + totalWin.toLocaleString();
+
+                        // Munculkan Pop Up melayang jika menang
+                        if(totalWin > 0) {
+                             showFloatingWin(totalWin, ballRect.left, ballRect.top);
+                        }
                         
                         if(winMult >= 2) {
                             document.body.style.boxShadow = "inset 0 0 50px var(--yellow)";
