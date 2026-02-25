@@ -37,7 +37,6 @@
         .balance-box { background: #000; border: 2px solid var(--blue); border-radius: 20px; padding: 5px 20px; text-align: center; min-width: 140px; }
         #display-saldo { font-size: 18px; font-weight: 900; }
 
-        /* Score Sidebar Popup (Max 5) */
         #score-board {
             position: absolute; left: 10px; top: 100px; width: 75px; 
             display: flex; flex-direction: column; gap: 6px; z-index: 50;
@@ -58,7 +57,6 @@
         .peg { position: absolute; width: 6px; height: 6px; background: white; border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 8px #fff; }
         .ball { position: absolute; width: 12px; height: 12px; background: var(--pink); border-radius: 50%; box-shadow: 0 0 15px var(--pink); z-index: 10; transform: translate(-50%, -50%); pointer-events: none; opacity: 0; transition: opacity 0.2s; }
 
-        /* Perfect Triangle Multipliers */
         .multipliers { display: flex; justify-content: center; gap: 3px; padding: 0; margin-top: 5px; z-index: 80; }
         .slot { flex: 0 0 38px; padding: 10px 0; border-radius: 6px; text-align: center; font-size: 9px; font-weight: 900; border: 1px solid rgba(255,255,255,0.2); }
         .m-pink { background: var(--pink); box-shadow: var(--pink-neon); }
@@ -155,12 +153,6 @@
 
     <script src="global.js"></script>
     <script>
-        // ==========================================
-        // LOGIKA KONTROL ADMIN
-        // 0 = ACAK (FAIR)
-        // 1 = SETTING KALAH (MAGNET KE TENGAH / 0.2x)
-        // 2 = SETTING MENANG (MAGNET KE PINGGIR / 5x)
-        // ==========================================
         let adminSetting = 1; 
 
         function showNeonModal(msg) {
@@ -176,7 +168,6 @@
         const container = document.getElementById('game-container');
         const slots = [5, 2, 1.2, 0.2, 1.2, 2, 5];
 
-        // Init Pegs (Triangle Alignment)
         for (let r = 2; r <= 8; r++) {
             for (let i = 0; i < r; i++) {
                 const peg = document.createElement('div');
@@ -212,16 +203,14 @@
             if(isAuto) { btn.innerText = "STOP AUTO"; btn.classList.add('auto-active'); startAuto(); }
             else { btn.innerText = "MULAI MAIN"; btn.classList.remove('auto-active'); stopAuto(); }
         }
-        function startAuto() { dropBall(); autoInterval = setInterval(dropBall, isTurbo ? 350 : 800); }
+        function startAuto() { dropBall(); autoInterval = setInterval(dropBall, isTurbo ? 250 : 800); }
         function stopAuto() { clearInterval(autoInterval); }
 
         function handlePlay() { if(isAuto) toggleAuto(); else dropBall(); }
 
         function addScorePopup(amount) {
             const board = document.getElementById('score-board');
-            if(board.children.length >= 5) {
-                board.removeChild(board.lastChild);
-            }
+            if(board.children.length >= 5) board.removeChild(board.lastChild);
             const item = document.createElement('div');
             item.className = 'score-popup';
             item.innerText = 'WIN ' + amount.toLocaleString();
@@ -243,17 +232,19 @@
 
             const ball = {
                 el: ballEl,
-                x: container.offsetWidth / 2 + (Math.random()*2-1),
+                x: container.offsetWidth / 2 + (Math.random()*4-2),
                 y: -10, 
-                vx: (Math.random()-0.5)*1.5,
+                vx: (Math.random()-0.5)*1.2,
                 vy: 0,
                 radius: 6,
                 isFinished: false
             };
             activeBalls.push(ball);
 
-            let grav = isTurbo ? 0.48 : 0.30;
-            let step = isTurbo ? 3 : 1;
+            // DIFERENSIASI NORMAL VS TURBO
+            let grav = isTurbo ? 0.95 : 0.35; // Turbo jatuh lebih berat
+            let step = isTurbo ? 4 : 1;    // Turbo hitung posisi lebih sering
+            let bounce = isTurbo ? 2.2 : 2.8; // Turbo pantulan lebih rendah (fokus turun)
 
             const move = setInterval(() => {
                 if(ball.isFinished) { clearInterval(move); return; }
@@ -265,17 +256,13 @@
 
                     if(ball.y > 30) ball.el.style.opacity = 1;
 
-                    // ==========================================
-                    // LOGIKA MAGNET TERSEMBUNYI (ADMIN CONTROL)
-                    // ==========================================
-                    if (ball.y > 180 && ball.y < 310) {
+                    // MAGNET ADMIN
+                    if (ball.y > 150 && ball.y < 310) {
                         let centerContainer = container.offsetWidth / 2;
-                        
-                        if (adminSetting === 1) { // TARIK KE 0.2x (TENGAH)
-                            if (ball.x < centerContainer) ball.vx += 0.08;
-                            if (ball.x > centerContainer) ball.vx -= 0.08;
-                        } 
-                        else if (adminSetting === 2) { // TARIK KE 5x (PINGGIR)
+                        if (adminSetting === 1) { // KALAH
+                            if (ball.x < centerContainer) ball.vx += isTurbo ? 0.15 : 0.08;
+                            if (ball.x > centerContainer) ball.vx -= isTurbo ? 0.15 : 0.08;
+                        } else if (adminSetting === 2) { // MENANG
                             let targetPinggir = ball.x < centerContainer ? 40 : container.offsetWidth - 40;
                             if (ball.x < targetPinggir) ball.vx += 0.12;
                             if (ball.x > targetPinggir) ball.vx -= 0.12;
@@ -287,17 +274,16 @@
                         const dist = Math.sqrt(dx*dx + dy*dy);
                         if(dist < 9.5) { 
                             const angle = Math.atan2(dy, dx);
-                            ball.vx = Math.cos(angle) * 2.8 + (Math.random()-0.5);
-                            ball.vy = Math.sin(angle) * 2.8;
+                            // Bounce dipengaruhi mode speed
+                            ball.vx = Math.cos(angle) * bounce + (Math.random()-0.5);
+                            ball.vy = Math.sin(angle) * bounce;
                             ball.x = p.x + Math.cos(angle) * 9.6;
                             ball.y = p.y + Math.sin(angle) * 9.6;
                         }
                     });
 
-                    if(ball.x < 15 || ball.x > container.offsetWidth-15) ball.vx *= -0.6;
+                    if(ball.x < 15 || ball.x > container.offsetWidth-15) ball.vx *= -0.5;
                 }
-
-                if(Math.abs(ball.vx) < 0.1 && ball.y < 280) ball.vx = (Math.random()-0.5)*2.5;
 
                 ball.el.style.left = ball.x + 'px';
                 ball.el.style.top = ball.y + 'px';
@@ -305,14 +291,11 @@
                 if(ball.y > 340) {
                     ball.isFinished = true;
                     const idx = Math.min(6, Math.max(0, Math.round((ball.x - (container.offsetWidth/2))/41 + 3)));
-                    ball.el.style.transition = "all 0.2s";
-                    ball.el.style.top = "360px";
                     
                     setTimeout(() => {
                         const mult = slots[idx];
                         const winAmount = Math.floor(bet * mult);
                         updateSaldo(winAmount);
-                        
                         if(winAmount > 0) {
                             addScorePopup(winAmount);
                             const p = document.createElement('div');
@@ -324,7 +307,7 @@
                         }
                         ball.el.remove();
                         activeBalls = activeBalls.filter(b => b !== ball);
-                    }, 100);
+                    }, 50);
                 }
             }, 16);
         }
