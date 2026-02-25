@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Profil VIP - AR.GAMING</title>
+    <title>Profile VIP - NEON PLINKO VIP</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --neon-pink: #ff0077;
@@ -23,72 +24,87 @@
             align-items: center;
         }
 
-        /* HEADER NAV */
         .header-nav { width: 100%; margin-bottom: 20px; }
-        .btn-back { color: var(--neon-blue); text-decoration: none; font-weight: bold; cursor: pointer; border:none; background:none; font-size: 14px; }
+        .btn-back { 
+            color: var(--neon-blue); text-decoration: none; 
+            font-weight: bold; cursor: pointer; border:none; 
+            background:none; font-size: 13px; text-transform: uppercase;
+        }
 
-        /* PROFILE CARD */
+        /* CARD PROFILE UTAMA */
         .profile-card {
             width: 100%;
             max-width: 400px;
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.02);
             border: 2px solid var(--neon-pink);
             border-radius: 35px;
             padding: 30px 20px;
             text-align: center;
             box-shadow: 0 0 20px rgba(255, 0, 119, 0.2);
+            position: relative;
         }
 
-        /* TIER ICON */
-        .tier-display {
-            width: 80px; height: 80px; margin: 0 auto 15px;
+        .tier-badge {
+            width: 85px; height: 85px; margin: 0 auto 15px;
             border-radius: 50%; border: 3px solid var(--bronze);
             display: flex; align-items: center; justify-content: center;
             background: rgba(205, 127, 50, 0.1);
-            box-shadow: 0 0 15px var(--bronze);
+            box-shadow: 0 0 20px var(--bronze);
         }
 
-        .username { font-size: 24px; font-weight: 800; color: white; margin: 5px 0; }
-        .user-id { font-size: 12px; color: #666; font-family: monospace; margin-bottom: 15px; }
+        .user-name { font-size: 26px; font-weight: 900; color: white; margin: 5px 0; letter-spacing: 1px; }
+        .user-id { font-size: 12px; color: #555; font-family: monospace; margin-bottom: 5px; }
+        .tier-name { color: var(--bronze); font-weight: 900; font-size: 12px; text-transform: uppercase; margin-bottom: 20px; display: block; }
 
         /* DATA REKENING TERKUNCI */
-        .locked-section {
-            background: rgba(0, 0, 0, 0.4);
+        .locked-box {
+            background: rgba(0, 0, 0, 0.5);
             border-radius: 20px;
-            padding: 15px;
-            margin: 20px 0;
+            padding: 20px;
+            margin: 15px 0;
             border: 1px solid rgba(0, 212, 255, 0.3);
             text-align: left;
+            position: relative;
         }
 
-        .locked-title { 
+        .locked-tag { 
             font-size: 10px; color: var(--neon-blue); 
             font-weight: bold; text-transform: uppercase; 
-            margin-bottom: 10px; display: block;
+            display: flex; align-items: center; gap: 5px; margin-bottom: 12px;
         }
 
-        .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
+        .info-item { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 5px; }
         .info-label { color: #888; }
-        .info-value { color: #fff; font-weight: bold; }
+        .info-value { color: #fff; font-weight: bold; text-transform: uppercase; }
 
-        /* TIER PROGRESS */
-        .tier-label { color: var(--bronze); font-weight: 900; font-size: 12px; margin-bottom: 15px; display: block; }
-        .progress-container { text-align: left; margin-top: 10px; }
-        .bar-bg { width: 100%; height: 8px; background: #15162c; border-radius: 10px; overflow: hidden; }
-        .bar-fill { height: 100%; width: 0%; background: var(--bronze); }
+        /* PROGRESS BAR */
+        .progress-area { margin: 25px 0; text-align: left; }
+        .progress-info { display: flex; justify-content: space-between; font-size: 10px; color: #888; margin-bottom: 6px; font-weight: bold; }
+        .bar-outer { width: 100%; height: 8px; background: #15162c; border-radius: 10px; overflow: hidden; }
+        .bar-inner { height: 100%; width: 0%; background: var(--bronze); transition: 1s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 
-        /* STATS BOXES */
-        .stats-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; }
-        .stat-box { 
-            background: rgba(255,255,255,0.05); 
-            padding: 15px; border-radius: 15px; 
-            border: 1px solid rgba(255,255,255,0.1);
+        /* STATS BOX */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
+        .stat-card { 
+            background: rgba(255,255,255,0.04); 
+            padding: 15px; border-radius: 18px; 
+            border: 1px solid rgba(255,255,255,0.05);
         }
-        .stat-box.active { border-color: var(--neon-blue); box-shadow: inset 0 0 10px rgba(0,212,255,0.1); }
-        .stat-label { font-size: 9px; color: #666; display: block; margin-bottom: 5px; }
-        .stat-val { font-size: 14px; font-weight: bold; color: var(--gold); }
+        .stat-card.active { border-color: var(--neon-blue); box-shadow: inset 0 0 10px rgba(0,212,255,0.1); }
+        .stat-label { font-size: 9px; color: #666; display: block; margin-bottom: 5px; font-weight: bold; }
+        .stat-val { font-size: 14px; font-weight: 900; color: #fff; }
 
-        .btn-logout { margin-top: 30px; color: #ff4444; background: none; border: none; font-weight: bold; cursor: pointer; opacity: 0.7; }
+        .btn-logout { margin-top: 30px; color: #ff4444; background: none; border: none; font-weight: 900; cursor: pointer; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; }
+
+        /* NEON POPUP SYSTEM */
+        .popup-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 999; backdrop-filter: blur(5px); }
+        .neon-popup {
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 80%; max-width: 320px; background: #0f112a;
+            border: 2px solid var(--neon-pink); border-radius: 25px;
+            padding: 30px 20px; text-align: center; z-index: 1000;
+            box-shadow: 0 0 40px rgba(255, 0, 119, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -98,83 +114,130 @@
     </div>
 
     <div class="profile-card">
-        <div class="tier-display">
+        <div class="tier-badge" id="tierIcon">
             <span style="font-size: 40px;">🥉</span>
         </div>
 
-        <div class="username" id="displayUser">ABCD</div>
-        <div class="user-id" id="displayID">ID: #VIP681355</div>
-        
-        <span class="tier-label">BRONZE MEMBER</span>
+        <div class="user-name" id="userName">PLAYER</div>
+        <div class="user-id" id="userID">ID: #VIP000000</div>
+        <span class="tier-name" id="tierName">BRONZE MEMBER</span>
 
-        <div class="locked-section">
-            <span class="locked-title">🔒 Data Rekening Terkunci</span>
-            <div class="info-row">
+        <div class="locked-box">
+            <span class="locked-tag">
+                <i class="fa-solid fa-lock"></i> DATA REKENING TERKUNCI
+            </span>
+            <div class="info-item">
                 <span class="info-label">Nama Lengkap:</span>
-                <span class="info-value" id="realName">MEMUAT...</span>
+                <span class="info-value" id="realName">-</span>
             </div>
-            <div class="info-row">
+            <div class="info-item">
+                <span class="info-label">Bank/Wallet:</span>
+                <span class="info-value" id="bankName">-</span>
+            </div>
+            <div class="info-item">
                 <span class="info-label">No. Rekening:</span>
-                <span class="info-value" id="bankAcc">MEMUAT...</span>
+                <span class="info-value" id="bankAcc">-</span>
             </div>
-            <div class="info-row" style="margin-top: 5px; font-size: 10px; color: var(--neon-pink);">
-                <span>*Hubungi Admin untuk ubah data</span>
-            </div>
+            <p style="font-size: 9px; color: var(--neon-pink); margin-top: 10px; font-weight: bold; text-align: center;">
+                *Hubungi Admin untuk ubah data
+            </p>
         </div>
 
-        <div class="progress-container">
-            <div style="display:flex; justify-content:space-between; font-size:10px; color:#888; margin-bottom:5px;">
-                <span>KE SILVER</span>
-                <span>0%</span>
+        <div class="progress-area">
+            <div class="progress-info">
+                <span id="nextTierText">KE SILVER</span>
+                <span id="percentText">0%</span>
             </div>
-            <div class="bar-bg">
-                <div class="bar-fill" id="barFill"></div>
+            <div class="bar-outer">
+                <div class="bar-inner" id="barFill"></div>
             </div>
-            <p style="font-size: 10px; color: #555; margin-top: 8px;">BUTUH IDR 50.000 LAGI</p>
+            <p id="targetMsg" style="font-size: 10px; color: #555; margin-top: 8px; font-weight: bold;"></p>
         </div>
 
-        <div class="stats-container">
-            <div class="stat-box">
+        <div class="stats-grid">
+            <div class="stat-card">
                 <span class="stat-label">AKUMULASI DEPO</span>
-                <span class="stat-val" style="color: #fbff00;">IDR 0</span>
+                <span class="stat-val" id="totalDepo" style="color: var(--gold);">IDR 0</span>
             </div>
-            <div class="stat-box active">
+            <div class="stat-card active">
                 <span class="stat-label">SALDO SAAT INI</span>
-                <span class="stat-val" style="color: #fff;">IDR 27.480</span>
+                <span class="stat-val" id="currentBalance">IDR 0</span>
             </div>
         </div>
 
-        <button class="btn-logout" onclick="logout()">LOGOUT SESSION</button>
+        <button class="btn-logout" onclick="askLogout()">LOGOUT SESSION</button>
+    </div>
+
+    <div class="popup-overlay" id="overlay"></div>
+    <div class="neon-popup" id="popup">
+        <i class="fa-solid fa-right-from-bracket" style="font-size: 50px; color: var(--neon-pink); margin-bottom: 15px;"></i>
+        <h3 style="margin: 0; letter-spacing: 1px;">KELUAR SESI?</h3>
+        <p style="font-size: 12px; color: #bbb; margin: 15px 0 25px;">Data Akun & Saldo Anda akan tetap tersimpan aman.</p>
+        <div style="display: flex; gap: 10px;">
+            <button onclick="closePopup()" style="flex:1; padding: 12px; border-radius: 12px; border: 1px solid #444; background: none; color: white; cursor: pointer;">BATAL</button>
+            <button onclick="confirmLogout()" style="flex:1; padding: 12px; border-radius: 12px; border: none; background: var(--neon-pink); color: white; font-weight: bold; cursor: pointer;">YA, KELUAR</button>
+        </div>
     </div>
 
     <script>
-        function loadData() {
-            // Ambil data dari registrasi awal
-            const userData = JSON.parse(localStorage.getItem('plinko_user')) || { 
-                username: "ABCD", 
-                fullName: "BELUM DIISI", 
-                accountNumber: "0000000000" 
-            };
+        function initProfile() {
+            // Ambil data akun aktif
+            const activeUser = JSON.parse(localStorage.getItem('plinko_user'));
+            if (!activeUser) return window.location.href = 'index.html';
 
-            document.getElementById('displayUser').innerText = userData.username;
-            document.getElementById('realName').innerText = userData.fullName.toUpperCase();
-            document.getElementById('bankAcc').innerText = userData.accountNumber;
+            const totalDepo = parseInt(localStorage.getItem('total_deposit_accumulated') || 0);
+            const balance = parseInt(localStorage.getItem('user_balance') || 0);
+
+            // Update Data Terkunci
+            document.getElementById('userName').innerText = activeUser.username;
+            document.getElementById('userID').innerText = "ID: " + (activeUser.id || "#VIP681355");
+            document.getElementById('realName').innerText = activeUser.fullName;
+            document.getElementById('bankName').innerText = activeUser.bankName;
+            document.getElementById('bankAcc').innerText = activeUser.accountNumber;
             
-            // Inisialisasi ID jika belum ada
-            if(!localStorage.getItem('permanent_id')) {
-                localStorage.setItem('permanent_id', "#VIP" + Math.floor(100000 + Math.random() * 899999));
-            }
-            document.getElementById('displayID').innerText = "ID: " + localStorage.getItem('permanent_id');
+            document.getElementById('totalDepo').innerText = "IDR " + totalDepo.toLocaleString();
+            document.getElementById('currentBalance').innerText = "IDR " + balance.toLocaleString();
+
+            updateTierVisual(totalDepo);
         }
 
-        function logout() {
-            if(confirm("Logout hanya akan mengakhiri sesi. Data Anda tetap terkunci aman.")) {
-                localStorage.removeItem('is_logged_in');
-                window.location.href = 'index.html';
+        function updateTierVisual(depo) {
+            const tiers = [
+                { name: "BRONZE", min: 0, next: 50000, color: "#cd7f32", sym: "🥉" },
+                { name: "SILVER", min: 50000, next: 250000, color: "#c0c0c0", sym: "🥈" },
+                { name: "GOLD", min: 250000, next: 1000000, color: "#ffcc00", sym: "🥇" }
+            ];
+
+            let cur = tiers[0];
+            for (let i = tiers.length-1; i >= 0; i--) {
+                if (depo >= tiers[i].min) { cur = tiers[i]; break; }
             }
+
+            const bar = document.getElementById('barFill');
+            const percent = Math.min(100, Math.floor(((depo - cur.min) / (cur.next - cur.min)) * 100));
+            
+            bar.style.width = percent + "%";
+            bar.style.background = cur.color;
+            document.getElementById('percentText').innerText = percent + "%";
+            document.getElementById('targetMsg').innerText = `BUTUH IDR ${(cur.next - depo).toLocaleString()} LAGI`;
         }
 
-        window.onload = loadData;
+        function askLogout() {
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('popup').style.display = 'block';
+        }
+
+        function closePopup() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('popup').style.display = 'none';
+        }
+
+        function confirmLogout() {
+            localStorage.removeItem('is_logged_in');
+            window.location.href = 'index.html';
+        }
+
+        window.onload = initProfile;
     </script>
 </body>
 </html>
