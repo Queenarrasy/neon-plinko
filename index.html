@@ -4,176 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>NEON PLINKO VIP</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root {
-            --neon-pink: #ff0077;
-            --neon-blue: #00d4ff;
-            --bg-dark: #0a0b1e;
-        }
+        body { background-color: #070816; color: white; font-family: sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        .reg-card { width: 85%; max-width: 380px; padding: 35px 20px; background: #0d0e21; border: 2px solid #ff0077; border-radius: 25px; box-shadow: 0 0 25px rgba(255, 0, 119, 0.4); text-align: center; }
+        
+        /* JUDUL SANGAT TEBAL & NEON */
+        .neon-title { font-size: 32px; font-weight: 900; color: #00d4ff; text-transform: uppercase; margin-bottom: 5px; text-shadow: 0 0 10px #00d4ff, 0 0 30px #00d4ff; }
+        .sub-title { font-size: 11px; color: #888; letter-spacing: 2px; margin-bottom: 30px; font-weight: bold; }
 
-        body, html {
-            margin: 0; padding: 0;
-            width: 100%; height: 100%;
-            background-color: var(--bg-dark);
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            display: flex; justify-content: center; align-items: center;
-            overflow: hidden;
-        }
-
-        /* CONTAINER REGISTRASI */
-        #registration-page {
-            width: 90%;
-            max-width: 400px;
-            padding: 40px 25px;
-            background: rgba(13, 14, 33, 0.95);
-            border: 2px solid var(--neon-pink);
-            border-radius: 30px;
-            box-shadow: 0 0 25px rgba(255, 0, 119, 0.3);
-            text-align: center;
-            position: relative;
-            z-index: 100;
-        }
-
-        /* JUDUL NEON TEBAL */
-        .neon-title {
-            font-size: 32px;
-            font-weight: 900; /* Font Tebal */
-            color: var(--neon-blue);
-            text-transform: uppercase;
-            margin-bottom: 5px;
-            letter-spacing: 2px;
-            /* Efek Cahaya Neon */
-            text-shadow: 
-                0 0 7px var(--neon-blue),
-                0 0 15px var(--neon-blue),
-                0 0 25px var(--neon-blue);
-        }
-
-        .sub-title {
-            color: #888;
-            font-size: 12px;
-            letter-spacing: 1px;
-            margin-bottom: 35px;
-            font-weight: bold;
-        }
-
-        /* FORM INPUT */
-        .input-group {
-            text-align: left;
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            font-size: 10px;
-            font-weight: 900;
-            color: var(--neon-pink);
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            padding-left: 5px;
-        }
-
-        input {
-            width: 100%;
-            background: #000;
-            border: 1px solid #333;
-            border-radius: 12px;
-            padding: 14px 15px;
-            color: white;
-            font-size: 14px;
-            box-sizing: border-box;
-            outline: none;
-            transition: 0.3s;
-        }
-
-        input:focus {
-            border-color: var(--neon-blue);
-            box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
-        }
-
-        /* TOMBOL DAFTAR */
-        .btn-daftar {
-            width: 100%;
-            padding: 16px;
-            margin-top: 15px;
-            background: var(--neon-pink);
-            border: none;
-            border-radius: 15px;
-            color: white;
-            font-size: 16px;
-            font-weight: 900;
-            cursor: pointer;
-            text-transform: uppercase;
-            box-shadow: 0 5px 15px rgba(255, 0, 119, 0.4);
-            transition: 0.3s;
-        }
-
-        .btn-daftar:active {
-            transform: scale(0.98);
-            box-shadow: 0 0 20px var(--neon-pink);
-        }
-
-        .footer-note {
-            margin-top: 20px;
-            font-size: 10px;
-            color: #555;
-            line-height: 1.5;
-        }
-
-        /* DISKLAIMER TERSEMBUNYI UNTUK GAME */
-        #game-placeholder {
-            display: none;
-            color: white;
-            text-align: center;
-        }
+        .form-group { text-align: left; margin-bottom: 18px; }
+        label { display: block; font-size: 10px; font-weight: 800; color: #ff0077; margin-bottom: 5px; text-transform: uppercase; }
+        input { width: 100%; background: #000; border: 1px solid #333; border-radius: 12px; padding: 14px; color: white; box-sizing: border-box; outline: none; border-color: #333; }
+        
+        .btn-daftar { width: 100%; padding: 18px; background: #ff0077; border: none; border-radius: 15px; color: white; font-size: 16px; font-weight: 900; cursor: pointer; text-transform: uppercase; box-shadow: 0 0 20px rgba(255, 0, 119, 0.5); }
     </style>
 </head>
 <body>
-
-    <div id="registration-page">
-        <div class="neon-title">NEON PLINKO VIP</div>
+    <div class="reg-card">
+        <h1 class="neon-title">NEON PLINKO VIP</h1>
         <div class="sub-title">REGISTRASI AKUN VIP</div>
-
-        <div class="input-group">
+        <div class="form-group">
             <label>USERNAME GAME</label>
             <input type="text" placeholder="Contoh: ABCD">
         </div>
-
-        <div class="input-group">
+        <div class="form-group">
             <label>NAMA LENGKAP (SESUAI REKENING)</label>
             <input type="text" placeholder="Nama asli Anda">
         </div>
-
-        <div class="input-group">
+        <div class="form-group">
             <label>NOMOR REKENING / E-WALLET</label>
-            <input type="number" placeholder="Untuk pencairan saldo">
+            <input type="text" placeholder="Untuk pencairan saldo">
         </div>
-
-        <div class="input-group">
+        <div class="form-group">
             <label>PASSWORD</label>
             <input type="password" placeholder="******">
         </div>
-
-        <button class="btn-daftar" onclick="goToGame()">DAFTAR SEKARANG</button>
-
-        <div class="footer-note">
-            Dengan mendaftar, data rekening Anda akan terkunci<br>demi keamanan pencairan dana.
-        </div>
+        <button class="btn-daftar" onclick="tg.close()">DAFTAR SEKARANG</button>
     </div>
-
-    <div id="game-placeholder">
-        <h1>GAME MULAI...</h1>
-    </div>
-
     <script>
-        function goToGame() {
-            // Animasi transisi sederhana
-            document.getElementById('registration-page').style.display = 'none';
-            document.getElementById('game-placeholder').style.display = 'block';
-            
-            // Di sini nanti Anda bisa memasukkan fungsi untuk memanggil script game Plinko Anda
-            console.log("Navigasi ke Game...");
-        }
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Layar penuh otomatis
     </script>
 </body>
 </html>
