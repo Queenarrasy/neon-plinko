@@ -155,5 +155,8 @@
 
         window.onload = () => { updateUI(); draw(); };
     </script>
+    // Tambahkan ini di game.html
+const savedSettings = JSON.parse(localStorage.getItem('admin_plinko_settings'));
+const ADMIN_CONTROL = savedSettings || { winRate: 0.3, forceIndex: null };
 </body>
 </html>
