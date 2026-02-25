@@ -73,8 +73,8 @@
         th { color: #666; text-align: left; padding: 10px 8px; border-bottom: 1px solid #333; font-weight: 900; text-transform: uppercase; }
         td { padding: 12px 8px; border-bottom: 1px solid #111; font-family: monospace; }
         
-        .status-proses { color: #ffcc00; font-weight: bold; }
-        .status-berhasil { color: #00ff88; font-weight: bold; }
+        .status-proses { color: #ffcc00; font-weight: bold; text-transform: uppercase; }
+        .status-berhasil { color: #00ff88; font-weight: bold; text-transform: uppercase; }
 
         /* Tombol Kembali ke Game - Dibuat lebih elegan */
         .btn-back {
@@ -136,20 +136,27 @@
             const list = document.getElementById('wd-history-list');
             list.innerHTML = history.length === 0 ? "<tr><td colspan='3' style='text-align:center; color:#444; padding: 20px;'>Belum ada penarikan</td></tr>" : "";
             
-            // Tampilkan dari yang terbaru (slice().reverse() agar tidak merubah array asli)
+            // Tampilkan dari yang terbaru (slice().reverse())
             history.slice().reverse().forEach(item => {
+                const statusClass = item.status === 'Berhasil' ? 'status-berhasil' : 'status-proses';
                 const row = `<tr>
                     <td>${item.tanggal}</td>
-                    <td style="color: var(--yellow)">IDR ${parseInt(item.total).toLocaleString('id-ID')}</td>
-                    <td class="${item.status === 'Berhasil' ? 'status-berhasil' : 'status-proses'}">${item.status}</td>
+                    <td style="color: #fbff00">IDR ${parseInt(item.total).toLocaleString('id-ID')}</td>
+                    <td class="${statusClass}">${item.status}</td>
                 </tr>`;
                 list.innerHTML += row;
             });
         }
 
+        // Fungsi pembantu untuk mengambil saldo dari global.js jika tidak ada fungsi bawaan
+        function getSaldoSekarang() {
+            return parseInt(localStorage.getItem('saldo_permainan')) || 0;
+        }
+
         function prosesWD() {
-            const amt = parseInt(document.getElementById('wd-amount').value);
-            const saldoSaatIni = getSaldo();
+            const amtInput = document.getElementById('wd-amount');
+            const amt = parseInt(amtInput.value);
+            const saldoSaatIni = getSaldoSekarang();
 
             if (isNaN(amt) || amt < 50000) {
                 alert("Minimal penarikan adalah IDR 50.000");
@@ -164,23 +171,37 @@
             // Konfirmasi sebelum WD
             if(!confirm("Yakin ingin menarik saldo sebesar IDR " + amt.toLocaleString('id-ID') + "?")) return;
 
-            // Potong Saldo
-            if (updateSaldo(-amt)) {
-                const sekarang = new Date();
-                const tglString = sekarang.getDate() + "/" + (sekarang.getMonth() + 1) + "/" + sekarang.getFullYear();
-                
-                // Simpan ke Riwayat
-                const history = JSON.parse(localStorage.getItem('history_wd') || "[]");
-                history.push({
-                    tanggal: tglString,
-                    total: amt,
-                    status: "Proses" 
-                });
-                localStorage.setItem('history_wd', JSON.stringify(history));
+            // Logika Pemotongan Saldo
+            const saldoBaru = saldoSaatIni - amt;
+            localStorage.setItem('saldo_permainan', saldoBaru);
 
-                alert("Berhasil! Penarikan sedang diproses admin.");
-                location.reload();
-            }
+            // Ambil Waktu Lengkap
+            const skrg = new Date();
+            const d = String(skrg.getDate()).padStart(2, '0');
+            const m = String(skrg.getMonth() + 1).padStart(2, '0');
+            const y = skrg.getFullYear();
+            const h = String(skrg.getHours()).padStart(2, '0');
+            const min = String(skrg.getMinutes()).padStart(2, '0');
+            const s = String(skrg.getSeconds()).padStart(2, '0');
+            const tglString = `${d}/${m}/${y} ${h}:${min}:${s}`;
+            
+            // Simpan ke Riwayat
+            const history = JSON.parse(localStorage.getItem('history_wd') || "[]");
+            history.push({
+                tanggal: tglString,
+                total: amt,
+                status: "Proses" // Status tetap "Proses", Admin harus mengubahnya manual di localStorage
+            });
+            localStorage.setItem('history_wd', JSON.stringify(history));
+
+            alert("Berhasil! Penarikan sebesar IDR " + amt.toLocaleString('id-ID') + " sedang diproses admin.");
+            
+            // Bersihkan input dan render ulang
+            amtInput.value = "";
+            renderHistory();
+            
+            // Opsional: update display saldo di UI jika ada
+            if(window.updateSaldoUI) window.updateSaldoUI();
         }
 
         window.onload = renderHistory;
