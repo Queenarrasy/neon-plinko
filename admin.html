@@ -3,149 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DASHBOARD ADMIN - NEON PLINKO</title>
+    <title>ADMIN PANEL - NEON PLINKO</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root {
-            --neon-pink: #ff0077;
-            --neon-blue: #00d4ff;
-            --neon-gold: #fbff00;
-            --bg-dark: #0a0b1e;
-        }
+        :root { --pink: #ff0077; --blue: #00d4ff; --yellow: #fbff00; --bg: #0a0b1e; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }
+        
+        .admin-container { max-width: 1000px; margin: auto; }
+        h1 { color: var(--yellow); text-shadow: 0 0 10px var(--yellow); text-align: center; }
 
-        body {
-            background: var(--bg-dark);
-            color: white;
-            font-family: 'Segoe UI', sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
+        /* DASHBOARD STATS */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .stat-card { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; border-left: 4px solid var(--blue); }
+        .stat-card h3 { margin: 0; font-size: 12px; color: var(--blue); }
+        .stat-card p { margin: 10px 0 0; font-size: 24px; font-weight: bold; }
 
-        .header {
-            border-bottom: 2px solid var(--neon-blue);
-            padding-bottom: 10px;
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        /* CONTROL WIN RATE */
+        .win-rate-box { background: linear-gradient(90deg, #1a1a1a, #000); padding: 20px; border-radius: 15px; border: 1px solid var(--pink); margin-bottom: 30px; display: flex; align-items: center; justify-content: space-between; }
+        input[type="range"] { width: 60%; accent-color: var(--pink); }
 
-        .card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
+        /* TABLE CUSTOMERS */
+        .table-container { background: rgba(0,0,0,0.5); border-radius: 15px; overflow-x: auto; padding: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+        th { text-align: left; padding: 12px; background: var(--blue); color: black; }
+        td { padding: 12px; border-bottom: 1px solid #222; }
 
-        .setting-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 15px 0;
-        }
+        /* ACTION BUTTONS */
+        .btn { padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 11px; margin-right: 5px; }
+        .btn-topup { background: var(--yellow); color: black; }
+        .btn-gift { background: var(--pink); color: white; }
 
-        input[type="range"] {
-            width: 60%;
-            accent-color: var(--neon-pink);
-        }
-
-        .btn-save {
-            width: 100%;
-            padding: 15px;
-            background: var(--neon-pink);
-            border: none;
-            border-radius: 10px;
-            color: white;
-            font-weight: bold;
-            box-shadow: 0 0 15px var(--neon-pink);
-            cursor: pointer;
-        }
-
-        .status-badge {
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .status-win { background: var(--neon-pink); color: white; }
-        .status-lose { background: var(--neon-blue); color: black; }
+        /* MODAL */
+        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: #1a1a1a; padding: 30px; border-radius: 20px; border: 2px solid var(--blue); width: 300px; }
+        input[type="number"], input[type="text"] { width: 100%; padding: 10px; margin: 10px 0; background: #000; color: #fff; border: 1px solid #333; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h2><i class="fa-solid fa-gears"></i> KENDALI ADMIN</h2>
-        <button onclick="location.href='game.html'" style="background:none; border:1px solid var(--neon-blue); color:var(--neon-blue); padding:5px 15px; border-radius:5px;">KE GAME</button>
+    <div class="admin-container">
+        <h1><i class="fa-solid fa-user-shield"></i> NEON ADMIN CONTROL</h1>
+
+        <div class="stats-grid">
+            <div class="stat-card"><h3>TOTAL PEMAIN</h3><p id="stat-users">0</p></div>
+            <div class="stat-card"><h3>USER ONLINE</h3><p id="stat-online" style="color: var(--yellow);">0</p></div>
+            <div class="stat-card"><h3>TOTAL DEPOSIT</h3><p id="stat-depo" style="color: #00ff88;">IDR 0</p></div>
+            <div class="stat-card"><h3>TOTAL WITHDRAW</h3><p id="stat-wd" style="color: var(--pink);">IDR 0</p></div>
+        </div>
+
+        <div class="win-rate-box">
+            <div>
+                <b style="color: var(--pink);">PENGATURAN KEMENANGAN (WIN RATE)</b><br>
+                <small>Geser untuk mengatur persentase hoki pemain</small>
+            </div>
+            <div style="text-align: right;">
+                <span id="rate-val" style="font-size: 24px; font-weight: bold;">30%</span><br>
+                <input type="range" id="rate-range" min="0" max="100" value="30" oninput="updateWinRateUI(this.value)">
+            </div>
+        </div>
+
+        <div class="table-container">
+            <h3>DATABASE PEMAIN</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>USERNAME</th>
+                        <th>PASSWORD</th>
+                        <th>BANK/REK</th>
+                        <th>SALDO</th>
+                        <th>AKSI</th>
+                    </tr>
+                </thead>
+                <tbody id="user-table">
+                    </tbody>
+            </table>
+        </div>
     </div>
 
-    <div class="card">
-        <h3><i class="fa-solid fa-chart-line"></i> Setelan Win Rate</h3>
-        <p style="font-size: 12px; color: #aaa;">Geser untuk mengatur peluang bola mendarat di slot UNTUNG (5x, 2x).</p>
-        
-        <div class="setting-row">
-            <span>Probabilitas</span>
-            <input type="range" id="winRange" min="0" max="100" value="30" oninput="updateVal(this.value)">
-            <b id="winVal" style="color: var(--neon-pink);">30%</b>
-        </div>
-
-        <div class="setting-row">
-            <span>Mode Paksa</span>
-            <select id="forceResult" style="background:#000; color:white; border:1px solid #444; padding:5px;">
-                <option value="none">Normal (Acak)</option>
-                <option value="0">Pojok Kiri (5x)</option>
-                <option value="3">Tengah (0.2x)</option>
-                <option value="6">Pojok Kanan (5x)</option>
-            </select>
-        </div>
-        
-        <button class="btn-save" onclick="saveSettings()">SIMPAN PERUBAHAN</button>
-    </div>
-
-    <div class="card">
-        <h3><i class="fa-solid fa-users"></i> Ringkasan User</h3>
-        <div class="setting-row">
-            <span>Total Saldo User:</span>
-            <span id="totalUserBalance" style="color: var(--neon-gold); font-weight: bold;">IDR 27.480</span>
-        </div>
-        <div class="setting-row">
-            <span>Status Akun:</span>
-            <span class="status-badge status-win">BRONZE MEMBER</span>
+    <div id="modal">
+        <div class="modal-content">
+            <h3 id="modal-title">Top Up Saldo</h3>
+            <input type="number" id="modal-amount" placeholder="Masukkan Jumlah">
+            <input type="text" id="modal-note" placeholder="Catatan (Opsional)">
+            <button class="btn btn-topup" style="width: 100%; padding: 12px;" onclick="confirmAction()">EKSEKUSI</button>
+            <button class="btn" style="width: 100%; margin-top: 10px; background: #333; color: white;" onclick="closeModal()">BATAL</button>
         </div>
     </div>
 
+    <script src="global.js"></script>
     <script>
-        function updateVal(v) {
-            document.getElementById('winVal').innerText = v + "%";
+        let currentUserAction = '';
+        let currentMode = '';
+
+        function loadAdminData() {
+            const users = JSON.parse(localStorage.getItem('database_users') || "[]");
+            const winRate = localStorage.getItem('admin_win_rate') || 30;
+            const historyWD = JSON.parse(localStorage.getItem('history_wd') || "[]");
+            
+            // Stats
+            document.getElementById('stat-users').innerText = users.length;
+            document.getElementById('rate-range').value = winRate;
+            document.getElementById('rate-val').innerText = winRate + "%";
+            
+            // Hitung WD (Berhasil saja)
+            let totalWD = historyWD.filter(i => i.status === 'Berhasil').reduce((a, b) => a + parseInt(b.total), 0);
+            document.getElementById('stat-wd').innerText = "IDR " + totalWD.toLocaleString();
+
+            const table = document.getElementById('user-table');
+            table.innerHTML = "";
+
+            users.forEach(u => {
+                // Simulasi Saldo (Mengambil saldo individu jika ada)
+                // Catatan: Karena localStorage saldo_permainan hanya 1, di sini admin melihat saldo sesi aktif
+                const saldo = localStorage.getItem('saldo_permainan') || 0; 
+
+                const row = `<tr>
+                    <td><b>${u.username}</b><br><small>${u.phone}</small></td>
+                    <td><code>${u.password}</code></td>
+                    <td>${u.bank}<br>${u.rekening}</td>
+                    <td style="color: var(--yellow)">IDR ${parseInt(saldo).toLocaleString()}</td>
+                    <td>
+                        <button class="btn btn-topup" onclick="openModal('${u.username}', 'topup')">TOPUP</button>
+                        <button class="btn btn-gift" onclick="openModal('${u.username}', 'gift')">HADIAH</button>
+                    </td>
+                </tr>`;
+                table.innerHTML += row;
+            });
         }
 
-        function saveSettings() {
-            const winRate = document.getElementById('winRange').value / 100;
-            const force = document.getElementById('forceResult').value;
-            
-            // Simpan ke LocalStorage agar dibaca oleh game.html
-            const settings = {
-                winRate: winRate,
-                forceResult: force === "none" ? null : parseInt(force)
-            };
-            
-            localStorage.setItem('admin_plinko_settings', JSON.stringify(settings));
-            alert("Setelan Berhasil Disimpan! Bola sekarang akan mengikuti aturan baru.");
+        function updateWinRateUI(val) {
+            document.getElementById('rate-val').innerText = val + "%";
+            localStorage.setItem('admin_win_rate', val);
         }
 
-        // Load data awal
-        window.onload = () => {
-            const saved = JSON.parse(localStorage.getItem('admin_plinko_settings'));
-            if(saved) {
-                document.getElementById('winRange').value = saved.winRate * 100;
-                document.getElementById('winVal').innerText = (saved.winRate * 100) + "%";
-                if(saved.forceResult !== null) document.getElementById('forceResult').value = saved.forceResult;
+        function openModal(user, mode) {
+            currentUserAction = user;
+            currentMode = mode;
+            document.getElementById('modal-title').innerText = mode === 'topup' ? "Top Up: " + user : "Kirim Hadiah: " + user;
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
+        function confirmAction() {
+            const amount = parseInt(document.getElementById('modal-amount').value);
+            if(isNaN(amount) || amount <= 0) return alert("Jumlah tidak valid");
+
+            if(currentMode === 'topup') {
+                // Logika Topup
+                let currentSaldo = parseInt(localStorage.getItem('saldo_permainan') || 0);
+                localStorage.setItem('saldo_permainan', currentSaldo + amount);
+                alert("Berhasil Top Up IDR " + amount.toLocaleString() + " ke " + currentUserAction);
+            } else {
+                // Logika Hadiah (Pesan Masuk)
+                let gifts = JSON.parse(localStorage.getItem('inbox_' + currentUserAction) || "[]");
+                gifts.push({
+                    id: Date.now(),
+                    amount: amount,
+                    note: document.getElementById('modal-note').value || "Bonus VIP",
+                    status: "claimable"
+                });
+                localStorage.setItem('inbox_' + currentUserAction, JSON.stringify(gifts));
+                alert("Hadiah berhasil dikirim ke inbox " + currentUserAction);
             }
-            
-            const balance = localStorage.getItem('user_balance') || "27.480";
-            document.getElementById('totalUserBalance').innerText = "IDR " + balance;
-        };
+            window.dispatchEvent(new Event('storage'));
+            closeModal();
+            loadAdminData();
+        }
+
+        window.onload = loadAdminData;
     </script>
 </body>
 </html>
