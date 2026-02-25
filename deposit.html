@@ -203,7 +203,17 @@
 
         function prosesDeposit() {
             const nom = document.getElementById('input-nominal').value;
-            if(!nom || nom < 20000) return showPopup("MINIMAL DEPOSIT IDR 20.000", true);
+            
+            // Logika Tambahan untuk USDT Crypto
+            if (metodeTerpilih === "CRYPTO") {
+                // Asumsi kurs $1 = Rp 16.000 (disesuaikan dengan minimal sistem IDR)
+                if (!nom || nom < 160000) {
+                    return showPopup("MINIMAL DEPOSIT VIA CRYPTO ADALAH $10", true);
+                }
+            } else {
+                // Logika standar QRIS
+                if(!nom || nom < 20000) return showPopup("MINIMAL DEPOSIT IDR 20.000", true);
+            }
 
             const skrg = new Date();
             const d = String(skrg.getDate()).padStart(2, '0');
