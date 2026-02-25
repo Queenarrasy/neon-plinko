@@ -3,251 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEON PLINKO VIP - Official Portal</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>NEON PLINKO VIP</title>
     <style>
         :root {
             --neon-pink: #ff0077;
             --neon-blue: #00d4ff;
-            --gold: #fbff00;
             --bg-dark: #0a0b1e;
         }
 
-        body {
-            background: var(--bg-dark);
-            color: white;
-            font-family: 'Segoe UI', sans-serif;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+        body, html {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            background-color: var(--bg-dark);
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            display: flex; justify-content: center; align-items: center;
             overflow: hidden;
         }
 
-        .auth-container {
+        /* CONTAINER REGISTRASI */
+        #registration-page {
             width: 90%;
             max-width: 400px;
-            padding: 25px;
-            background: rgba(255, 255, 255, 0.02);
+            padding: 40px 25px;
+            background: rgba(13, 14, 33, 0.95);
             border: 2px solid var(--neon-pink);
             border-radius: 30px;
             box-shadow: 0 0 25px rgba(255, 0, 119, 0.3);
             text-align: center;
+            position: relative;
+            z-index: 100;
         }
 
-        .game-title { font-size: 28px; font-weight: 900; margin-bottom: 20px; }
-        .neon-pink { color: var(--neon-pink); text-shadow: 0 0 10px var(--neon-pink); }
-        .neon-blue { color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); }
-        .neon-gold { color: var(--gold); text-shadow: 0 0 15px var(--gold); font-style: italic; }
+        /* JUDUL NEON TEBAL */
+        .neon-title {
+            font-size: 32px;
+            font-weight: 900; /* Font Tebal */
+            color: var(--neon-blue);
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            letter-spacing: 2px;
+            /* Efek Cahaya Neon */
+            text-shadow: 
+                0 0 7px var(--neon-blue),
+                0 0 15px var(--neon-blue),
+                0 0 25px var(--neon-blue);
+        }
 
-        .auth-tabs { display: flex; background: rgba(0,0,0,0.4); border-radius: 15px; margin-bottom: 15px; padding: 5px; }
-        .tab { flex: 1; padding: 10px; cursor: pointer; font-size: 11px; font-weight: bold; border-radius: 10px; color: #555; transition: 0.3s; }
-        .tab.active { background: rgba(0, 212, 255, 0.1); color: var(--neon-blue); box-shadow: inset 0 0 10px rgba(0, 212, 255, 0.1); }
+        .sub-title {
+            color: #888;
+            font-size: 12px;
+            letter-spacing: 1px;
+            margin-bottom: 35px;
+            font-weight: bold;
+        }
 
-        .input-group { text-align: left; margin-bottom: 12px; position: relative; }
-        label { font-size: 9px; color: var(--neon-pink); font-weight: bold; margin-left: 10px; text-transform: uppercase; }
-        
+        /* FORM INPUT */
+        .input-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 10px;
+            font-weight: 900;
+            color: var(--neon-pink);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            padding-left: 5px;
+        }
+
         input {
-            width: 100%; padding: 12px; margin-top: 5px;
-            background: rgba(0,0,0,0.6); border: 1px solid rgba(0, 212, 255, 0.2);
-            border-radius: 12px; color: white; box-sizing: border-box; outline: none; font-size: 13px;
+            width: 100%;
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 14px 15px;
+            color: white;
+            font-size: 14px;
+            box-sizing: border-box;
+            outline: none;
+            transition: 0.3s;
         }
-        input:focus { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0,212,255,0.1); }
 
-        .toggle-password { position: absolute; right: 15px; top: 32px; color: var(--neon-blue); cursor: pointer; font-size: 14px; }
-
-        .btn-action {
-            width: 100%; padding: 15px; background: linear-gradient(45deg, var(--neon-pink), #ff0055);
-            border: none; border-radius: 15px; color: white; font-weight: 900; text-transform: uppercase; cursor: pointer;
-            box-shadow: 0 5px 15px rgba(255, 0, 119, 0.4); margin-top: 10px; transition: 0.2s;
+        input:focus {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
         }
-        .btn-action:active { transform: scale(0.98); }
 
-        /* NEON POPUP SYSTEM */
-        .popup-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 999; backdrop-filter: blur(5px); }
-        .neon-popup {
-            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 80%; max-width: 320px; background: #0f112a;
-            border: 2px solid var(--neon-blue); border-radius: 25px;
-            padding: 30px 20px; text-align: center; z-index: 1000;
-            box-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
+        /* TOMBOL DAFTAR */
+        .btn-daftar {
+            width: 100%;
+            padding: 16px;
+            margin-top: 15px;
+            background: var(--neon-pink);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-size: 16px;
+            font-weight: 900;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 5px 15px rgba(255, 0, 119, 0.4);
+            transition: 0.3s;
         }
-        .popup-icon { font-size: 50px; margin-bottom: 15px; }
-        .popup-title { font-weight: 900; letter-spacing: 1px; margin-bottom: 10px; color: #fff; }
-        .popup-msg { font-size: 12px; color: #bbb; line-height: 1.5; margin-bottom: 20px; }
 
-        .footer-note { font-size: 8px; color: #444; margin-top: 15px; line-height: 1.4; text-transform: uppercase; }
+        .btn-daftar:active {
+            transform: scale(0.98);
+            box-shadow: 0 0 20px var(--neon-pink);
+        }
+
+        .footer-note {
+            margin-top: 20px;
+            font-size: 10px;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        /* DISKLAIMER TERSEMBUNYI UNTUK GAME */
+        #game-placeholder {
+            display: none;
+            color: white;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
 
-    <div class="auth-container">
-        <div class="game-title">
-            <span class="neon-pink">NEON</span> <span class="neon-blue">PLINKO</span> <span class="neon-gold">VIP</span>
-        </div>
+    <div id="registration-page">
+        <div class="neon-title">NEON PLINKO VIP</div>
+        <div class="sub-title">REGISTRASI AKUN VIP</div>
 
-        <div class="auth-tabs">
-            <div id="tabReg" class="tab active" onclick="switchMode('register')">DAFTAR BARU</div>
-            <div id="tabLog" class="tab" onclick="switchMode('login')">MASUK AKUN</div>
+        <div class="input-group">
+            <label>USERNAME GAME</label>
+            <input type="text" placeholder="Contoh: ABCD">
         </div>
 
         <div class="input-group">
-            <label>Username Game</label>
-            <input type="text" id="userInput" placeholder="Masukkan Username">
-        </div>
-
-        <div id="extra-fields">
-            <div class="input-group">
-                <label>Nama Lengkap (Sesuai Rekening)</label>
-                <input type="text" id="nameInput" placeholder="Nama asli Anda">
-            </div>
-            <div class="input-group">
-                <label>Nama Bank / E-Wallet</label>
-                <input type="text" id="bankNameInput" placeholder="Contoh: BCA / DANA">
-            </div>
-            <div class="input-group">
-                <label>Nomor Rekening / E-Wallet</label>
-                <input type="number" id="bankAccInput" placeholder="Nomor rekening unik">
-            </div>
-            <p style="font-size: 8px; color: var(--neon-blue); text-align: left; margin: -5px 0 10px 10px;">
-                *Pastikan akun E-Wallet sudah Premium/Plus.
-            </p>
+            <label>NAMA LENGKAP (SESUAI REKENING)</label>
+            <input type="text" placeholder="Nama asli Anda">
         </div>
 
         <div class="input-group">
-            <label>Password (Min. 6 Karakter)</label>
-            <input type="password" id="passInput" placeholder="******">
-            <i class="fa-solid fa-eye-slash toggle-password" onclick="togglePass()"></i>
+            <label>NOMOR REKENING / E-WALLET</label>
+            <input type="number" placeholder="Untuk pencairan saldo">
         </div>
 
-        <button class="btn-action" id="btnSubmit" onclick="handleAuth()">DAFTAR SEKARANG</button>
+        <div class="input-group">
+            <label>PASSWORD</label>
+            <input type="password" placeholder="******">
+        </div>
+
+        <button class="btn-daftar" onclick="goToGame()">DAFTAR SEKARANG</button>
 
         <div class="footer-note">
-            Satu HP bisa banyak akun dengan rekening berbeda.<br>
-            Data terkunci otomatis demi keamanan pencairan.
+            Dengan mendaftar, data rekening Anda akan terkunci<br>demi keamanan pencairan dana.
         </div>
     </div>
 
-    <div class="popup-overlay" id="overlay"></div>
-    <div class="neon-popup" id="popup">
-        <div id="popupIcon" class="popup-icon"></div>
-        <h3 id="popupTitle" class="popup-title">NOTIFIKASI</h3>
-        <p id="popupMsg" class="popup-msg"></p>
-        <button class="btn-action" style="padding: 12px; background: var(--neon-blue); color: #000;" id="popupBtn" onclick="closePopup()">MENGERTI</button>
+    <div id="game-placeholder">
+        <h1>GAME MULAI...</h1>
     </div>
 
     <script>
-        let currentMode = 'register';
-
-        // Inisialisasi Database Akun (Local Storage)
-        if (!localStorage.getItem('all_accounts')) {
-            localStorage.setItem('all_accounts', JSON.stringify([]));
-        }
-
-        function togglePass() {
-            const passField = document.getElementById('passInput');
-            const icon = document.querySelector('.toggle-password');
-            const isPass = passField.type === "password";
-            passField.type = isPass ? "text" : "password";
-            icon.classList.replace(isPass ? 'fa-eye-slash' : 'fa-eye', isPass ? 'fa-eye' : 'fa-eye-slash');
-        }
-
-        function switchMode(mode) {
-            currentMode = mode;
-            document.getElementById('extra-fields').style.display = (mode === 'login') ? 'none' : 'block';
-            document.getElementById('btnSubmit').innerText = (mode === 'login') ? 'MASUK SEKARANG' : 'DAFTAR SEKARANG';
-            document.getElementById('tabLog').classList.toggle('active', mode === 'login');
-            document.getElementById('tabReg').classList.toggle('active', mode === 'register');
-        }
-
-        function showNeonPopup(title, msg, type) {
-            const popup = document.getElementById('popup');
-            const overlay = document.getElementById('overlay');
-            const iconDiv = document.getElementById('popupIcon');
+        function goToGame() {
+            // Animasi transisi sederhana
+            document.getElementById('registration-page').style.display = 'none';
+            document.getElementById('game-placeholder').style.display = 'block';
             
-            document.getElementById('popupTitle').innerText = title;
-            document.getElementById('popupMsg').innerText = msg;
-            
-            if(type === 'success') {
-                iconDiv.innerHTML = '<i class="fa-solid fa-circle-check" style="color: var(--neon-blue);"></i>';
-                popup.style.borderColor = "var(--neon-blue)";
-                popup.style.boxShadow = "0 0 40px rgba(0, 212, 255, 0.4)";
-            } else {
-                iconDiv.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color: var(--neon-pink);"></i>';
-                popup.style.borderColor = "var(--neon-pink)";
-                popup.style.boxShadow = "0 0 40px rgba(255, 0, 119, 0.4)";
-            }
-
-            overlay.style.display = 'block';
-            popup.style.display = 'block';
+            // Di sini nanti Anda bisa memasukkan fungsi untuk memanggil script game Plinko Anda
+            console.log("Navigasi ke Game...");
         }
-
-        function closePopup() {
-            if(document.getElementById('popupTitle').innerText === "BERHASIL") {
-                window.location.href = 'game.html';
-            } else {
-                document.getElementById('overlay').style.display = 'none';
-                document.getElementById('popup').style.display = 'none';
-            }
-        }
-
-        function handleAuth() {
-            const user = document.getElementById('userInput').value.trim();
-            const pass = document.getElementById('passInput').value;
-            const accounts = JSON.parse(localStorage.getItem('all_accounts'));
-
-            if (pass.length < 6) {
-                return showNeonPopup("ERROR", "Password minimal 6 karakter!", "error");
-            }
-
-            if (currentMode === 'register') {
-                const name = document.getElementById('nameInput').value.trim();
-                const bank = document.getElementById('bankNameInput').value.trim();
-                const acc = document.getElementById('bankAccInput').value.trim();
-
-                if (!user || !name || !bank || !acc) return showNeonPopup("DATA KOSONG", "Lengkapi semua kolom pendaftaran!", "error");
-
-                // Cek Username Ganda
-                if (accounts.some(a => a.username.toLowerCase() === user.toLowerCase())) {
-                    return showNeonPopup("NAMA TELAH TERPAKAI", "Username sudah ada. Mohon gunakan nama lain!", "error");
-                }
-
-                // Cek Rekening Ganda (Walaupun nama sama, rekening harus beda)
-                if (accounts.some(a => a.accountNumber === acc)) {
-                    return showNeonPopup("REKENING TERDAFTAR", "Nomor rekening ini sudah digunakan di akun lain!", "error");
-                }
-
-                // Simpan Akun Baru
-                const newAcc = { 
-                    username: user, fullName: name, bankName: bank, accountNumber: acc, password: pass,
-                    balance: 0, totalDepo: 0, id: "#VIP" + Math.floor(100000 + Math.random() * 899999)
-                };
-                accounts.push(newAcc);
-                localStorage.setItem('all_accounts', JSON.stringify(accounts));
-                
-                // Set Akun Aktif
-                localStorage.setItem('plinko_user', JSON.stringify(newAcc));
-                localStorage.setItem('is_logged_in', 'true');
-                
-                showNeonPopup("BERHASIL", "Registrasi Berhasil! Selamat datang di NEON PLINKO VIP.", "success");
-
-            } else {
-                // Proses Login Multi Account
-                const found = accounts.find(a => a.username.toLowerCase() === user.toLowerCase() && a.password === pass);
-                if (found) {
-                    localStorage.setItem('plinko_user', JSON.stringify(found));
-                    localStorage.setItem('is_logged_in', 'true');
-                    window.location.href = 'game.html';
-                } else {
-                    showNeonPopup("GAGAL MASUK", "Username atau Password salah!", "error");
-                }
-            }
-        }
-
-        window.onload = () => {
-            if(localStorage.getItem('is_logged_in') === 'true') window.location.href = 'game.html';
-        };
     </script>
 </body>
 </html>
