@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>NEON PLINKO VIP</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         :root { --pink: #ff0077; --blue: #00d4ff; --yellow: #fbff00; --bg: #070816; }
         body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; overflow: hidden; }
@@ -35,7 +35,7 @@
         /* Nav Buttons */
         .nav-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 0 15px; margin-top: 5px; }
         .btn-nav { background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 12px 5px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.3s; }
-        .btn-nav i { display: block; font-size: 20px; margin-bottom: 5px; }
+        .btn-nav i { display: block; font-size: 22px; margin-bottom: 5px; } /* Ukuran Ikon */
         .c-pink { color: var(--pink); border-color: var(--pink); }
         .c-blue { color: var(--blue); border-color: var(--blue); }
         .c-yellow { color: var(--yellow); border-color: var(--yellow); }
@@ -83,7 +83,7 @@
 
     <div class="nav-grid">
         <div class="btn-nav c-pink" onclick="location.href='withdraw.html'">
-            <i class="fa-solid fa-money-bill-transfer"></i>
+            <i class="fa-solid fa-wallet"></i> 
             <span style="font-size: 8px; font-weight: 900;">WITHDRAW</span>
         </div>
         <div class="btn-nav c-blue" onclick="location.href='deposit.html'">
@@ -91,7 +91,7 @@
             <span style="font-size: 8px; font-weight: 900;">DEPOSIT</span>
         </div>
         <div class="btn-nav c-yellow" onclick="location.href='reward.html'">
-            <i class="fa-solid fa-trophy"></i>
+            <i class="fa-solid fa-gift"></i>
             <span style="font-size: 8px; font-weight: 900;">REWARD</span>
         </div>
     </div>
@@ -123,7 +123,7 @@
         let isTurbo = false;
         let isAuto = false;
         let autoInterval = null;
-        let isAlerting = false; // Mencegah alert berkali-kali
+        let isAlerting = false; 
 
         const container = document.getElementById('game-container');
         const slots = [5, 2, 1.2, 0.2, 1.2, 2, 5];
@@ -181,7 +181,6 @@
 
         function stopGame() {
             if(isAuto) toggleAuto();
-            // Menghapus bola yang sedang berjalan (opsional)
             const activeBalls = document.querySelectorAll('.ball');
             activeBalls.forEach(b => b.remove());
         }
@@ -198,7 +197,12 @@
                 if (!isAlerting) {
                     isAlerting = true;
                     stopAuto();
-                    if(isAuto) toggleAuto();
+                    if(isAuto) {
+                        isAuto = false;
+                        document.getElementById('btn-auto').classList.remove('active');
+                        document.getElementById('play-text').innerText = "MULAI MAIN";
+                        document.getElementById('play-text').classList.remove('auto-active');
+                    }
                     alert("Saldo Tidak Cukup!");
                 }
                 return;
