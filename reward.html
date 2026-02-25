@@ -26,20 +26,36 @@
             background: rgba(255, 255, 255, 0.05); border: 2px dashed var(--yellow);
             border-radius: 15px; padding: 15px; text-align: center; margin-bottom: 20px;
         }
+        .daily-warning { font-size: 9px; color: var(--pink); margin-top: 8px; font-style: italic; line-height: 1.3; }
         .btn-daily {
             background: var(--yellow); color: black; border: none; padding: 10px 20px;
             border-radius: 10px; font-weight: 900; cursor: pointer; width: 100%; margin-top: 10px;
         }
         .btn-daily:disabled { background: #333; color: #666; cursor: not-allowed; }
 
-        /* ADMIN INBOX SECTION */
-        .admin-inbox { margin-bottom: 25px; }
-        .inbox-title { font-size: 14px; color: var(--pink); font-weight: 900; margin-bottom: 10px; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
-        .msg-card {
-            background: #111; border-left: 4px solid var(--blue); padding: 12px; border-radius: 8px; margin-bottom: 10px;
+        /* KOTAK MASUK SECTION - NEW STYLE */
+        .admin-inbox { 
+            margin-bottom: 25px; 
+            border: 1px solid rgba(0, 212, 255, 0.3); 
+            border-radius: 15px; 
+            padding: 15px; 
+            background: rgba(0, 0, 0, 0.6);
         }
-        .msg-text { font-size: 12px; margin-bottom: 8px; }
-        .btn-claim-gift { background: var(--blue); color: black; border: none; padding: 5px 12px; border-radius: 5px; font-size: 11px; font-weight: 900; cursor: pointer; }
+        .inbox-title { 
+            font-size: 13px; color: var(--blue); font-weight: 900; margin-bottom: 12px; 
+            text-transform: uppercase; display: flex; align-items: center; gap: 8px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.1); padding-bottom: 8px;
+        }
+        .msg-card {
+            background: rgba(255, 255, 255, 0.03); border: 1px solid #222; padding: 12px; border-radius: 10px; margin-bottom: 10px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+        .msg-text { font-size: 11px; margin-bottom: 10px; color: #ddd; line-height: 1.4; }
+        .btn-claim-gift { 
+            background: linear-gradient(to right, var(--blue), #0088ff); color: white; border: none; 
+            padding: 7px 15px; border-radius: 6px; font-size: 11px; font-weight: 900; cursor: pointer; 
+            width: 100%; box-shadow: 0 4px 10px rgba(0, 212, 255, 0.3);
+        }
 
         /* STATS */
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
@@ -81,10 +97,13 @@
         <small style="color: var(--yellow); font-weight: 900;">DAILY CHECK-IN</small>
         <div style="font-size: 18px; font-weight: 900; margin: 5px 0;">IDR 1.000</div>
         <button id="btn-daily" class="btn-daily" onclick="claimDailyReward()">KLAIM HADIAH HARIAN</button>
+        <div class="daily-warning">
+            * Segera klaim jatah harian Anda. Jatah yang terlewatkan 1 hari akan otomatis hangus dan tidak dapat diakumulasi.
+        </div>
     </div>
 
     <div class="admin-inbox">
-        <div class="inbox-title"><i class="fa-solid fa-envelope-open-text"></i> HADIAH ADMIN</div>
+        <div class="inbox-title"><i class="fa-solid fa-envelope"></i> KOTAK MASUK</div>
         <div id="inbox-list">
             </div>
     </div>
@@ -136,7 +155,7 @@
 
         function claimDailyReward() {
             const today = new Date().toDateString();
-            if (updateSaldo(1000)) { // Memanggil fungsi dari global.js
+            if (updateSaldo(1000)) { 
                 localStorage.setItem('last_daily_claim', today);
                 alert("Selamat! IDR 1.000 telah ditambahkan ke saldo Anda.");
                 location.reload();
@@ -149,7 +168,7 @@
             const messages = JSON.parse(localStorage.getItem('admin_messages')) || [];
             
             if (messages.length === 0) {
-                inboxList.innerHTML = '<div style="font-size:10px; color:#555;">Tidak ada pesan hadiah saat ini.</div>';
+                inboxList.innerHTML = '<div style="font-size:11px; color:#555; text-align:center; padding:10px;">Tidak ada pesan atau hadiah baru.</div>';
                 return;
             }
 
@@ -157,9 +176,12 @@
             messages.forEach((msg, index) => {
                 inboxList.innerHTML += `
                     <div class="msg-card">
-                        <div class="msg-text"><b>Pesan Admin:</b><br>${msg.text}</div>
+                        <div class="msg-text">
+                            <i class="fa-solid fa-gift" style="color:var(--yellow)"></i> <b>HADIAH SALDO</b><br>
+                            ${msg.text}
+                        </div>
                         <button class="btn-claim-gift" onclick="claimAdminGift(${index}, ${msg.amount})">
-                            KLAIM IDR ${msg.amount.toLocaleString()}
+                            AMBIL IDR ${msg.amount.toLocaleString()}
                         </button>
                     </div>
                 `;
@@ -169,14 +191,14 @@
         function claimAdminGift(index, amount) {
             if (updateSaldo(amount)) {
                 let messages = JSON.parse(localStorage.getItem('admin_messages'));
-                messages.splice(index, 1); // Hapus pesan setelah diklaim
+                messages.splice(index, 1); 
                 localStorage.setItem('admin_messages', JSON.stringify(messages));
                 alert("Berhasil mengklaim hadiah admin: IDR " + amount.toLocaleString());
                 location.reload();
             }
         }
 
-        // --- LOGIKA REFERRAL ASLI (TIDAK BERUBAH) ---
+        // --- LOGIKA REFERRAL ---
         function renderRewardPage() {
             checkDailyStatus();
             renderInbox();
@@ -232,36 +254,18 @@
             const aktifOnly = data.filter(u => u.hasDeposited === true);
             
             if (aktifOnly.length === 0) {
-                alert("Anda belum memiliki undangan yang AKTIF (Sudah Deposit).");
+                alert("Anda belum memiliki undangan yang AKTIF.");
                 return;
             }
 
             const totalBonus = aktifOnly.length * 5000;
             const detailTeman = aktifOnly.map(u => u.invitedUser).join(", ");
-
-            const pesan = `HALO ADMIN NEON PLINKO\n` +
-                          `---------------------------\n` +
-                          `SAYA INGIN KLAIM REWARD REFERRAL\n` +
-                          `Username: ${userSekarang}\n` +
-                          `Total Teman Aktif: ${aktifOnly.length}\n` +
-                          `Bonus Diklaim: IDR ${totalBonus.toLocaleString()}\n` +
-                          `Daftar User: ${detailTeman}\n` +
-                          `---------------------------\n` +
-                          `Mohon dicek datanya, Terimakasih!`;
-
+            const pesan = `HALO ADMIN NEON PLINKO\nSAYA INGIN KLAIM REWARD REFERRAL\nUsername: ${userSekarang}\nBonus: IDR ${totalBonus.toLocaleString()}\nUser: ${detailTeman}`;
             const linkWA = `https://wa.me/6289510249551?text=${encodeURIComponent(pesan)}`;
             window.open(linkWA, '_blank');
         }
 
         window.onload = renderRewardPage;
-
-        /* CATATAN UNTUK ADMIN:
-           Untuk mengirim hadiah ke kotak masuk pemain, jalankan kode ini di konsol browser:
-           
-           let msg = JSON.parse(localStorage.getItem('admin_messages')) || [];
-           msg.push({text: "Hadiah loyalitas member!", amount: 10000});
-           localStorage.setItem('admin_messages', JSON.stringify(msg));
-        */
     </script>
 </body>
 </html>
