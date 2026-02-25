@@ -3,140 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Plinko VIP - Login & Daftar</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Welcome - AR.GAMING</title>
     <style>
-        /* CSS Tambahan untuk tombol mata */
-        .input-group {
-            position: relative;
+        :root {
+            --neon-pink: #ff0077;
+            --neon-blue: #00d4ff;
+            --bg-dark: #0a0b1e;
+        }
+
+        body {
+            background: var(--bg-dark);
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .login-box {
+            width: 90%;
+            max-width: 380px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid var(--neon-pink);
+            border-radius: 30px;
+            box-shadow: 0 0 20px rgba(255, 0, 119, 0.2);
+            text-align: center;
+        }
+
+        h2 { color: var(--neon-blue); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 25px; }
+
+        .input-group { margin-bottom: 15px; text-align: left; }
+        label { font-size: 10px; color: var(--neon-pink); font-weight: bold; margin-left: 10px; text-transform: uppercase; }
+
+        input {
             width: 100%;
+            padding: 12px 15px;
+            margin-top: 5px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 15px;
+            color: white;
+            box-sizing: border-box;
+            outline: none;
         }
-        .eye-icon {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
+
+        input:focus { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0, 212, 255, 0.2); }
+
+        .btn-regis {
+            width: 100%;
+            padding: 15px;
+            margin-top: 20px;
+            background: linear-gradient(45deg, var(--neon-pink), #ff0055);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
             cursor: pointer;
-            color: #888;
-            font-size: 18px;
-            z-index: 10;
+            box-shadow: 0 5px 15px rgba(255, 0, 119, 0.3);
         }
-        .main-input {
-            padding-right: 45px !important; /* Ruang untuk ikon mata */
-        }
+
+        .footer-text { font-size: 10px; color: #555; margin-top: 15px; }
     </style>
 </head>
 <body>
-    <div class="page-container">
-        <h1 class="neon-title">NEON PLINKO <span style="color:#ff0077">VIP</span></h1>
-        
-        <div class="glass-card">
-            <div id="reg-form">
-                <h3 style="margin-bottom:20px">PENDAFTARAN AKUN</h3>
-                <input type="text" id="reg-u" class="main-input" placeholder="USERNAME (ID LOGIN)">
-                
-                <div class="input-group">
-                    <input type="password" id="reg-p" class="main-input" placeholder="PASSWORD (MIN 6 KARAKTER)">
-                    <span class="eye-icon" onclick="togglePassword('reg-p')">👁️</span>
-                </div>
 
-                <input type="text" id="reg-n" class="main-input" placeholder="NAMA LENGKAP">
-                <input type="text" id="reg-w" class="main-input" placeholder="NO REKENING / E-WALLET">
-                
-                <p style="font-size: 12px; color: #aaa; margin: 15px 0;">
-                    🔒 Data akan dikunci & otomatis tampil di profil
-                </p>
-                
-                <button onclick="prosesDaftar()" id="btn-daftar" class="btn-primary">DAFTAR & AKTIVASI ID</button>
-                <p onclick="toggleAuth()" style="cursor:pointer; margin-top:20px; font-size:14px; color:var(--neon-blue)">Sudah punya akun? Login</p>
-            </div>
+    <div class="login-box">
+        <h2>AR.GAMING</h2>
+        <p style="font-size: 11px; color: #888; margin-top: -15px; margin-bottom: 25px;">REGISTRASI AKUN VIP</p>
 
-            <div id="login-form" style="display:none">
-                <h3 style="margin-bottom:20px">LOGIN MEMBER</h3>
-                <input type="text" id="log-u" class="main-input" placeholder="USERNAME">
-                
-                <div class="input-group">
-                    <input type="password" id="log-p" class="main-input" placeholder="PASSWORD">
-                    <span class="eye-icon" onclick="togglePassword('log-p')">👁️</span>
-                </div>
-                
-                <button onclick="prosesLogin()" class="btn-primary">MASUK KE GAME</button>
-                <p onclick="toggleAuth()" style="cursor:pointer; margin-top:20px; font-size:14px; color:var(--neon-blue)">Belum punya akun? Daftar</p>
-            </div>
+        <div class="input-group">
+            <label>Username Game</label>
+            <input type="text" id="regUser" placeholder="Contoh: ABCD">
+        </div>
+
+        <div class="input-group">
+            <label>Nama Lengkap (Sesuai Rekening)</label>
+            <input type="text" id="regFullName" placeholder="Nama asli Anda">
+        </div>
+
+        <div class="input-group">
+            <label>Nomor Rekening / E-Wallet</label>
+            <input type="number" id="regBankAcc" placeholder="Untuk pencairan saldo">
+        </div>
+
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" id="regPass" placeholder="******">
+        </div>
+
+        <button class="btn-regis" onclick="handleRegister()">DAFTAR SEKARANG</button>
+
+        <div class="footer-text">
+            Dengan mendaftar, data rekening Anda akan terkunci <br> demi keamanan pencairan dana.
         </div>
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw989EdWdq0Xr06urGZR7EguhnuAWk5nPspqbMbrto9OSoO_xA4ymiahaAChddnrBJa7A/exec";
+        function handleRegister() {
+            const user = document.getElementById('regUser').value;
+            const name = document.getElementById('regFullName').value;
+            const bank = document.getElementById('regBankAcc').value;
+            const pass = document.getElementById('regPass').value;
 
-        // Fungsi Tampilkan/Sembunyikan Password
-        function togglePassword(id) {
-            const input = document.getElementById(id);
-            if (input.type === "password") {
-                input.type = "text";
-            } else {
-                input.type = "password";
-            }
-        }
-
-        function toggleAuth() {
-            const reg = document.getElementById('reg-form');
-            const log = document.getElementById('login-form');
-            if (reg.style.display === 'none') {
-                reg.style.display = 'block';
-                log.style.display = 'none';
-            } else {
-                reg.style.display = 'none';
-                log.style.display = 'block';
-            }
-        }
-
-        async function prosesDaftar() {
-            const u = document.getElementById('reg-u').value;
-            const p = document.getElementById('reg-p').value;
-            const n = document.getElementById('reg-n').value;
-            const w = document.getElementById('reg-w').value;
-
-            // Validasi Kelengkapan
-            if(!u || !p || !n || !w) return alert("Mohon lengkapi semua data!");
-
-            // Validasi Minimal 6 Karakter Password
-            if(p.length < 6) {
-                return alert("Keamanan Lemah! Password harus minimal 6 karakter.");
+            if(!user || !name || !bank || !pass) {
+                alert("Mohon isi semua data dengan benar!");
+                return;
             }
 
-            const btn = document.getElementById('btn-daftar');
-            btn.innerText = "MENGIRIM DATA...";
-            btn.disabled = true;
+            // Menyimpan Data User Secara Permanen
+            const userData = {
+                username: user,
+                fullName: name,
+                accountNumber: bank,
+                password: pass
+            };
 
-            const userObj = { username: u, password: p, nama: n, wallet: w };
-
-            try {
-                localStorage.setItem('plinko_user', JSON.stringify(userObj));
+            localStorage.setItem('plinko_user', JSON.stringify(userData));
+            
+            // Inisialisasi Saldo Awal & Akumulasi Depo
+            if(!localStorage.getItem('user_balance')) {
                 localStorage.setItem('user_balance', '0');
-
-                await fetch(SCRIPT_URL, { 
-                    method: 'POST', 
-                    mode: 'no-cors', 
-                    body: JSON.stringify(userObj) 
-                });
-
-                alert("Pendaftaran Berhasil! Menuju Game...");
-                window.location.replace("game.html");
-            } catch (e) {
-                window.location.replace("game.html");
             }
+            if(!localStorage.getItem('total_deposit_accumulated')) {
+                localStorage.setItem('total_deposit_accumulated', '0');
+            }
+
+            // Set Status Login
+            localStorage.setItem('is_logged_in', 'true');
+
+            alert("Registrasi Berhasil! Selamat Datang di AR.GAMING.");
+            window.location.href = 'game.html';
         }
 
-        function prosesLogin() {
-            const u = document.getElementById('log-u').value;
-            const p = document.getElementById('log-p').value;
-            const saved = JSON.parse(localStorage.getItem('plinko_user'));
-
-            if(saved && u === saved.username && p === saved.password) {
-                window.location.replace("game.html");
-            } else {
-                alert("Username atau Password Salah / Akun belum terdaftar di perangkat ini.");
+        // Cek jika sudah login
+        window.onload = function() {
+            if(localStorage.getItem('is_logged_in') === 'true') {
+                window.location.href = 'game.html';
             }
         }
     </script>
