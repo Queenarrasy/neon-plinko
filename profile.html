@@ -36,4 +36,134 @@
             border-radius: 50%; font-size: 40px; position: relative;
         }
 
-        .tier-icon-bronze { background
+        .tier-icon-bronze { background: rgba(205, 127, 50, 0.1); border: 2px solid var(--color-bronze); color: var(--color-bronze); box-shadow: 0 0 15px var(--color-bronze); }
+        .tier-icon-silver { background: rgba(192, 192, 192, 0.1); border: 2px solid var(--color-silver); color: var(--color-silver); box-shadow: 0 0 15px var(--color-silver); }
+        .tier-icon-gold { background: rgba(255, 204, 0, 0.1); border: 2px solid var(--color-gold); color: var(--color-gold); box-shadow: 0 0 15px var(--color-gold); }
+        .tier-icon-platinum { background: rgba(0, 242, 255, 0.1); border: 2px solid var(--color-platinum); color: var(--color-platinum); box-shadow: 0 0 15px var(--color-platinum); }
+
+        .username { font-size: 22px; font-weight: 800; margin: 5px 0; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* PROGRESS BAR CUSTOM */
+        .progress-container { margin: 25px 0 10px; text-align: left; }
+        .progress-label { display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 6px; color: #888; }
+        .bar-bg { width: 100%; height: 10px; background: #15162c; border-radius: 20px; overflow: hidden; border: 1px solid #222; }
+        .bar-fill { height: 100%; width: 0%; transition: 1s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+        /* STATS */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; }
+        .stat-box { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 18px; border-bottom: 2px solid transparent; }
+        .stat-box.active { border-color: var(--neon-blue); }
+        .stat-title { font-size: 9px; color: #666; display: block; margin-bottom: 5px; }
+        .stat-num { font-size: 14px; font-weight: bold; }
+
+        .btn-logout { margin-top: 30px; font-size: 11px; color: #ff4444; opacity: 0.6; cursor: pointer; border: none; background: none; }
+    </style>
+</head>
+<body>
+
+    <div class="header-nav">
+        <div class="btn-back" onclick="window.location.href='game.html'">⬅ KEMBALI KE GAME</div>
+    </div>
+
+    <div class="profile-card">
+        <div id="tierIcon" class="tier-icon-wrapper tier-icon-bronze">
+            <span id="tierSymbol">🥉</span>
+        </div>
+        
+        <div class="username" id="userDisplay">PLAYER</div>
+        <div id="tierName" style="font-weight: 900; font-size: 12px; margin-top: -5px;">BRONZE MEMBER</div>
+
+        <div class="progress-container">
+            <div class="progress-label">
+                <span id="nextLevelLabel">NEXT: SILVER</span>
+                <span id="percentLabel">0%</span>
+            </div>
+            <div class="bar-bg">
+                <div id="barFill" class="bar-fill" style="background: var(--color-bronze);"></div>
+            </div>
+            <p id="targetInfo" style="font-size: 9px; color: #555; margin-top: 8px; font-weight: bold;"></p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-box">
+                <span class="stat-title">TOTAL DEPO</span>
+                <span class="stat-num" id="totalDepo" style="color:var(--gold)">IDR 0</span>
+            </div>
+            <div class="stat-box active">
+                <span class="stat-title">SALDO AKTIF</span>
+                <span class="stat-num" id="userBalance">IDR 0</span>
+            </div>
+        </div>
+
+        <button class="btn-logout" onclick="logout()">KELUAR AKUN</button>
+    </div>
+
+    <script>
+        // DATA CONFIG TIER
+        const TIERS = [
+            { name: "BRONZE", symbol: "🥉", color: "#cd7f32", min: 0, next: 50000 },
+            { name: "SILVER", symbol: "🥈", color: "#c0c0c0", min: 50000, next: 250000 },
+            { name: "GOLD", symbol: "🥇", color: "#ffcc00", min: 250000, next: 1000000 },
+            { name: "PLATINUM", symbol: "💎", color: "#00f2ff", min: 1000000, next: null }
+        ];
+
+        function initProfile() {
+            const userData = JSON.parse(localStorage.getItem('plinko_user')) || { username: "Guest" };
+            const balance = parseInt(localStorage.getItem('user_balance') || 0);
+            const totalAccumulated = parseInt(localStorage.getItem('total_deposit_accumulated') || 0);
+
+            // Tentukan Tier
+            let current = TIERS[0];
+            for (let i = TIERS.length - 1; i >= 0; i--) {
+                if (totalAccumulated >= TIERS[i].min) {
+                    current = TIERS[i];
+                    break;
+                }
+            }
+
+            // Update UI Dasar
+            document.getElementById('userDisplay').innerText = userData.username;
+            document.getElementById('userBalance').innerText = "IDR " + balance.toLocaleString();
+            document.getElementById('totalDepo').innerText = "IDR " + totalAccumulated.toLocaleString();
+            
+            // Update Tier & Visual
+            const iconWrapper = document.getElementById('tierIcon');
+            const barFill = document.getElementById('barFill');
+            
+            iconWrapper.className = `tier-icon-wrapper tier-icon-${current.name.toLowerCase()}`;
+            document.getElementById('tierSymbol').innerText = current.symbol;
+            document.getElementById('tierName').innerText = current.name + " MEMBER";
+            document.getElementById('tierName').style.color = current.color;
+            barFill.style.background = current.color;
+
+            // Logika Progress Bar
+            if (current.next) {
+                const range = current.next - current.min;
+                const earned = totalAccumulated - current.min;
+                const percent = Math.floor((earned / range) * 100);
+                const nextTier = TIERS[TIERS.indexOf(current) + 1];
+
+                document.getElementById('barFill').style.width = percent + "%";
+                document.getElementById('percentLabel').innerText = percent + "%";
+                document.getElementById('nextLevelLabel').innerText = "NEXT: " + nextTier.name;
+                document.getElementById('targetInfo').innerText = `IDR ${(current.next - totalAccumulated).toLocaleString()} lagi menuju ${nextTier.name}`;
+            } else {
+                // Jika Platinum (MAX)
+                document.getElementById('barFill').style.width = "100%";
+                document.getElementById('percentLabel').innerText = "MAX";
+                document.getElementById('nextLevelLabel').innerText = "ULTIMATE TIER";
+                document.getElementById('targetInfo').innerText = "Selamat! Anda berada di level tertinggi.";
+            }
+        }
+
+        function logout() {
+            if(confirm("Keluar dari game?")) {
+                localStorage.clear();
+                window.location.href = 'index.html';
+            }
+        }
+
+        window.onload = initProfile;
+    </script>
+</body>
+</html>
