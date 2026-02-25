@@ -101,7 +101,6 @@
             <div id="btn-normal" class="toggle active" onclick="setSpeed('normal')">NORMAL</div>
             <div id="btn-turbo" class="toggle" onclick="setSpeed('turbo')">TURBO</div>
             <div id="btn-auto" class="toggle" onclick="toggleAuto()">AUTO</div>
-            <div id="btn-stop" class="toggle btn-stop" onclick="stopGame()">STOP</div>
         </div>
 
         <div class="bet-selector">
@@ -207,18 +206,13 @@
             if (!updateSaldo(-currentBet)) {
                 if (!isAlerting) {
                     isAlerting = true;
-                    stopAuto();
-                    if(isAuto) {
-                        isAuto = false;
-                        document.getElementById('btn-auto').classList.remove('active');
-                        document.getElementById('play-text').innerText = "MULAI MAIN";
-                        document.getElementById('play-text').classList.remove('auto-active');
-                    }
+                    if(isAuto) toggleAuto();
                     alert("Saldo Tidak Cukup!");
                 }
                 return;
             }
 
+            // ADMIN CONTROL: Kemenangan & Kekalahan
             const winRate = typeof getWinRate === "function" ? getWinRate() : 30;
             const isSettinganMenang = (Math.random() * 100) <= winRate;
 
@@ -234,7 +228,7 @@
                 row: 0,
                 radius: 6,
                 isFinished: false,
-                inPegArea: true // Deteksi apakah masih di area paku
+                inPegArea: true
             };
 
             ballEl.style.left = ballObj.x + 'px';
@@ -258,7 +252,6 @@
                 ballObj.y += ballObj.vy * speedFactor;
                 ballObj.vx *= friction;
 
-                // FIX: Tabrakan antar bola HANYA jika inPegArea = true
                 if (ballObj.inPegArea) {
                     activeBalls.forEach(other => {
                         if (other === ballObj || other.isFinished || !other.inPegArea) return;
@@ -271,7 +264,7 @@
                             let angle = Math.atan2(dy, dx);
                             let tx = ballObj.x + Math.cos(angle) * minDist;
                             let ty = ballObj.y + Math.sin(angle) * minDist;
-                            let ax = (tx - other.x) * 0.08; // Dibuat lebih lembut (0.08)
+                            let ax = (tx - other.x) * 0.08;
                             let ay = (ty - other.y) * 0.08;
 
                             ballObj.vx -= ax;
@@ -285,18 +278,18 @@
                 let targetY = (ballObj.row + 2) * 35;
                 if (ballObj.y >= targetY && ballObj.row < 7) {
                     ballObj.row++;
+                    // LOGIKA ADMIN: Jika isSettinganMenang true, bola menjauh dari tengah (target pinggir)
+                    // Jika false, bola dipaksa mendekat ke tengah (target multiplier 0.2x)
                     let dir = (isSettinganMenang) ? (ballObj.x > container.offsetWidth / 2 ? 1 : -1) : (ballObj.x > container.offsetWidth / 2 ? -1 : 1);
+                    
                     if (Math.random() > 0.8) dir *= -1; 
                     
-                    ballObj.vx += dir * (1.2 + Math.random() * 1.5); // Power seimbang
+                    ballObj.vx += dir * (1.2 + Math.random() * 1.5);
                     ballObj.vy *= -bounce;
                     ballObj.y = targetY - 1;
                 }
 
-                // Jika sudah melewati paku terakhir, matikan deteksi tabrakan
-                if (ballObj.row >= 7) {
-                    ballObj.inPegArea = false;
-                }
+                if (ballObj.row >= 7) ballObj.inPegArea = false;
 
                 ballEl.style.left = ballObj.x + 'px';
                 ballEl.style.top = ballObj.y + 'px';
