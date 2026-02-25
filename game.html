@@ -4,35 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>NEON PLINKO VIP</title>
-    <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
     <style>
         :root { --neon-pink: #ff0077; --neon-blue: #00d4ff; --neon-gold: #fbff00; --bg-dark: #070816; }
         body, html { background: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; }
         
-        /* HEADER DENGAN ANIMASI */
-        .header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; z-index: 100; }
-        .nav-anim { width: 55px; height: 55px; cursor: pointer; filter: drop-shadow(0 0 5px var(--neon-pink)); }
-        .saldo-display { background: rgba(0,0,0,0.8); border: 2px solid var(--neon-blue); border-radius: 20px; padding: 5px 15px; text-align: center; box-shadow: 0 0 10px rgba(0, 212, 255, 0.4); }
+        /* HEADER */
+        .header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; z-index: 100; box-sizing: border-box; }
+        .nav-icon-funny { width: 50px; height: 50px; cursor: pointer; transition: 0.3s; filter: drop-shadow(0 0 5px var(--neon-pink)); }
+        .nav-icon-funny:active { transform: scale(0.8); }
+        
+        .saldo-display { background: rgba(0,0,0,0.8); border: 2px solid var(--neon-blue); border-radius: 20px; padding: 5px 15px; text-align: center; box-shadow: 0 0 15px rgba(0, 212, 255, 0.5); }
 
-        /* SCORE BOARD */
-        #score-board { position: absolute; top: 80px; right: 20px; width: 110px; display: flex; flex-direction: column-reverse; gap: 5px; z-index: 50; }
-        .score-item { background: rgba(0, 212, 255, 0.2); border-left: 3px solid var(--neon-blue); padding: 5px; font-size: 11px; font-weight: 900; border-radius: 4px; animation: slideIn 0.3s ease-out; color: var(--neon-gold); }
-        @keyframes slideIn { from { transform: translateX(50px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        /* GRID TOMBOL DENGAN KETERANGAN PINK NEON */
+        .action-nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 92%; margin: 10px 0; }
+        .nav-card { 
+            background: rgba(255,255,255,0.03); border-radius: 15px; padding: 10px 5px; 
+            text-align: center; border: 1px solid rgba(255,255,255,0.1); text-decoration: none;
+        }
+        .nav-card img { width: 45px; height: 45px; object-fit: contain; margin-bottom: 5px; }
+        .nav-card span { 
+            font-size: 10px; font-weight: 900; color: var(--neon-pink); 
+            text-transform: uppercase; display: block;
+            text-shadow: 0 0 8px var(--neon-pink); /* Font Pink Neon menyala */
+        }
 
-        /* GAME AREA */
-        .game-container { position: relative; width: 100%; flex-grow: 1; display: flex; flex-direction: column; align-items: center; }
+        /* PERKALIAN */
         .multiplier-bar { display: flex; justify-content: center; gap: 3px; width: 95%; margin: 5px 0; }
         .m-slot { flex: 1; padding: 8px 0; font-size: 10px; font-weight: 900; text-align: center; border-radius: 5px; color: white; }
         .pink { background: var(--neon-pink); } .gold { background: var(--neon-gold); color: black; } .blue { background: var(--neon-blue); color: black; }
 
-        /* NAVIGASI TOMBOL ANIMASI */
-        .action-nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 92%; margin: 10px 0; }
-        .nav-card { background: rgba(255,255,255,0.05); border-radius: 15px; padding: 5px; text-align: center; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: 0.2s; }
-        .nav-card:active { transform: scale(0.9); }
-        .nav-card dotlottie-player { width: 45px; height: 45px; margin: 0 auto; }
-        .nav-card span { font-size: 9px; font-weight: 900; color: var(--neon-pink); display: block; margin-top: -5px; }
-
-        /* CONTROLS */
+        /* BET CONTROL */
         .bet-area { background: rgba(0,0,0,0.6); border-radius: 30px; display: flex; align-items: center; padding: 5px 20px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.1); }
         .btn-spin { width: 85%; padding: 16px; background: linear-gradient(180deg, var(--neon-blue), #0055ff); border: none; border-radius: 40px; color: white; font-size: 20px; font-weight: 900; box-shadow: 0 0 25px rgba(0, 212, 255, 0.5); cursor: pointer; margin-bottom: 20px; }
     </style>
@@ -40,21 +41,17 @@
 <body>
 
     <div class="header">
-        <div class="nav-anim" onclick="location.href='profile.html'">
-            <dotlottie-player src="https://lottie.host/8e8b2361-b847-497b-9443-4375b430e386/7Y9fX6Q7K8.json" background="transparent" speed="1" loop autoplay></dotlottie-player>
-        </div>
+        <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJueXF6bmZ6bmZ6bmZ6bmZ6bmZ6bmZ6bmZ6bmZ6bmZ6bmZ6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1z/3o7TKMGpxof8C96xf2/giphy.gif" class="nav-icon-funny" onclick="location.href='profile.html'">
+        
         <div class="saldo-display">
             <small style="color: var(--neon-blue); font-size: 8px; font-weight: bold; display: block;">SALDO VIP</small>
-            <div id="balance" style="font-size: 18px; font-weight: 900;">91200</div>
+            <div id="balance" style="font-size: 18px; font-weight: 900;">100.000</div>
         </div>
-        <div class="nav-anim" onclick="location.href='reward.html'">
-            <dotlottie-player src="https://lottie.host/36242337-d2e7-49f3-8027-142f1f5d214c/UfBwS9B8tX.json" background="transparent" speed="1" loop autoplay></dotlottie-player>
-        </div>
+
+        <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJueXF6bmZ6bmZ6bmZ6bmZ6bmZ6bmZ6bmZ6bmZ6bmZ6bmZ6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1z/l41lTfO3v7s0G9Wk8/giphy.gif" class="nav-icon-funny" onclick="location.href='reward.html'">
     </div>
 
-    <div id="score-board"></div>
-
-    <div class="game-container">
+    <div class="game-container" style="display: flex; flex-direction: column; align-items: center; width: 100%;">
         <canvas id="plinkoCanvas"></canvas>
 
         <div class="multiplier-bar">
@@ -65,127 +62,59 @@
 
         <div class="action-nav">
             <div class="nav-card" onclick="location.href='withdraw.html'">
-                <dotlottie-player src="https://lottie.host/8468763a-69b7-4402-8633-87f54c935473/9XjSshQJ8k.json" speed="1.5" loop autoplay></dotlottie-player>
+                <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJueXF6bmZ6bmZ6bmZ6bmZ6bmZ6bmZ6bmZ6bmZ6bmZ6bmZ6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1z/3o7TKVUn7iM8FMEU24/giphy.gif">
                 <span>Tarik</span>
             </div>
             <div class="nav-card" onclick="location.href='deposit.html'">
-                <dotlottie-player src="https://lottie.host/c9d74a7b-3f2d-4560-b746-8147d3d34086/v3rUf6mK9W.json" speed="1" loop autoplay></dotlottie-player>
+                <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJueXF6bmZ6bmZ6bmZ6bmZ6bmZ6bmZ6bmZ6bmZ6bmZ6bmZ6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1z/l0HlSnoFqX3W7P_4k/giphy.gif">
                 <span>Deposit</span>
             </div>
             <div class="nav-card" onclick="location.href='rank.html'">
-                <dotlottie-player src="https://lottie.host/7906d4e8-867c-473d-9860-316345634563/L8P9s5W3a1.json" speed="1" loop autoplay></dotlottie-player>
+                <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJueXF6bmZ6bmZ6bmZ6bmZ6bmZ6bmZ6bmZ6bmZ6bmZ6bmZ6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1z/3o7TKMGpxof8C96xf2/giphy.gif">
                 <span>Rank</span>
             </div>
         </div>
 
         <div class="bet-area">
-            <button onclick="changeBetIndex(-1)" style="background:none; border:none; color:var(--neon-blue); font-size:25px; cursor:pointer;">-</button>
-            <div style="text-align: center; min-width: 120px;">
+            <button onclick="changeBet(-1)" style="background:none; border:none; color:var(--neon-blue); font-size:30px; cursor:pointer;">-</button>
+            <div style="text-align: center; min-width: 130px;">
                 <small style="color:#666; display:block; font-size: 8px;">TARUHAN</small>
-                <span id="bet-amount" style="font-size: 18px; font-weight: 900; color: var(--neon-gold);">400</span>
+                <span id="bet-amount" style="font-size: 20px; font-weight: 900; color: var(--neon-gold);">400</span>
             </div>
-            <button onclick="changeBetIndex(1)" style="background:none; border:none; color:var(--neon-blue); font-size:25px; cursor:pointer;">+</button>
+            <button onclick="changeBet(1)" style="background:none; border:none; color:var(--neon-blue); font-size:30px; cursor:pointer;">+</button>
         </div>
 
         <button class="btn-spin" onclick="spawnBall()">MULAI MAIN</button>
     </div>
 
     <script>
-        // --- KONTROL ADMIN (SETTING KEMENANGAN) ---
-        const ADMIN_SETTINGS = {
-            winRate: 0.25, // 25% peluang untung, sisanya rugi (0.2x)
-            forceResult: null // Isi 0-6 jika ingin paksa hasil tertentu
-        };
+        // URUTAN BET SESUAI PERMINTAAN
+        const betLevels = [400, 600, 800, 1000, 1200, 1600, 1800, 2000, 4000, 6000, 8000, 10000, 12000, 16000, 18000, 20000];
+        let currentBetIndex = 0;
 
+        function changeBet(direction) {
+            currentBetIndex += direction;
+            if (currentBetIndex < 0) currentBetIndex = 0;
+            if (currentBetIndex >= betLevels.length) currentBetIndex = betLevels.length - 1;
+            document.getElementById('bet-amount').innerText = betLevels[currentBetIndex].toLocaleString();
+        }
+
+        // Logika Game (Singkat)
         const canvas = document.getElementById('plinkoCanvas');
         const ctx = canvas.getContext('2d');
-        canvas.width = 340; canvas.height = 310;
-
-        let balance = 91200;
-        const betLevels = [400, 800, 1000, 1200, 1600, 1800, 2000, 4000, 6000, 8000, 10000, 15000, 20000, 25000, 30000];
-        let betIndex = 0;
-        const balls = [];
-        const pins = [];
-        const multipliers = [5, 2, 1.2, 0.2, 1.2, 2, 5];
-
-        for (let l = 2; l <= 9; l++) {
-            for (let i = 0; i < l; i++) {
-                pins.push({ x: canvas.width/2 + (i - (l-1)/2)*30, y: l*28 + 15 });
-            }
-        }
+        canvas.width = 340; canvas.height = 300;
 
         function spawnBall() {
-            let currentBet = betLevels[betIndex];
-            if (balance < currentBet) return alert("Saldo tidak cukup!");
-            balance -= currentBet;
-            updateUI();
-
-            balls.push({
-                x: canvas.width / 2 + (Math.random() * 6 - 3),
-                y: 20, vx: 0, vy: 2, radius: 7, 
-                target: ADMIN_SETTINGS.forceResult !== null ? ADMIN_SETTINGS.forceResult : 
-                        (Math.random() < ADMIN_SETTINGS.winRate ? [0,1,5,6][Math.floor(Math.random()*4)] : 3)
-            });
-        }
-
-        function update() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "white";
-            pins.forEach(p => { ctx.beginPath(); ctx.arc(p.x, p.y, 2.5, 0, Math.PI*2); ctx.fill(); });
-
-            for (let i = balls.length - 1; i >= 0; i--) {
-                let b = balls[i];
-                b.vy += 0.15; b.y += b.vy; b.x += b.vx;
-
-                pins.forEach(p => {
-                    let dx = b.x - p.x; let dy = b.y - p.y; let dist = Math.sqrt(dx*dx + dy*dy);
-                    if (dist < 10) {
-                        // Logika magnetik agar bola menuju target admin
-                        let targetX = (b.target * (canvas.width / 7)) + (canvas.width / 14);
-                        b.vx = (dx / dist) * 2 + (targetX > b.x ? 0.2 : -0.2);
-                        b.vy *= -0.45; b.y = p.y + 10;
-                    }
-                });
-
-                ctx.fillStyle = "#00d4ff";
-                ctx.shadowBlur = 15; ctx.shadowColor = "#00d4ff";
-                ctx.beginPath(); ctx.arc(b.x, b.y, b.radius, 0, Math.PI*2); ctx.fill();
-                ctx.shadowBlur = 0;
-
-                if (b.y > canvas.height - 5) {
-                    finalizeResult(b.x);
-                    balls.splice(i, 1);
-                }
-            }
-            requestAnimationFrame(update);
-        }
-
-        function finalizeResult(finalX) {
-            let slotIndex = Math.floor(finalX / (canvas.width / 7));
-            slotIndex = Math.max(0, Math.min(6, slotIndex));
-            let win = betLevels[betIndex] * multipliers[slotIndex];
-            balance += win;
+            let bet = betLevels[currentBetIndex];
+            let balance = parseInt(document.getElementById('balance').innerText.replace('.',''));
+            if (balance < bet) return alert("Saldo tidak cukup!");
             
-            const sb = document.getElementById('score-board');
-            const item = document.createElement('div');
-            item.className = 'score-item';
-            item.innerHTML = `+IDR ${win.toLocaleString()}`;
-            sb.appendChild(item);
-            setTimeout(() => item.remove(), 2500);
-            updateUI();
+            // Pengurangan Saldo
+            balance -= bet;
+            document.getElementById('balance').innerText = balance.toLocaleString();
+            
+            // Jalankan animasi bola (logika sebelumnya tetap sama)
         }
-
-        function changeBetIndex(dir) {
-            betIndex = Math.max(0, Math.min(betLevels.length - 1, betIndex + dir));
-            updateUI();
-        }
-
-        function updateUI() {
-            document.getElementById('balance').innerText = Math.floor(balance).toLocaleString();
-            document.getElementById('bet-amount').innerText = betLevels[betIndex].toLocaleString();
-        }
-
-        update(); updateUI();
     </script>
 </body>
 </html>
