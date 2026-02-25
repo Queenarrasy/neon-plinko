@@ -11,22 +11,27 @@
         
         .auth-container { width: 90%; max-width: 400px; background: rgba(255, 255, 255, 0.05); border: 2px solid var(--neon-pink); border-radius: 25px; padding: 35px 25px; box-shadow: 0 0 30px rgba(255, 0, 119, 0.3); text-align: center; }
 
-        /* JUDUL WARNA-WARNI NEON */
+        /* JUDUL 1 BARIS LURUS WARNA-WARNI */
         h1 { 
-            font-size: 32px; font-weight: 900; text-transform: uppercase; margin-bottom: 30px; line-height: 1.1;
+            font-size: 28px; font-weight: 900; text-transform: uppercase; margin-bottom: 30px; white-space: nowrap;
             background: linear-gradient(90deg, var(--neon-pink), var(--neon-blue), var(--neon-gold));
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
         }
         
         .input-group { margin-bottom: 15px; position: relative; }
         input, select { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #333; background: #000; color: white; box-sizing: border-box; outline: none; transition: 0.3s; font-size: 14px; }
         input:focus { border-color: var(--neon-blue); box-shadow: 0 0 15px var(--neon-blue); }
 
+        /* ICON MATA PASSWORD */
+        .password-container { position: relative; }
+        .toggle-password { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #666; cursor: pointer; font-size: 18px; }
+        .toggle-password:hover { color: var(--neon-blue); }
+
         .btn-main { width: 100%; padding: 16px; background: linear-gradient(90deg, #ff0077, #aa0055); border: none; border-radius: 12px; color: white; font-weight: 900; cursor: pointer; text-transform: uppercase; box-shadow: 0 0 20px var(--neon-pink); margin-top: 15px; font-size: 16px; }
         
         .toggle-link { margin-top: 20px; font-size: 13px; color: #aaa; cursor: pointer; display: block; }
-        .toggle-link span { color: var(--neon-blue); font-weight: bold; text-decoration: underline; }
+        .toggle-link span { color: var(--neon-blue); font-weight: bold; }
 
         /* NEON POPUP */
         #custom-alert { 
@@ -42,14 +47,14 @@
 <body>
 
     <div id="custom-alert">
-        <div id="alert-msg" style="font-weight: bold;">Pesan</div>
+        <div id="alert-msg" style="font-weight: bold; color: white;">Pesan</div>
         <button class="alert-btn" onclick="closeAlert()">OKE</button>
     </div>
 
     <div class="auth-container">
-        <h1>NEON<br>PLINKO VIP</h1>
+        <h1>NEON PLINKO VIP</h1>
         
-        <h3 id="form-title" style="color: var(--neon-gold); margin-bottom: 20px; font-size: 14px; letter-spacing: 2px;">PENDAFTARAN AKUN</h3>
+        <h3 id="form-title" style="color: var(--neon-gold); margin-bottom: 20px; font-size: 12px; letter-spacing: 2px; text-transform: uppercase;">Pendaftaran Member</h3>
 
         <form id="auth-form">
             <div class="input-group">
@@ -58,7 +63,7 @@
 
             <div id="reg-only-fields">
                 <div class="input-group">
-                    <input type="text" id="fullname" placeholder="Nama Lengkap Sesuai Rekening">
+                    <input type="text" id="fullname" placeholder="Nama Lengkap">
                 </div>
                 <div class="input-group">
                     <select id="bank">
@@ -73,8 +78,9 @@
                 </div>
             </div>
 
-            <div class="input-group">
+            <div class="input-group password-container">
                 <input type="password" id="password" placeholder="Password (Min. 6 Karakter)" required>
+                <i class="fa-solid fa-eye-slash toggle-password" id="togglePass" onclick="togglePasswordVisibility()"></i>
             </div>
 
             <button type="button" class="btn-main" id="submit-btn" onclick="handleAuth()">Daftar Sekarang</button>
@@ -97,6 +103,19 @@
             document.getElementById('custom-alert').style.display = 'none';
         }
 
+        // FUNGSI LIHAT/SEMBUNYIKAN PASSWORD
+        function togglePasswordVisibility() {
+            const passInput = document.getElementById('password');
+            const icon = document.getElementById('togglePass');
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            } else {
+                passInput.type = 'password';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            }
+        }
+
         function toggleAuth() {
             isLoginMode = !isLoginMode;
             const regFields = document.getElementById('reg-only-fields');
@@ -111,7 +130,7 @@
                 toggleText.innerHTML = "Belum punya akun? <span>Daftar di sini</span>";
             } else {
                 regFields.style.display = 'block';
-                title.innerText = "PENDAFTARAN AKUN";
+                title.innerText = "PENDAFTARAN MEMBER";
                 btn.innerText = "Daftar Sekarang";
                 toggleText.innerHTML = "Sudah punya akun? <span>Login di sini</span>";
             }
@@ -131,38 +150,46 @@
                 // LOGIKA LOGIN
                 const foundUser = existingUsers.find(u => u.username === user && u.password === pass);
                 if (foundUser) {
-                    // Hubungkan kembali data ke Profile
+                    // Hubungkan Sesi ke Profile
                     localStorage.setItem('user_vip', foundUser.username);
                     localStorage.setItem('full_name', foundUser.fullname);
                     localStorage.setItem('bank_name', foundUser.bank);
                     localStorage.setItem('acc_number', foundUser.rekening);
                     
-                    showAlert("LOGIN BERHASIL! MENUJU GAME...");
+                    showAlert("LOGIN BERHASIL!");
                     setTimeout(() => { window.location.href = 'game.html'; }, 1000);
                 } else {
                     showAlert("USERNAME ATAU PASSWORD SALAH!");
                 }
             } else {
-                // LOGIKA DAFTAR
+                // LOGIKA DAFTAR DENGAN VALIDASI GANDA
                 const full = document.getElementById('fullname').value.trim();
                 const bank = document.getElementById('bank').value;
                 const rek = document.getElementById('rekening').value.trim();
 
-                if (!full || !rek) { showAlert("LENGKAPI DATA REKENING!"); return; }
-                if (existingUsers.some(u => u.username === user)) { showAlert("USERNAME SUDAH TERPAKAI!"); return; }
-                if (existingUsers.some(u => u.rekening === rek)) { showAlert("REKENING SUDAH TERDAFTAR!"); return; }
+                if (!full || !rek) { showAlert("LENGKAPI SEMUA DATA!"); return; }
+                
+                // Aturan: Username atau Rekening tidak boleh sama
+                if (existingUsers.some(u => u.username === user)) { 
+                    showAlert("GAGAL: USERNAME SUDAH TERDAFTAR!"); 
+                    return; 
+                }
+                if (existingUsers.some(u => u.rekening === rek)) { 
+                    showAlert("GAGAL: NOMOR REKENING SUDAH DIGUNAKAN!"); 
+                    return; 
+                }
 
+                // Simpan User Baru ke Database
                 const newUser = { username: user, password: pass, fullname: full, bank: bank, rekening: rek };
                 existingUsers.push(newUser);
                 localStorage.setItem('database_users', JSON.stringify(existingUsers));
 
-                // Simpan Sesi Aktif untuk Profile
+                // Set Sesi Aktif untuk Profile
                 localStorage.setItem('user_vip', user);
                 localStorage.setItem('full_name', full);
                 localStorage.setItem('bank_name', bank);
                 localStorage.setItem('acc_number', rek);
                 localStorage.setItem('total_deposit', 0);
-                localStorage.setItem('saldo_vip', 0);
 
                 showAlert("PENDAFTARAN BERHASIL!");
                 setTimeout(() => { window.location.href = 'game.html'; }, 1000);
