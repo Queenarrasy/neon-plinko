@@ -6,36 +6,115 @@
     <title>WITHDRAW VIP</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background: #070816; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
-        .card { background: rgba(255,255,255,0.03); border: 2px solid #ff0077; border-radius: 25px; padding: 25px; }
-        .info-box { background: #000; padding: 15px; border-radius: 12px; text-align: left; margin-bottom: 20px; border-left: 4px solid #00d4ff; }
-        input { width: 100%; padding: 15px; border-radius: 10px; border: none; background: #111; color: white; margin-top: 10px; box-sizing: border-box; }
-        .btn-wd { width: 100%; padding: 15px; background: #ff0077; color: white; border: none; border-radius: 10px; font-weight: bold; margin-top: 20px; }
+        :root { --pink: #ff0077; --blue: #00d4ff; --bg: #070816; }
+        body { background: var(--bg); color: white; font-family: sans-serif; text-align: center; padding: 20px; }
+        .card { background: rgba(255,255,255,0.03); border: 2px solid var(--pink); border-radius: 25px; padding: 25px; max-width: 400px; margin: auto; }
+        
+        .info-box { background: #000; padding: 15px; border-radius: 12px; text-align: left; margin-bottom: 20px; border-left: 4px solid var(--blue); }
+        input { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid #333; background: #000; color: white; margin-top: 10px; box-sizing: border-box; outline: none; }
+        input:focus { border-color: var(--blue); }
+        
+        .btn-wd { width: 100%; padding: 15px; background: var(--pink); color: white; border: none; border-radius: 10px; font-weight: bold; margin-top: 20px; cursor: pointer; box-shadow: 0 0 15px var(--pink); }
+
+        /* TABLE RIWAYAT */
+        .history-section { margin-top: 30px; text-align: left; width: 100%; max-width: 400px; margin-left: auto; margin-right: auto; }
+        .history-title { font-size: 14px; color: var(--blue); font-weight: 900; margin-bottom: 10px; border-bottom: 1px solid #222; padding-bottom: 5px; }
+        
+        table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        th { color: #666; text-align: left; padding: 8px; border-bottom: 1px solid #333; }
+        td { padding: 10px 8px; border-bottom: 1px solid #111; }
+        
+        .status-proses { color: #ffcc00; font-weight: bold; }
+        .status-berhasil { color: #00ff88; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="card">
-        <h2><i class="fa-solid fa-money-bill-transfer"></i> PENARIKAN</h2>
+        <h2 style="color: var(--pink);"><i class="fa-solid fa-money-bill-transfer"></i> WITHDRAW</h2>
+        
         <div class="info-box">
-            <small style="color: #666; font-weight: bold;">TUJUAN PENARIKAN:</small><br>
-            <b id="wd-bank">-</b><br>
-            <span id="wd-rek">-</span>
+            <small style="color: #666; font-weight: 900; font-size: 9px;">TUJUAN TRANSFER:</small><br>
+            <b id="wd-bank" style="color: var(--blue);">-</b><br>
+            <span id="wd-rek" style="letter-spacing: 1px;">-</span>
         </div>
-        <input type="number" id="wd-amount" placeholder="Masukkan Jumlah (Min: 50.000)">
-        <button class="btn-wd" onclick="prosesWD()">KONFIRMASI WD</button>
-        <button onclick="location.href='game.html'" style="background:none; border:none; color:#666; margin-top:15px;">Kembali</button>
+
+        <input type="number" id="wd-amount" placeholder="Jumlah Penarikan (Min: 50.000)">
+        <button class="btn-wd" onclick="prosesWD()">AJUKAN PENARIKAN</button>
+        
+        <div class="history-section">
+            <div class="history-title">RIWAYAT PENARIKAN</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>TANGGAL</th>
+                        <th>TOTAL</th>
+                        <th>STATUS</th>
+                    </tr>
+                </thead>
+                <tbody id="wd-history-list">
+                    </tbody>
+            </table>
+        </div>
+
+        <button onclick="location.href='game.html'" style="background:none; border:none; color:#666; margin-top:20px; cursor:pointer;"> Kembali ke Game</button>
     </div>
 
+    <script src="global.js"></script>
     <script>
-        // Ambil data pendaftaran
-        document.getElementById('wd-bank').innerText = localStorage.getItem('bank_name') || "Belum Set";
+        // Ambil Data User Aktif
+        document.getElementById('wd-bank').innerText = localStorage.getItem('bank_name') || "Belum Terdaftar";
         document.getElementById('wd-rek').innerText = localStorage.getItem('acc_number') || "00000000";
 
-        function prosesWD() {
-            const amt = document.getElementById('wd-amount').value;
-            if(amt >= 50000) alert("Permintaan WD Diproses!");
-            else alert("Minimal WD IDR 50.000");
+        function renderHistory() {
+            const history = JSON.parse(localStorage.getItem('history_wd') || "[]");
+            const list = document.getElementById('wd-history-list');
+            list.innerHTML = history.length === 0 ? "<tr><td colspan='3' style='text-align:center; color:#444;'>Belum ada penarikan</td></tr>" : "";
+            
+            // Tampilkan dari yang terbaru
+            history.reverse().forEach(item => {
+                const row = `<tr>
+                    <td>${item.tanggal}</td>
+                    <td>IDR ${parseInt(item.total).toLocaleString('id-ID')}</td>
+                    <td class="${item.status === 'Berhasil' ? 'status-berhasil' : 'status-proses'}">${item.status}</td>
+                </tr>`;
+                list.innerHTML += row;
+            });
         }
+
+        function prosesWD() {
+            const amt = parseInt(document.getElementById('wd-amount').value);
+            const saldoSaatIni = getSaldo();
+
+            if (isNaN(amt) || amt < 50000) {
+                alert("Minimal penarikan adalah IDR 50.000");
+                return;
+            }
+
+            if (amt > saldoSaatIni) {
+                alert("Saldo Permainan tidak mencukupi!");
+                return;
+            }
+
+            // Potong Saldo
+            if (updateSaldo(-amt)) {
+                const sekarang = new Date();
+                const tglString = sekarang.getDate() + "/" + (sekarang.getMonth() + 1) + "/" + sekarang.getFullYear();
+                
+                // Simpan ke Riwayat
+                const history = JSON.parse(localStorage.getItem('history_wd') || "[]");
+                history.push({
+                    tanggal: tglString,
+                    total: amt,
+                    status: "Proses" // Default awal adalah Proses
+                });
+                localStorage.setItem('history_wd', JSON.stringify(history));
+
+                alert("Penarikan IDR " + amt.toLocaleString('id-ID') + " sedang diproses admin.");
+                location.reload();
+            }
+        }
+
+        window.onload = renderHistory;
     </script>
 </body>
 </html>
