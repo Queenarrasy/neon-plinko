@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEON PLINKO VIP - AUTH</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         :root { --pink: #ff0077; --blue: #00d4ff; --yellow: #fbff00; --bg: #070816; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
@@ -15,7 +15,6 @@
             box-shadow: 0 0 30px rgba(0, 212, 255, 0.2); text-align: center;
         }
 
-        /* JUDUL TRIPLE NEON */
         .title { font-size: 34px; font-weight: 900; text-transform: uppercase; line-height: 1; margin-bottom: 30px; }
         .t-pink { color: var(--pink); text-shadow: 0 0 10px var(--pink); }
         .t-blue { color: var(--blue); text-shadow: 0 0 10px var(--blue); }
@@ -31,7 +30,6 @@
         }
         input:focus { border-color: var(--pink); box-shadow: 0 0 10px rgba(255, 0, 119, 0.3); }
 
-        /* PASSWORD TOGGLE */
         .pass-wrapper { position: relative; }
         .toggle-pass { 
             position: absolute; right: 15px; top: 50%; transform: translateY(-50%); 
@@ -98,7 +96,12 @@
                     <input type="password" id="password" placeholder="Minimal 6 karakter" required>
                     <i class="fa-solid fa-eye toggle-pass" onclick="togglePassword()"></i>
                 </div>
-                <small class="note">* Password minimal harus 6 karakter</small>
+            </div>
+
+            <div class="form-group" id="ref-group">
+                <label>KODE REFERRAL (OPSIONAL)</label>
+                <input type="text" id="referral_code" placeholder="Masukkan kode jika ada" style="border-color: #222;">
+                <small class="note">* Kosongkan jika tidak ada</small>
             </div>
 
             <button type="button" class="btn-submit" onclick="processAuth()" id="btn-text">Daftar Sekarang</button>
@@ -109,6 +112,7 @@
         </div>
     </div>
 
+    <script src="global.js"></script>
     <script>
         let isLogin = false;
 
@@ -127,17 +131,20 @@
         function toggleMode() {
             isLogin = !isLogin;
             const extraFields = document.getElementById('extra-fields');
+            const refGroup = document.getElementById('ref-group'); // Group referral
             const label = document.getElementById('form-label');
             const btnText = document.getElementById('btn-text');
             const switchLink = document.getElementById('auth-switch');
 
             if (isLogin) {
                 extraFields.style.display = 'none';
+                refGroup.style.display = 'none'; // Sembunyikan referral saat login
                 label.innerText = "LOGIN MEMBER";
                 btnText.innerText = "Masuk Sekarang";
                 switchLink.innerHTML = "Belum punya akun? <b>Daftar Akun VIP</b>";
             } else {
                 extraFields.style.display = 'block';
+                refGroup.style.display = 'block'; // Tampilkan referral saat daftar
                 label.innerText = "PENDAFTARAN";
                 btnText.innerText = "Daftar Sekarang";
                 switchLink.innerHTML = "Sudah punya akun? <b>Login di sini</b>";
@@ -159,6 +166,7 @@
                 const found = db.find(u => u.username === user && u.password === pass);
                 if (found) {
                     localStorage.setItem('user_vip', found.username);
+                    localStorage.setItem('user_session', found.username); // Untuk global.js
                     localStorage.setItem('full_name', found.fullname);
                     localStorage.setItem('bank_name', found.bank);
                     localStorage.setItem('acc_number', found.rekening);
@@ -173,23 +181,15 @@
                 const full = document.getElementById('fullname').value.trim();
                 const bank = document.getElementById('bank').value;
                 const rek = document.getElementById('rekening').value.trim();
+                const refCode = document.getElementById('referral_code').value.trim();
 
                 if (!phone || !full || !rek) {
                     alert("Harap lengkapi semua data pendaftaran!");
                     return;
                 }
 
-                // VALIDASI DOUBLE DATA
                 if (db.some(u => u.username === user)) {
-                    alert("Username sudah digunakan! Gunakan username lain.");
-                    return;
-                }
-                if (db.some(u => u.phone === phone)) {
-                    alert("Nomor HP sudah terdaftar!");
-                    return;
-                }
-                if (db.some(u => u.rekening === rek)) {
-                    alert("Nomor Rekening/E-Wallet sudah terdaftar!");
+                    alert("Username sudah digunakan!");
                     return;
                 }
 
@@ -207,11 +207,17 @@
 
                 // SESI AKTIF
                 localStorage.setItem('user_vip', user);
+                localStorage.setItem('user_session', user); // Digunakan reward.html
                 localStorage.setItem('full_name', full);
                 localStorage.setItem('bank_name', bank);
                 localStorage.setItem('acc_number', rek);
                 
-                // Inisialisasi Saldo Permainan Pertama Kali
+                // PROSES REFERRAL JIKA DIISI
+                if (refCode !== "" && typeof registerReferral === "function") {
+                    registerReferral(user, refCode);
+                }
+
+                // Inisialisasi Saldo Permainan
                 if(!localStorage.getItem('saldo_permainan')) {
                     localStorage.setItem('saldo_permainan', 0);
                 }
