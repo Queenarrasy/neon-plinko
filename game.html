@@ -7,49 +7,59 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         :root { --pink: #ff0077; --blue: #00d4ff; --yellow: #fbff00; --bg: #070816; }
-        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
         
-        .header { display: flex; justify-content: center; align-items: center; padding: 15px; position: relative; flex-shrink: 0; }
+        /* Fix: Height 100vh dan flex membantu elemen tetap di dalam layar */
+        body { 
+            background: var(--bg); 
+            color: white; 
+            font-family: sans-serif; 
+            margin: 0; 
+            overflow: hidden; 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        
+        .header { display: flex; justify-content: center; align-items: center; padding: 10px; position: relative; flex-shrink: 0; }
         .prof-link { position: absolute; left: 20px; font-size: 24px; color: var(--pink); cursor: pointer; }
-        .balance-box { background: #000; border: 2px solid var(--blue); border-radius: 20px; padding: 5px 25px; text-align: center; min-width: 150px; box-shadow: 0 0 15px rgba(0,212,255,0.3); }
+        .balance-box { background: #000; border: 2px solid var(--blue); border-radius: 20px; padding: 5px 20px; text-align: center; min-width: 140px; box-shadow: 0 0 15px rgba(0,212,255,0.3); }
         #tier-name { font-size: 8px; font-weight: 900; display: block; text-transform: uppercase; }
-        #display-saldo { font-size: 18px; font-weight: 900; }
+        #display-saldo { font-size: 16px; font-weight: 900; }
 
-        /* Plinko Board Area */
-        #game-container { position: relative; width: 100%; height: 320px; margin-top: 10px; flex-shrink: 0; }
+        /* Board Area - Diperkecil sedikit agar kontrol naik */
+        #game-container { position: relative; width: 100%; height: 280px; margin-top: 5px; flex-shrink: 0; }
         .peg { position: absolute; width: 6px; height: 6px; background: white; border-radius: 50%; box-shadow: 0 0 5px #fff; }
         .ball { position: absolute; width: 12px; height: 12px; background: var(--pink); border-radius: 50%; box-shadow: 0 0 10px var(--pink); z-index: 10; }
 
-        /* Multipliers - Added Margin Top for Space */
-        .multipliers { display: flex; justify-content: center; gap: 4px; padding: 10px; margin-top: 25px; flex-shrink: 0; }
-        .slot { flex: 1; padding: 10px 0; border-radius: 6px; text-align: center; font-size: 10px; font-weight: 900; }
+        /* Multipliers - Jarak disesuaikan */
+        .multipliers { display: flex; justify-content: center; gap: 4px; padding: 5px 10px; margin-top: 15px; flex-shrink: 0; }
+        .slot { flex: 1; padding: 8px 0; border-radius: 6px; text-align: center; font-size: 10px; font-weight: 900; }
         .m-pink { background: var(--pink); box-shadow: 0 0 10px var(--pink); }
         .m-yellow { background: var(--yellow); color: black; box-shadow: 0 0 10px var(--yellow); }
         .m-blue { background: var(--blue); color: black; box-shadow: 0 0 10px var(--blue); }
 
-        /* Nav Buttons - Added Margin Top */
-        .nav-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 0 15px; margin-top: 20px; flex-shrink: 0; }
-        .btn-nav { background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 12px 5px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.3s; }
-        .btn-nav i { display: block; font-size: 22px; margin-bottom: 5px; }
+        /* Nav Buttons */
+        .nav-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 0 15px; margin-top: 15px; flex-shrink: 0; }
+        .btn-nav { background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 10px 5px; border-radius: 12px; text-align: center; cursor: pointer; }
+        .btn-nav i { display: block; font-size: 20px; margin-bottom: 4px; }
         .c-pink { color: var(--pink); border-color: var(--pink); }
         .c-blue { color: var(--blue); border-color: var(--blue); }
         .c-yellow { color: var(--yellow); border-color: var(--yellow); }
 
-        /* CONTROLS AREA */
-        .play-area { text-align: center; padding: 10px 15px; margin-top: auto; padding-bottom: 20px; }
-        .mode-toggles { display: flex; justify-content: center; gap: 6px; margin-bottom: 15px; }
-        .toggle { padding: 8px 14px; border-radius: 20px; font-size: 9px; font-weight: 900; cursor: pointer; border: 1px solid #333; background: #000; color: #555; transition: 0.2s; }
+        /* CONTROLS AREA - Dibuat lebih padat agar naik ke atas */
+        .play-area { text-align: center; padding: 10px 15px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
+        .mode-toggles { display: flex; justify-content: center; gap: 5px; margin-bottom: 10px; }
+        .toggle { padding: 6px 10px; border-radius: 20px; font-size: 9px; font-weight: 900; cursor: pointer; border: 1px solid #333; background: #000; color: #555; }
         .toggle.active { color: #fff; border-color: var(--pink); box-shadow: 0 0 10px var(--pink); }
         .btn-stop { border-color: #ff3333; color: #ff3333; }
 
-        /* Added Space between Bet and Play Button */
-        .bet-selector { display: flex; align-items: center; justify-content: center; gap: 15px; background: #000; border-radius: 50px; padding: 5px; margin-bottom: 20px; border: 1px solid #333; }
-        .bet-btn { background: none; border: none; color: var(--blue); font-size: 20px; font-weight: 900; cursor: pointer; }
+        .bet-selector { display: flex; align-items: center; justify-content: center; gap: 10px; background: #000; border-radius: 50px; padding: 4px; margin-bottom: 10px; border: 1px solid #333; width: 80%; margin-left: auto; margin-right: auto; }
+        .bet-btn { background: none; border: none; color: var(--blue); font-size: 18px; font-weight: 900; cursor: pointer; padding: 0 10px; }
 
-        .btn-main { width: 100%; padding: 18px; border-radius: 50px; border: none; font-weight: 900; font-size: 18px; text-transform: uppercase; cursor: pointer; background: linear-gradient(90deg, var(--pink), var(--blue)); box-shadow: 0 0 20px var(--pink); color: white; }
-        .btn-main.auto-active { background: var(--yellow); color: #000; box-shadow: 0 0 20px var(--yellow); }
+        .btn-main { width: 100%; padding: 15px; border-radius: 50px; border: none; font-weight: 900; font-size: 16px; text-transform: uppercase; cursor: pointer; background: linear-gradient(90deg, var(--pink), var(--blue)); box-shadow: 0 0 15px var(--pink); color: white; }
+        .btn-main.auto-active { background: var(--yellow); color: #000; box-shadow: 0 0 15px var(--yellow); }
 
-        /* Floating Win Pop Up Style */
+        /* Floating Win Pop Up */
         .win-popup {
             position: absolute;
             font-weight: 900;
@@ -57,14 +67,14 @@
             text-shadow: 0 0 10px #000, 0 0 20px var(--yellow);
             pointer-events: none;
             z-index: 1000;
-            animation: floatUp 1.5s ease-out forwards;
-            font-size: 24px;
+            animation: floatUp 1.2s ease-out forwards;
+            font-size: 22px;
         }
 
         @keyframes floatUp {
             0% { transform: translateY(0) scale(0.5); opacity: 0; }
-            20% { opacity: 1; transform: translateY(-20px) scale(1.2); }
-            100% { transform: translateY(-100px) scale(1); opacity: 0; }
+            20% { opacity: 1; transform: translateY(-15px) scale(1.1); }
+            100% { transform: translateY(-80px) scale(1); opacity: 0; }
         }
     </style>
 </head>
@@ -115,9 +125,9 @@
 
         <div class="bet-selector">
             <button class="bet-btn" onclick="changeBet(-1)">-</button>
-            <div style="min-width: 120px;">
-                <small style="font-size: 8px; color: #666; display: block;">TARUHAN</small>
-                <span id="current-bet" style="font-weight: 900; color: var(--yellow);">1,000</span>
+            <div style="min-width: 100px;">
+                <small style="font-size: 7px; color: #666; display: block;">TARUHAN</small>
+                <span id="current-bet" style="font-weight: 900; color: var(--yellow); font-size: 14px;">1,000</span>
             </div>
             <button class="bet-btn" onclick="changeBet(1)">+</button>
         </div>
@@ -137,12 +147,13 @@
         const container = document.getElementById('game-container');
         const slots = [5, 2, 1.2, 0.2, 1.2, 2, 5];
 
+        // Memperkecil jarak antar peg (35px) agar papan lebih pendek
         for (let r = 2; r <= 8; r++) {
             for (let i = 0; i < r; i++) {
                 const peg = document.createElement('div');
                 peg.className = 'peg';
-                peg.style.top = (r * 40) + 'px';
-                peg.style.left = `calc(50% + ${(i - (r - 1) / 2) * 36}px)`;
+                peg.style.top = (r * 35) + 'px'; 
+                peg.style.left = `calc(50% + ${(i - (r - 1) / 2) * 32}px)`;
                 container.appendChild(peg);
             }
         }
@@ -200,16 +211,15 @@
             else dropBall();
         }
 
-        // Floating Popup Logic
         function showFloatingWin(amount, x, y) {
             const popup = document.createElement('div');
             popup.className = 'win-popup';
             popup.innerText = `+${amount.toLocaleString()}`;
             popup.style.left = (x - 40) + 'px';
-            popup.style.top = y + 'px';
+            popup.style.top = (y - 20) + 'px';
             
             document.body.appendChild(popup);
-            setTimeout(() => popup.remove(), 1500);
+            setTimeout(() => popup.remove(), 1200);
         }
 
         function dropBall() {
@@ -242,11 +252,11 @@
 
             let row = 0;
             let idx = 0;
-            const speed = isTurbo ? 60 : 180;
+            const speed = isTurbo ? 50 : 150;
 
             const move = setInterval(() => {
                 row++;
-                posY += 40;
+                posY += 35; // Sinkron dengan jarak peg
                 
                 let dir;
                 if (isSettinganMenang) {
@@ -258,7 +268,7 @@
                 if (Math.random() > 0.8) dir = (Math.random() > 0.5 ? 1 : -1);
 
                 idx += dir * 0.5;
-                posX += dir * 18;
+                posX += dir * 16;
 
                 ball.style.top = posY + 'px';
                 ball.style.left = posX + 'px';
@@ -274,7 +284,6 @@
                         
                         updateSaldo(totalWin);
 
-                        // Munculkan Pop Up melayang jika menang
                         if(totalWin > 0) {
                              showFloatingWin(totalWin, ballRect.left, ballRect.top);
                         }
