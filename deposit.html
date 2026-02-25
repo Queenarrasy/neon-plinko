@@ -115,9 +115,9 @@
     <div class="container">
         <div class="glass-card">
             <h2 class="neon-title">FORM SETOR DANA</h2>
-            <p style="color: var(--neon-pink); font-size: 10px; text-align: center; margin-bottom: 20px; font-weight: bold;">⚠️ MINIMAL DEPOSIT: IDR 20,000</p>
+            <p id="min-deposit-text" style="color: var(--neon-pink); font-size: 10px; text-align: center; margin-bottom: 20px; font-weight: bold;">⚠️ MINIMAL DEPOSIT: IDR 20,000</p>
             
-            <label>NOMINAL DEPOSIT (IDR)</label>
+            <label id="label-nominal">NOMINAL DEPOSIT (IDR)</label>
             <input type="number" id="input-nominal" placeholder="0">
 
             <div class="method-tabs">
@@ -190,14 +190,21 @@
             document.getElementById('tab-qris').classList.remove('active');
             document.getElementById('tab-crypto').classList.remove('active');
             
+            const minText = document.getElementById('min-deposit-text');
+            const labelNominal = document.getElementById('label-nominal');
+
             if(tipe === 'QRIS') {
                 document.getElementById('tab-qris').classList.add('active');
                 document.getElementById('konten-qris').style.display = 'block';
                 document.getElementById('konten-crypto').style.display = 'none';
+                minText.innerText = "⚠️ MINIMAL DEPOSIT: IDR 20,000";
+                labelNominal.innerText = "NOMINAL DEPOSIT (IDR)";
             } else {
                 document.getElementById('tab-crypto').classList.add('active');
                 document.getElementById('konten-qris').style.display = 'none';
                 document.getElementById('konten-crypto').style.display = 'block';
+                minText.innerText = "⚠️ MINIMAL DEPOSIT: $10";
+                labelNominal.innerText = "NOMINAL DEPOSIT ($)";
             }
         }
 
@@ -206,8 +213,8 @@
             
             // Logika Tambahan untuk USDT Crypto
             if (metodeTerpilih === "CRYPTO") {
-                // Asumsi kurs $1 = Rp 16.000 (disesuaikan dengan minimal sistem IDR)
-                if (!nom || nom < 160000) {
+                // Pengecekan minimal $10
+                if (!nom || nom < 10) {
                     return showPopup("MINIMAL DEPOSIT VIA CRYPTO ADALAH $10", true);
                 }
             } else {
@@ -254,7 +261,7 @@
             container.innerHTML = riwayat.slice(0, 5).map(item => `
                 <div class="history-item">
                     <div class="hist-info">
-                        <b>IDR ${item.jumlah.toLocaleString()}</b>
+                        <b>${item.metode === 'CRYPTO' ? '$' : 'IDR'} ${item.jumlah.toLocaleString()}</b>
                         <small>${item.waktu} • ${item.metode}</small>
                     </div>
                     <span class="status-badge ${item.status === 'SUKSES' ? 'status-sukses' : 'status-pending'}">
