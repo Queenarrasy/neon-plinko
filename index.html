@@ -2,166 +2,134 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEON PLINKO VIP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAFTAR VIP - NEON PLINKO</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root {
-            --neon-pink: #ff0077; --neon-blue: #00d4ff; --neon-gold: #fbff00; --bg-dark: #070816;
-        }
-        body { 
-            background: var(--bg-dark); margin: 0; display: flex; justify-content: center; 
-            align-items: center; min-height: 100vh; font-family: 'Segoe UI', sans-serif; color: white;
-        }
-        .container {
-            width: 88%; max-width: 400px; background: #0d0e21; border: 2px solid var(--neon-pink);
-            border-radius: 25px; padding: 30px 20px; box-shadow: 0 0 20px rgba(255, 0, 119, 0.3); text-align: center;
-        }
+        :root { --neon-pink: #ff0077; --neon-blue: #00d4ff; --bg-dark: #070816; }
+        body { background: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        
+        .auth-container { width: 90%; max-width: 400px; background: rgba(255, 255, 255, 0.05); border: 2px solid var(--neon-pink); border-radius: 20px; padding: 30px; box-shadow: 0 0 20px rgba(255, 0, 119, 0.2); text-align: center; }
+        h2 { color: var(--neon-blue); text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px var(--neon-blue); margin-bottom: 25px; }
+        
+        .input-group { margin-bottom: 15px; text-align: left; }
+        input, select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #333; background: #000; color: white; box-sizing: border-box; outline: none; transition: 0.3s; }
+        input:focus { border-color: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); }
 
-        /* JUDUL BERWARNA-WARNI NEON */
-        .neon-title {
-            font-size: 30px; font-weight: 900; text-transform: uppercase; margin: 0;
-            background: linear-gradient(to right, #ff0077, #00d4ff, #fbff00, #ff0077);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.8));
-            animation: rainbow 3s linear infinite;
-        }
-        @keyframes rainbow { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
+        .btn-main { width: 100%; padding: 15px; background: var(--neon-pink); border: none; border-radius: 10px; color: white; font-weight: 900; cursor: pointer; text-transform: uppercase; box-shadow: 0 0 15px var(--neon-pink); margin-top: 10px; }
 
-        .sub-title { font-size: 10px; color: #888; font-weight: bold; margin-bottom: 25px; letter-spacing: 2px; }
-
-        /* FORM STYLING */
-        .form-group { text-align: left; margin-bottom: 15px; position: relative; }
-        label { display: block; font-size: 9px; font-weight: 900; color: var(--neon-pink); margin-bottom: 5px; }
-        input {
-            width: 100%; background: #000; border: 1px solid #333; border-radius: 12px;
-            padding: 12px; color: white; box-sizing: border-box; outline: none;
+        /* NEON POPUP STYLE */
+        #custom-alert { 
+            display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); 
+            width: 80%; max-width: 300px; background: #000; border: 2px solid var(--neon-blue); 
+            border-radius: 15px; padding: 15px; z-index: 9999; text-align: center;
+            box-shadow: 0 0 30px var(--neon-blue); animation: slideDown 0.5s ease;
         }
-        input:focus { border-color: var(--neon-blue); }
-
-        /* FITUR MATA PASSWORD */
-        .eye-icon {
-            position: absolute; right: 15px; top: 32px; color: #555; cursor: pointer; z-index: 10;
-        }
-
-        .btn-main {
-            width: 100%; padding: 15px; background: var(--neon-pink); border: none;
-            border-radius: 15px; color: white; font-size: 16px; font-weight: 900;
-            cursor: pointer; box-shadow: 0 0 15px rgba(255, 0, 119, 0.4); margin-top: 10px;
-        }
-
-        .toggle-link {
-            margin-top: 20px; font-size: 11px; color: var(--neon-blue); cursor: pointer; text-decoration: underline;
-        }
+        @keyframes slideDown { from { top: -100px; } to { top: 20px; } }
+        .alert-content { color: white; font-size: 14px; font-weight: bold; }
+        .alert-btn { margin-top: 10px; padding: 5px 20px; background: var(--neon-blue); border: none; border-radius: 5px; color: black; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="container" id="auth-box">
-        <h1 class="neon-title">NEON PLINKO VIP</h1>
-        <div id="auth-header" class="sub-title">REGISTRASI AKUN VIP</div>
+    <div id="custom-alert">
+        <div class="alert-content" id="alert-msg">Pesan Kesalahan</div>
+        <button class="alert-btn" onclick="closeAlert()">OKE</button>
+    </div>
 
-        <form id="auth-form">
-            <div class="form-group">
-                <label>USERNAME GAME</label>
-                <input type="text" id="username" placeholder="Contoh: ABCD" required>
+    <div class="auth-container">
+        <h2 id="auth-header">Pendaftaran VIP</h2>
+        <form id="reg-form">
+            <div class="input-group">
+                <input type="text" id="username" placeholder="Username (Untuk Login)" required>
             </div>
-
-            <div id="reg-fields">
-                <div class="form-group">
-                    <label>NAMA LENGKAP (SESUAI REKENING)</label>
-                    <input type="text" id="fullname" placeholder="Nama asli Anda">
-                </div>
-                <div class="form-group">
-                    <label>NAMA BANK / E-WALLET</label>
-                    <input type="text" id="bank" placeholder="Contoh: DANA / BCA">
-                </div>
-                <div class="form-group">
-                    <label>NOMOR REKENING / E-WALLET</label>
-                    <input type="text" id="account" placeholder="Nomor akun Anda">
-                </div>
+            <div class="input-group">
+                <input type="text" id="fullname" placeholder="Nama Lengkap Sesuai Rekening" required>
             </div>
-
-            <div class="form-group">
-                <label>PASSWORD (MIN. 6 KARAKTER)</label>
-                <input type="password" id="password" placeholder="******" required>
-                <i class="fa-solid fa-eye eye-icon" onclick="togglePass()"></i>
+            <div class="input-group">
+                <select id="bank">
+                    <option value="DANA">DANA</option>
+                    <option value="OVO">OVO</option>
+                    <option value="GOPAY">GOPAY</option>
+                    <option value="BANK BCA">BANK BCA</option>
+                    <option value="BANK MANDIRI">BANK MANDIRI</option>
+                </select>
             </div>
-
-            <button type="button" class="btn-main" onclick="handleAuth()">MASUK KE GAME</button>
+            <div class="input-group">
+                <input type="number" id="rekening" placeholder="Nomor Rekening/E-Wallet" required>
+            </div>
+            <div class="input-group">
+                <input type="password" id="password" placeholder="Password (Min. 6 Karakter)" required>
+            </div>
+            <button type="button" class="btn-main" onclick="handleAuth()">DAFTAR SEKARANG</button>
         </form>
-
-        <div class="toggle-link" id="toggle-auth" onclick="switchAuth()">SUDAH PUNYA AKUN? LOGIN DISINI</div>
     </div>
 
     <script>
-        let isLogin = false;
-
-        function togglePass() {
-            const p = document.getElementById('password');
-            p.type = p.type === 'password' ? 'text' : 'password';
+        function showAlert(msg) {
+            document.getElementById('alert-msg').innerText = msg;
+            document.getElementById('custom-alert').style.display = 'block';
         }
 
-        function switchAuth() {
-            isLogin = !isLogin;
-            document.getElementById('reg-fields').style.display = isLogin ? 'none' : 'block';
-            document.getElementById('auth-header').innerText = isLogin ? 'LOGIN AKUN VIP' : 'REGISTRASI AKUN VIP';
-            document.getElementById('toggle-auth').innerText = isLogin ? 'BELUM PUNYA AKUN? DAFTAR DISINI' : 'SUDAH PUNYA AKUN? LOGIN DISINI';
+        function closeAlert() {
+            document.getElementById('custom-alert').style.display = 'none';
         }
 
         function handleAuth() {
-            const user = document.getElementById('username').value;
+            // Ambil Nilai Input
+            const user = document.getElementById('username').value.trim();
+            const full = document.getElementById('fullname').value.trim();
+            const bank = document.getElementById('bank').value;
+            const rek = document.getElementById('rekening').value.trim();
             const pass = document.getElementById('password').value;
 
-            // Validasi Password Minimal 6 Karakter
+            // 1. Validasi Password
             if (pass.length < 6) {
-                alert("Password minimal harus 6 karakter!");
+                showAlert("PASSWORD MINIMAL 6 KARAKTER!");
                 return;
             }
 
-            if (user === "") {
-                alert("Username tidak boleh kosong!");
+            // 2. Cek Data Kosong
+            if (!user || !full || !rek) {
+                showAlert("SEMUA DATA WAJIB DIISI!");
                 return;
             }
-function handleAuth() {
-    const user = document.getElementById('username').value;
-    const pass = document.getElementById('password').value;
-    
-    // Ambil input tambahan untuk profil
-    const fullName = document.getElementById('fullname').value; // Pastikan ID ini ada di HTML Anda
-    const bankName = document.getElementById('bank').value;     // Pastikan ID ini ada di HTML Anda
-    const accNumber = document.getElementById('rekening').value; // Pastikan ID ini ada di HTML Anda
 
-    // Validasi Password Minimal 6 Karakter
-    if (pass.length < 6) {
-        alert("Password minimal harus 6 karakter!");
-        return;
-    }
+            // 3. Validasi Data Ganda (Anti-Double)
+            // Kita ambil data lama jika ada untuk pengecekan
+            const existingUsers = JSON.parse(localStorage.getItem('registered_users') || "[]");
 
-    if (user === "") {
-        alert("Username tidak boleh kosong!");
-        return;
-    }
+            const isUserTaken = existingUsers.some(u => u.username === user);
+            const isRekTaken = existingUsers.some(u => u.rekening === rek);
 
-    // --- TAMBAHKAN BARIS INI DI SINI ---
-    // Simpan data ke memori browser agar muncul di profile.html
-    localStorage.setItem('user_vip', user);
-    localStorage.setItem('full_name', fullName);
-    localStorage.setItem('bank_name', bankName);
-    localStorage.setItem('acc_number', accNumber);
-    
-    // Set saldo & deposit awal jika pengguna baru
-    if (!localStorage.getItem('total_deposit')) {
-        localStorage.setItem('total_deposit', 0); 
-    }
-    // -----------------------------------
+            if (isUserTaken) {
+                showAlert("USERNAME SUDAH TERDAFTAR!");
+                return;
+            }
 
-    // Jika validasi lolos, masuk ke game
-    location.href = 'game.html';
-}
+            if (isRekTaken) {
+                showAlert("NOMOR REKENING SUDAH DIGUNAKAN!");
+                return;
+            }
 
-            // Jika validasi lolos, masuk ke game
-            location.href = 'game.html';
+            // 4. SIMPAN DATA UNTUK PROFILE & SISTEM LOGIN
+            // Simpan data user aktif saat ini
+            localStorage.setItem('user_vip', user);
+            localStorage.setItem('full_name', full);
+            localStorage.setItem('bank_name', bank);
+            localStorage.setItem('acc_number', rek);
+            localStorage.setItem('total_deposit', 0); // Akumulasi depo awal
+            localStorage.setItem('saldo_vip', 0); // Saldo awal
+
+            // Simpan ke database lokal untuk cek ganda di pendaftaran berikutnya
+            existingUsers.push({ username: user, rekening: rek });
+            localStorage.setItem('registered_users', JSON.stringify(existingUsers));
+
+            // 5. REDIRECT KE GAME
+            showAlert("PENDAFTARAN BERHASIL! SELAMAT BERMAIN.");
+            setTimeout(() => {
+                window.location.href = 'game.html';
+            }, 1500);
         }
     </script>
 </body>
