@@ -3,131 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEON PLINKO PRO</title>
+    <title>NEON PLINKO VIP - TRANSACTION READY</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --neon-pink: #ff0077;
-            --neon-blue: #00d4ff;
-            --neon-gold: #fbff00;
-            --bg-dark: #070816;
+            --neon-pink: #ff0077; --neon-blue: #00d4ff; --neon-gold: #fbff00; --bg-dark: #070816;
         }
-
         body {
-            background: var(--bg-dark);
-            color: white;
-            font-family: 'Segoe UI', sans-serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
+            background: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif;
+            margin: 0; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden;
             background-image: radial-gradient(circle at 50% 40%, rgba(255, 0, 119, 0.12) 0%, transparent 60%);
         }
+        .top-nav { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; box-sizing: border-box; }
+        .saldo-badge { background: rgba(0, 0, 0, 0.8); border: 2px solid var(--neon-blue); border-radius: 20px; padding: 6px 20px; box-shadow: 0 0 20px rgba(0, 212, 255, 0.4); text-align: center; }
+        
+        .multiplier-wrap { display: flex; justify-content: center; gap: 4px; margin-top: 20px; width: 95%; }
+        .slot { flex: 1; padding: 10px 0; font-size: 11px; font-weight: 900; text-align: center; border-radius: 6px; }
+        .high { background: var(--neon-pink); box-shadow: 0 0 10px var(--neon-pink); }
+        .mid  { background: var(--neon-gold); box-shadow: 0 0 10px var(--neon-gold); color: #000; }
+        .low  { background: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); color: #000; }
 
-        /* HEADER NAV */
-        .top-nav {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 20px;
-            box-sizing: border-box;
-        }
-        .profile-btn { width: 55px; height: 55px; border-radius: 50%; border: 3px solid var(--neon-pink); box-shadow: 0 0 15px var(--neon-pink); }
-        .saldo-badge {
-            background: rgba(0, 0, 0, 0.8);
-            border: 2px solid var(--neon-blue);
-            border-radius: 20px;
-            padding: 6px 20px;
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
-        }
-
-        /* GAME ZONE */
-        .game-zone {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 5px;
-        }
-
-        /* MULTIPLIER SLOTS (Jarak Turun Sedikit) */
-        .multiplier-wrap {
-            display: flex;
-            justify-content: center;
-            gap: 4px;
-            margin-top: 20px; 
-            width: 95%;
-        }
-        .slot {
-            flex: 1;
-            padding: 10px 0;
-            font-size: 11px;
-            font-weight: 900;
-            text-align: center;
-            border-radius: 6px;
-        }
-        .high { background: var(--neon-pink); box-shadow: 0 0 12px var(--neon-pink); color: white; }
-        .mid  { background: var(--neon-gold); box-shadow: 0 0 12px var(--neon-gold); color: #000; }
-        .low  { background: var(--neon-blue); box-shadow: 0 0 12px var(--neon-blue); color: #000; }
-
-        /* ACTION AREA */
-        .action-row {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            width: 90%;
-            margin: 15px 0;
-        }
-        .action-card {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 18px;
-            padding: 12px 0;
-            text-align: center;
-        }
-
-        /* BET CONTROL */
-        .bet-bar {
-            background: rgba(0,0,0,0.6);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 30px;
-            display: flex;
-            align-items: center;
-            padding: 5px 25px;
-            margin-bottom: 15px;
-        }
-        .bet-btn { background: none; border: none; color: var(--neon-blue); font-size: 28px; cursor: pointer; }
-
-        .btn-main {
-            width: 88%;
-            padding: 20px;
-            background: linear-gradient(180deg, var(--neon-blue), #0055ff);
-            border: none;
-            border-radius: 40px;
-            color: white;
-            font-size: 22px;
-            font-weight: 900;
-            box-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
-            cursor: pointer;
-            margin-bottom: 20px;
-        }
+        .bet-bar { background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 30px; display: flex; align-items: center; padding: 5px 25px; margin-bottom: 15px; }
+        .bet-btn { background: none; border: none; color: var(--neon-blue); font-size: 28px; cursor: pointer; font-weight: bold; }
+        
+        .btn-main { width: 88%; padding: 20px; background: linear-gradient(180deg, var(--neon-blue), #0055ff); border: none; border-radius: 40px; color: white; font-size: 22px; font-weight: 900; box-shadow: 0 0 30px rgba(0, 212, 255, 0.5); cursor: pointer; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
     <div class="top-nav">
-        <img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" class="profile-btn">
+        <img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" style="width:55px; border-radius:50%; border:3px solid var(--neon-pink);">
         <div class="saldo-badge">
-            <span style="font-size: 8px; color: var(--neon-blue); font-weight: bold; display: block; text-align: center;">SALDO VIP</span>
-            <div id="balance" style="font-size: 18px; font-weight: 900;">IDR 27.480</div>
+            <span style="font-size: 8px; color: var(--neon-blue); font-weight: bold; display: block;">SALDO VIP</span>
+            <div id="balanceDisplay" style="font-size: 18px; font-weight: 900;">IDR 0</div>
         </div>
         <img src="https://cdn-icons-png.flaticon.com/512/4213/4213958.png" style="width:50px; filter: drop-shadow(0 0 10px var(--neon-pink));">
     </div>
 
-    <div class="game-zone">
+    <div style="margin-top: 10px;">
         <canvas id="plinkoCanvas"></canvas>
         <div class="multiplier-wrap">
             <div class="slot high">5x</div>
@@ -140,118 +53,107 @@
         </div>
     </div>
 
-    <div class="action-row">
-        <div class="action-card">
-            <i class="fa-solid fa-hand-holding-dollar" style="color: var(--neon-gold); font-size: 24px;"></i>
-            <div style="font-size: 10px; font-weight: 900; color: var(--neon-pink); margin-top:5px;">TARIK</div>
-        </div>
-        <div class="action-card">
-            <i class="fa-solid fa-building-columns" style="color: var(--neon-blue); font-size: 24px;"></i>
-            <div style="font-size: 10px; font-weight: 900; color: var(--neon-pink); margin-top:5px;">DEPOSIT</div>
-        </div>
-        <div class="action-card">
-            <i class="fa-solid fa-crown" style="color: var(--neon-gold); font-size: 24px;"></i>
-            <div style="font-size: 10px; font-weight: 900; color: var(--neon-pink); margin-top:5px;">RANK</div>
-        </div>
-    </div>
-
-    <div class="bet-bar">
-        <button class="bet-btn" onclick="updateBet(-100)">-</button>
-        <div style="margin: 0 30px; text-align: center;">
+    <div class="bet-bar" style="margin-top: 25px;">
+        <button class="bet-btn" onclick="changeBet(-1)">-</button>
+        <div style="margin: 0 30px; text-align: center; min-width: 100px;">
             <span style="font-size: 8px; color:#555; display:block; font-weight:bold;">TARUHAN</span>
-            <span id="betVal" style="font-size: 18px; font-weight:900; color: var(--neon-gold);">400</span>
+            <span id="betDisplay" style="font-size: 18px; font-weight:900; color: var(--neon-gold);">400</span>
         </div>
-        <button class="bet-btn" onclick="updateBet(100)">+</button>
+        <button class="bet-btn" onclick="changeBet(1)">+</button>
     </div>
 
-    <button class="btn-main" onclick="spawnBall()">MULAI MAIN</button>
+    <button class="btn-main" onclick="playGame()">MULAI MAIN</button>
 
     <script>
-        // --- LOGIKA KEMENANGAN (DAPAT DIATUR ADMIN) ---
-        const ADMIN_CONTROL = {
-            winRate: 0.2, // 20% peluang masuk slot 5x/2x
-            forceIndex: null // Jika diisi 0-6, bola akan dipaksa ke sana
-        };
-
+        // --- KONFIGURASI BET & ADMIN ---
+        const betList = [400, 800, 1000, 1200, 1600, 1800, 2000, 4000, 6000, 8000, 10000, 15000, 20000, 25000, 30000];
+        let betIndex = 0;
+        const multipliers = [5, 2, 1.2, 0.2, 1.2, 2, 5];
+        
+        let balance = parseInt(localStorage.getItem('user_balance')) || 50000;
         const canvas = document.getElementById('plinkoCanvas');
         const ctx = canvas.getContext('2d');
-        canvas.width = 360;
-        canvas.height = 350;
-
+        canvas.width = 360; canvas.height = 300;
+        
         const pins = [];
         const activeBalls = [];
-        const rows = 10;
-        const spacing = 32;
+        const rows = 9;
 
-        // Inisialisasi Pasak
+        // Init Pins
         for (let i = 2; i <= rows; i++) {
             for (let j = 0; j < i; j++) {
-                pins.push({ x: canvas.width / 2 + (j - (i - 1) / 2) * spacing, y: i * spacing + 10 });
+                pins.push({ x: canvas.width / 2 + (j - (i - 1) / 2) * 35, y: i * 32 });
             }
+        }
+
+        function updateUI() {
+            document.getElementById('balanceDisplay').innerText = "IDR " + balance.toLocaleString();
+            document.getElementById('betDisplay').innerText = betList[betIndex].toLocaleString();
+            localStorage.setItem('user_balance', balance);
+        }
+
+        function changeBet(dir) {
+            betIndex += dir;
+            if (betIndex < 0) betIndex = 0;
+            if (betIndex >= betList.length) betIndex = betList.length - 1;
+            updateUI();
+        }
+
+        function playGame() {
+            const currentBet = betList[betIndex];
+            if (balance < currentBet) return alert("Saldo tidak cukup!");
+
+            // Potong Saldo Saat Klik
+            balance -= currentBet;
+            updateUI();
+
+            // Tentukan target kemenangan (Setting Admin dibaca di sini)
+            const admin = JSON.parse(localStorage.getItem('admin_plinko_settings')) || { winRate: 0.3 };
+            let targetIdx = Math.random() < admin.winRate ? (Math.random() > 0.5 ? 0 : 6) : 3;
+            
+            spawnBall(targetIdx, currentBet);
+        }
+
+        function spawnBall(targetIdx, betAmount) {
+            const targetX = 30 + (targetIdx * 50); // Estimasi posisi slot
+            activeBalls.push({
+                x: canvas.width / 2, y: 20,
+                vx: (targetX - canvas.width / 2) / 60, vy: 2,
+                bet: betAmount, targetIdx: targetIdx
+            });
         }
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Gambar Pasak
-            ctx.fillStyle = "rgba(255,255,255,0.7)";
-            pins.forEach(p => {
-                ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI * 2); ctx.fill();
-            });
+            ctx.fillStyle = "white";
+            pins.forEach(p => { ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI * 2); ctx.fill(); });
 
-            // Animasi Bola (Heavy Visual & Neon)
             activeBalls.forEach((ball, i) => {
-                ball.y += ball.vy;
-                ball.x += ball.vx;
-                ball.vy += 0.35; // Gravitasi lebih berat agar terlihat solid
-
-                // Logika Pantulan Smooth
+                ball.y += ball.vy; ball.x += ball.vx; ball.vy += 0.2;
+                
                 pins.forEach(p => {
-                    const dist = Math.hypot(ball.x - p.x, ball.y - p.y);
-                    if (dist < 8) {
-                        ball.vy *= -0.3; // Pantulan ke atas dikurangi agar terlihat berat
-                        ball.vx += (ball.x - p.x) * 0.15 + (ball.targetMove * 0.05);
+                    if (Math.hypot(ball.x - p.x, ball.y - p.y) < 8) {
+                        ball.vy *= -0.4; ball.vx += (ball.x - p.x) * 0.1;
                     }
                 });
 
-                // Efek Visual Bola Neon
-                ctx.save();
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = varColor(ball.color);
-                ctx.fillStyle = varColor(ball.color);
+                ctx.fillStyle = "var(--neon-blue)";
+                ctx.shadowBlur = 10; ctx.shadowColor = "var(--neon-blue)";
                 ctx.beginPath(); ctx.arc(ball.x, ball.y, 7, 0, Math.PI * 2); ctx.fill();
-                ctx.restore();
+                ctx.shadowBlur = 0;
 
-                if (ball.y > canvas.height) activeBalls.splice(i, 1);
+                // Saat bola masuk ke slot
+                if (ball.y > canvas.height) {
+                    const winAmount = ball.bet * multipliers[ball.targetIdx];
+                    balance += winAmount;
+                    updateUI();
+                    activeBalls.splice(i, 1);
+                }
             });
             requestAnimationFrame(draw);
         }
 
-        function spawnBall() {
-            // Tentukan Arah berdasarkan Admin
-            let moveDir = (Math.random() - 0.5) * 2;
-            if (Math.random() < ADMIN_CONTROL.winRate) {
-                moveDir = Math.random() > 0.5 ? 4 : -4; // Dorong ke arah Pink 5x
-            }
-
-            activeBalls.push({
-                x: canvas.width / 2 + (Math.random() - 0.5) * 10,
-                y: 10,
-                vx: moveDir * 0.5,
-                vy: 3,
-                targetMove: moveDir,
-                color: '--neon-blue'
-            });
-        }
-
-        function varColor(name) { return getComputedStyle(document.documentElement).getPropertyValue(name); }
-        function updateBet(v) {
-            let cur = parseInt(document.getElementById('betVal').innerText);
-            cur += v; if(cur < 400) cur = 400;
-            document.getElementById('betVal').innerText = cur;
-        }
-
-        window.onload = draw;
+        window.onload = () => { updateUI(); draw(); };
     </script>
 </body>
 </html>
