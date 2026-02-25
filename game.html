@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NEON PLINKO PRO</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* CSS ASLI ANDA TETAP DI SINI */
         :root {
             --neon-pink: #ff0077;
             --neon-blue: #00d4ff;
@@ -23,6 +26,7 @@
             background-image: radial-gradient(circle at 50% 40%, rgba(255, 0, 119, 0.12) 0%, transparent 60%);
         }
 
+        /* HEADER NAV */
         .top-nav {
             width: 100%;
             display: flex;
@@ -40,6 +44,7 @@
             box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
         }
 
+        /* GAME ZONE */
         .game-zone {
             position: relative;
             display: flex;
@@ -48,6 +53,7 @@
             margin-top: 5px;
         }
 
+        /* MULTIPLIER SLOTS (Jarak Turun Sedikit) */
         .multiplier-wrap {
             display: flex;
             justify-content: center;
@@ -67,6 +73,7 @@
         .mid  { background: var(--neon-gold); box-shadow: 0 0 12px var(--neon-gold); color: #000; }
         .low  { background: var(--neon-blue); box-shadow: 0 0 12px var(--neon-blue); color: #000; }
 
+        /* ACTION AREA */
         .action-row {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -82,6 +89,7 @@
             text-align: center;
         }
 
+        /* BET CONTROL */
         .bet-bar {
             background: rgba(0,0,0,0.6);
             border: 1px solid rgba(255,255,255,0.1);
@@ -106,30 +114,6 @@
             cursor: pointer;
             margin-bottom: 20px;
         }
-
-        /* TAMBAHAN UNTUK ANIMASI KEMENANGAN NEON */
-        #win-notif {
-            position: absolute;
-            top: 40%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 40px;
-            font-weight: 900;
-            color: var(--neon-gold);
-            text-shadow: 0 0 20px var(--neon-gold), 0 0 40px var(--neon-pink);
-            pointer-events: none;
-            opacity: 0;
-            z-index: 100;
-            text-align: center;
-            white-space: nowrap;
-        }
-
-        @keyframes winSlide {
-            0% { opacity: 0; transform: translate(-50%, 0%); }
-            20% { opacity: 1; transform: translate(-50%, -50%); }
-            80% { opacity: 1; transform: translate(-50%, -50%); }
-            100% { opacity: 0; transform: translate(-50%, -100%); }
-        }
     </style>
 </head>
 <body>
@@ -144,7 +128,6 @@
     </div>
 
     <div class="game-zone">
-        <div id="win-notif">MENANG IDR 0</div>
         <canvas id="plinkoCanvas"></canvas>
         <div class="multiplier-wrap">
             <div class="slot high">5x</div>
@@ -173,26 +156,22 @@
     </div>
 
     <div class="bet-bar">
-        <button class="bet-btn" onclick="updateBet(-1)">-</button>
-        <div style="margin: 0 30px; text-align: center; min-width: 100px;">
+        <button class="bet-btn" onclick="updateBet(-100)">-</button>
+        <div style="margin: 0 30px; text-align: center;">
             <span style="font-size: 8px; color:#555; display:block; font-weight:bold;">TARUHAN</span>
             <span id="betVal" style="font-size: 18px; font-weight:900; color: var(--neon-gold);">400</span>
         </div>
-        <button class="bet-btn" onclick="updateBet(1)">+</button>
+        <button class="bet-btn" onclick="updateBet(100)">+</button>
     </div>
 
     <button class="btn-main" onclick="spawnBall()">MULAI MAIN</button>
 
     <script>
-        // --- KONFIGURASI BET LIST & SALDO ---
-        const betList = [400, 600, 800, 1000, 1200, 1600, 1800, 2000, 4000, 8000, 10000, 15000, 20000, 25000, 30000];
-        let currentBetIndex = 0;
-        let saldoVIP = parseInt(localStorage.getItem('user_balance')) || 27480;
-        const multipliers = [5, 2, 1.2, 0.2, 1.2, 2, 5];
-
-        // --- LOGIKA ADMIN ---
-        const savedSettings = JSON.parse(localStorage.getItem('admin_plinko_settings'));
-        const ADMIN_CONTROL = savedSettings || { winRate: 0.3, forceIndex: null };
+        // --- LOGIKA KEMENANGAN (DAPAT DIATUR ADMIN) ---
+        const ADMIN_CONTROL = {
+            winRate: 0.2, // 20% peluang masuk slot 5x/2x
+            forceIndex: null // Jika diisi 0-6, bola akan dipaksa ke sana
+        };
 
         const canvas = document.getElementById('plinkoCanvas');
         const ctx = canvas.getContext('2d');
@@ -204,50 +183,38 @@
         const rows = 10;
         const spacing = 32;
 
+        // Inisialisasi Pasak
         for (let i = 2; i <= rows; i++) {
             for (let j = 0; j < i; j++) {
                 pins.push({ x: canvas.width / 2 + (j - (i - 1) / 2) * spacing, y: i * spacing + 10 });
             }
         }
 
-        function refreshBalance() {
-            document.getElementById('balance').innerText = "IDR " + saldoVIP.toLocaleString();
-            localStorage.setItem('user_balance', saldoVIP);
-        }
-
-        function updateBet(dir) {
-            currentBetIndex += dir;
-            if (currentBetIndex < 0) currentBetIndex = 0;
-            if (currentBetIndex >= betList.length) currentBetIndex = betList.length - 1;
-            document.getElementById('betVal').innerText = betList[currentBetIndex];
-        }
-
-        function showWinAnim(amount) {
-            const notif = document.getElementById('win-notif');
-            notif.innerText = "MENANG IDR " + amount.toLocaleString();
-            notif.style.animation = 'none';
-            notif.offsetHeight; // trigger reflow
-            notif.style.animation = 'winSlide 2s forwards';
-        }
-
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Gambar Pasak
             ctx.fillStyle = "rgba(255,255,255,0.7)";
-            pins.forEach(p => { ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI * 2); ctx.fill(); });
+            pins.forEach(p => {
+                ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI * 2); ctx.fill();
+            });
 
+            // Animasi Bola (Heavy Visual & Neon)
             activeBalls.forEach((ball, i) => {
                 ball.y += ball.vy;
                 ball.x += ball.vx;
-                ball.vy += 0.35;
+                ball.vy += 0.35; // Gravitasi lebih berat agar terlihat solid
 
+                // Logika Pantulan Smooth
                 pins.forEach(p => {
                     const dist = Math.hypot(ball.x - p.x, ball.y - p.y);
                     if (dist < 8) {
-                        ball.vy *= -0.3;
+                        ball.vy *= -0.3; // Pantulan ke atas dikurangi agar terlihat berat
                         ball.vx += (ball.x - p.x) * 0.15 + (ball.targetMove * 0.05);
                     }
                 });
 
+                // Efek Visual Bola Neon
                 ctx.save();
                 ctx.shadowBlur = 15;
                 ctx.shadowColor = varColor(ball.color);
@@ -255,36 +222,16 @@
                 ctx.beginPath(); ctx.arc(ball.x, ball.y, 7, 0, Math.PI * 2); ctx.fill();
                 ctx.restore();
 
-                // LOGIKA SAAT BOLA MASUK SLOT
-                if (ball.y > canvas.height) {
-                    const slotIndex = Math.floor(ball.x / (canvas.width / 7));
-                    const safeIndex = Math.max(0, Math.min(6, slotIndex));
-                    const winAmount = ball.betAmount * multipliers[safeIndex];
-                    
-                    saldoVIP += winAmount;
-                    refreshBalance();
-                    if(winAmount > 0) showWinAnim(winAmount);
-                    
-                    activeBalls.splice(i, 1);
-                }
+                if (ball.y > canvas.height) activeBalls.splice(i, 1);
             });
             requestAnimationFrame(draw);
         }
 
         function spawnBall() {
-            const currentBet = betList[currentBetIndex];
-            if (saldoVIP < currentBet) {
-                alert("Saldo tidak cukup!");
-                return;
-            }
-
-            // Kurangi Saldo Saat Bermain
-            saldoVIP -= currentBet;
-            refreshBalance();
-
+            // Tentukan Arah berdasarkan Admin
             let moveDir = (Math.random() - 0.5) * 2;
             if (Math.random() < ADMIN_CONTROL.winRate) {
-                moveDir = Math.random() > 0.5 ? 4 : -4;
+                moveDir = Math.random() > 0.5 ? 4 : -4; // Dorong ke arah Pink 5x
             }
 
             activeBalls.push({
@@ -293,17 +240,18 @@
                 vx: moveDir * 0.5,
                 vy: 3,
                 targetMove: moveDir,
-                color: '--neon-blue',
-                betAmount: currentBet
+                color: '--neon-blue'
             });
         }
 
         function varColor(name) { return getComputedStyle(document.documentElement).getPropertyValue(name); }
-        
-        window.onload = () => {
-            refreshBalance();
-            draw();
-        };
+        function updateBet(v) {
+            let cur = parseInt(document.getElementById('betVal').innerText);
+            cur += v; if(cur < 400) cur = 400;
+            document.getElementById('betVal').innerText = cur;
+        }
+
+        window.onload = draw;
     </script>
 </body>
 </html>
