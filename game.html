@@ -164,17 +164,32 @@
         let autoInterval = null;
         let isAlerting = false; 
         let activeBalls = [];
+        let pegLocations = []; // Menyimpan koordinat paku
 
         const container = document.getElementById('game-container');
         const slots = [5, 2, 1.2, 0.2, 1.2, 2, 5];
 
+        // Inisialisasi Paku dan simpan lokasinya
         for (let r = 2; r <= 8; r++) {
             for (let i = 0; i < r; i++) {
+                const x = `calc(50% + ${(i - (r - 1) / 2) * 32}px)`;
+                const y = (r * 35) + 'px';
+                
                 const peg = document.createElement('div');
                 peg.className = 'peg';
-                peg.style.top = (r * 35) + 'px'; 
-                peg.style.left = `calc(50% + ${(i - (r - 1) / 2) * 32}px)`;
+                peg.style.top = y; 
+                peg.style.left = x;
                 container.appendChild(peg);
+
+                // Hitung koordinat paku untuk deteksi tabrakan
+                setTimeout(() => {
+                    const rect = peg.getBoundingClientRect();
+                    const contRect = container.getBoundingClientRect();
+                    pegLocations.push({
+                        x: rect.left - contRect.left + 3, // +3 karena titik tengah paku (lebar 6)
+                        y: rect.top - contRect.top + 3
+                    });
+                }, 100);
             }
         }
 
@@ -209,7 +224,7 @@
 
         function startAuto() {
             dropBall();
-            autoInterval = setInterval(dropBall, isTurbo ? 300 : 800);
+            autoInterval = setInterval(dropBall, isTurbo ? 350 : 800);
         }
 
         function stopAuto() { clearInterval(autoInterval); }
@@ -254,25 +269,22 @@
             
             const ballObj = {
                 el: ballEl,
-                x: container.offsetWidth / 2 + (Math.random() * 6 - 3),
-                y: 15,
-                vx: 0,
+                x: container.offsetWidth / 2 + (Math.random() * 4 - 2),
+                y: 10,
+                vx: (Math.random() - 0.5) * 1.5,
                 vy: 0,
-                row: 0,
                 radius: 6,
-                isFinished: false,
-                inPegArea: true
+                isFinished: false
             };
 
-            ballEl.style.left = ballObj.x + 'px';
-            ballEl.style.top = ballObj.y + 'px';
             container.appendChild(ballEl);
             activeBalls.push(ballObj);
 
-            let gravity = 0.25;
-            let bounce = 0.45;
-            let friction = 0.99;
-            const speedFactor = isTurbo ? 2.5 : 1;
+            // Settingan Fisika Realistik
+            let gravity = isTurbo ? 0.45 : 0.28;
+            let bounce = 0.55;
+            let friction = 0.992;
+            const simSteps = isTurbo ? 3 : 1; // Sub-stepping untuk mode turbo agar tidak tembus
 
             const move = setInterval(() => {
                 if (ballObj.isFinished) {
@@ -280,27 +292,66 @@
                     return;
                 }
 
-                ballObj.vy += gravity * speedFactor;
-                ballObj.x += ballObj.vx * speedFactor;
-                ballObj.y += ballObj.vy * speedFactor;
-                ballObj.vx *= friction;
+                for(let s=0; s < simSteps; s++) {
+                    ballObj.vy += (gravity / simSteps);
+                    ballObj.x += (ballObj.vx / simSteps);
+                    ballObj.y += (ballObj.vy / simSteps);
+                    ballObj.vx *= friction;
 
-                let targetY = (ballObj.row + 2) * 35;
-                if (ballObj.y >= targetY && ballObj.row < 7) {
-                    ballObj.row++;
-                    let dir = (isSettinganMenang) ? (ballObj.x > container.offsetWidth / 2 ? 1 : -1) : (ballObj.x > container.offsetWidth / 2 ? -1 : 1);
-                    if (Math.random() > 0.8) dir *= -1; 
-                    ballObj.vx += dir * (1.2 + Math.random() * 1.5);
-                    ballObj.vy *= -bounce;
-                    ballObj.y = targetY - 1;
+                    // 1. CEK TABRAKAN DENGAN PAKU (PEG)
+                    pegLocations.forEach(peg => {
+                        const dx = ballObj.x - peg.x;
+                        const dy = ballObj.y - peg.y;
+                        const dist = Math.sqrt(dx*dx + dy*dy);
+                        const minDist = ballObj.radius + 3; // radius bola + radius paku
+
+                        if(dist < minDist) {
+                            // Hitung Sudut Pantulan
+                            const angle = Math.atan2(dy, dx);
+                            const sin = Math.sin(angle);
+                            const cos = Math.cos(angle);
+
+                            // Pindahkan bola ke tepi paku agar tidak overlap
+                            ballObj.x = peg.x + cos * minDist;
+                            ballObj.y = peg.y + sin * minDist;
+
+                            // Pantulan Vektor
+                            const speed = Math.sqrt(ballObj.vx * ballObj.vx + ballObj.vy * ballObj.vy);
+                            
+                            // Kontrol arah berdasarkan Win Rate
+                            let directionBias = (isSettinganMenang) ? (ballObj.x > container.offsetWidth / 2 ? 0.8 : -0.8) : (ballObj.x > container.offsetWidth / 2 ? -0.8 : 0.8);
+                            
+                            ballObj.vx = (cos * speed * bounce) + directionBias;
+                            ballObj.vy = (sin * speed * bounce);
+                        }
+                    });
+
+                    // 2. CEK TABRAKAN ANTAR BOLA
+                    activeBalls.forEach(other => {
+                        if(other === ballObj || other.isFinished) return;
+                        const dx = ballObj.x - other.x;
+                        const dy = ballObj.y - other.y;
+                        const dist = Math.sqrt(dx*dx + dy*dy);
+                        const minDist = ballObj.radius * 2;
+
+                        if(dist < minDist) {
+                            const angle = Math.atan2(dy, dx);
+                            const force = 0.5;
+                            ballObj.vx += Math.cos(angle) * force;
+                            other.vx -= Math.cos(angle) * force;
+                        }
+                    });
+
+                    // Pantulan Dinding Samping
+                    if(ballObj.x < 15) { ballObj.x = 15; ballObj.vx *= -0.5; }
+                    if(ballObj.x > container.offsetWidth - 15) { ballObj.x = container.offsetWidth - 15; ballObj.vx *= -0.5; }
                 }
-
-                if (ballObj.row >= 7) ballObj.inPegArea = false;
 
                 ballEl.style.left = ballObj.x + 'px';
                 ballEl.style.top = ballObj.y + 'px';
 
-                if (ballObj.y > 320) {
+                // Mencapai Area Multiplier
+                if (ballObj.y > 315) {
                     ballObj.isFinished = true;
                     clearInterval(move);
                     
@@ -308,7 +359,7 @@
                     let finalIdx = Math.round(centerOffset / 32 + 3);
                     finalIdx = Math.max(0, Math.min(6, finalIdx));
 
-                    ballEl.style.transition = "all 0.2s ease-out";
+                    ballEl.style.transition = "all 0.25s ease-out";
                     ballEl.style.left = (container.offsetWidth / 2 + (finalIdx - 3) * 44) + "px";
                     ballEl.style.top = "335px";
 
@@ -326,7 +377,7 @@
                             document.body.style.boxShadow = "inset 0 0 50px var(--yellow)";
                             setTimeout(() => document.body.style.boxShadow = "none", 500);
                         }
-                    }, 200);
+                    }, 250);
                 }
             }, 16);
         }
