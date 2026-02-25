@@ -9,26 +9,42 @@
         :root { --neon-pink: #ff0077; --neon-blue: #00d4ff; --neon-gold: #fbff00; --bg-dark: #070816; }
         body, html { background: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; }
         
-        .header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; box-sizing: border-box; z-index: 100; }
-        .nav-btn-top { width: 45px; height: 45px; background: rgba(255,255,255,0.1); border: 2px solid var(--neon-pink); border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .saldo-display { background: rgba(0,0,0,0.8); border: 2px solid var(--neon-blue); border-radius: 20px; padding: 5px 20px; text-align: center; box-shadow: 0 0 10px rgba(0, 212, 255, 0.4); }
+        /* HEADER */
+        .header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; z-index: 100; }
+        .nav-btn-top { width: 42px; height: 42px; background: rgba(255,255,255,0.1); border: 2px solid var(--neon-pink); border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .saldo-display { background: rgba(0,0,0,0.8); border: 2px solid var(--neon-blue); border-radius: 20px; padding: 5px 15px; text-align: center; box-shadow: 0 0 10px rgba(0, 212, 255, 0.4); }
+
+        /* PAPAN SKOR KEMENANGAN (BARU) */
+        #score-board {
+            position: absolute; top: 75px; right: 20px; width: 100px; max-height: 150px;
+            overflow: hidden; display: flex; flex-direction: column-reverse; gap: 5px; z-index: 50;
+        }
+        .score-item {
+            background: rgba(0, 212, 255, 0.2); border-left: 3px solid var(--neon-blue);
+            padding: 4px 8px; font-size: 11px; font-weight: 900; border-radius: 4px;
+            animation: slideIn 0.3s ease-out; color: var(--neon-gold);
+        }
+        @keyframes slideIn { from { transform: translateX(50px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
         .game-container { position: relative; width: 100%; flex-grow: 1; display: flex; flex-direction: column; align-items: center; }
-        canvas { background: transparent; }
+        canvas { background: transparent; cursor: pointer; }
 
-        .multiplier-bar { display: flex; justify-content: center; gap: 4px; width: 92%; margin: 5px 0; }
-        .m-slot { flex: 1; padding: 8px 0; font-size: 10px; font-weight: 900; text-align: center; border-radius: 6px; color: white; transition: 0.3s; }
+        /* MULTIPLIER SLOTS */
+        .multiplier-bar { display: flex; justify-content: center; gap: 3px; width: 95%; margin: 5px 0; }
+        .m-slot { flex: 1; padding: 6px 0; font-size: 10px; font-weight: 900; text-align: center; border-radius: 5px; color: white; transition: 0.2s; }
         .pink { background: var(--neon-pink); }
         .gold { background: var(--neon-gold); color: black; }
         .blue { background: var(--neon-blue); color: black; }
-        .highlight { transform: scale(1.2); filter: brightness(1.5); box-shadow: 0 0 15px white; }
+        .active-slot { transform: translateY(5px); filter: brightness(1.5); box-shadow: 0 0 15px white; }
 
-        .action-nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 90%; margin: 10px 0; }
-        .nav-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 10px 0; text-align: center; cursor: pointer; text-decoration: none; }
-        .nav-box span { font-size: 9px; font-weight: 900; text-transform: uppercase; color: var(--neon-pink); }
+        /* NAVIGATION */
+        .action-nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 90%; margin: 10px 0; }
+        .nav-box { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 8px 0; text-align: center; text-decoration: none; border: 1px solid rgba(255,255,255,0.1); }
+        .nav-box span { font-size: 8px; font-weight: 900; color: var(--neon-pink); text-transform: uppercase; }
 
+        /* CONTROLS */
         .bet-area { background: rgba(0,0,0,0.6); border-radius: 30px; display: flex; align-items: center; padding: 5px 20px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.1); }
-        .btn-spin { width: 85%; padding: 16px; background: linear-gradient(180deg, var(--neon-blue), #0055ff); border: none; border-radius: 40px; color: white; font-size: 20px; font-weight: 900; box-shadow: 0 0 25px rgba(0, 212, 255, 0.5); cursor: pointer; margin-bottom: 20px; }
+        .btn-spin { width: 85%; padding: 15px; background: linear-gradient(180deg, var(--neon-blue), #0055ff); border: none; border-radius: 40px; color: white; font-size: 20px; font-weight: 900; box-shadow: 0 0 20px rgba(0, 212, 255, 0.5); cursor: pointer; margin-bottom: 20px; }
     </style>
 </head>
 <body>
@@ -39,13 +55,15 @@
             <small style="color: var(--neon-blue); font-size: 8px; font-weight: bold; display: block;">SALDO VIP</small>
             <div id="balance" style="font-size: 18px; font-weight: 900;">91200</div>
         </div>
-        <div class="nav-btn-top" style="border-color: var(--neon-gold);" onclick="location.href='reward.html'"><i class="fa-solid fa-gift" style="color: var(--neon-gold);"></i></div>
+        <div class="nav-btn-top" style="border-color: var(--neon-gold);"><i class="fa-solid fa-gift" style="color: var(--neon-gold);"></i></div>
     </div>
+
+    <div id="score-board"></div>
 
     <div class="game-container">
         <canvas id="plinkoCanvas"></canvas>
 
-        <div class="multiplier-bar" id="multiplierBar">
+        <div class="multiplier-bar">
             <div class="m-slot pink">5x</div>
             <div class="m-slot gold">2x</div>
             <div class="m-slot gold">1.2x</div>
@@ -56,30 +74,24 @@
         </div>
 
         <div class="action-nav">
-            <a href="withdraw.html" class="nav-box"><i class="fa-solid fa-money-bill" style="color: var(--neon-gold);"></i><span>Tarik</span></a>
-            <a href="deposit.html" class="nav-box"><i class="fa-solid fa-wallet" style="color: var(--neon-blue);"></i><span>Deposit</span></a>
-            <a href="rank.html" class="nav-box"><i class="fa-solid fa-crown" style="color: var(--neon-gold);"></i><span>Rank</span></a>
+            <a href="withdraw.html" class="nav-box"><i class="fa-solid fa-money-bill" style="color: var(--neon-gold); font-size: 18px;"></i><span>Tarik</span></a>
+            <a href="deposit.html" class="nav-box"><i class="fa-solid fa-wallet" style="color: var(--neon-blue); font-size: 18px;"></i><span>Deposit</span></a>
+            <a href="rank.html" class="nav-box"><i class="fa-solid fa-crown" style="color: var(--neon-gold); font-size: 18px;"></i><span>Rank</span></a>
         </div>
 
         <div class="bet-area">
-            <button class="bet-btn" style="background:none; border:none; color:var(--neon-blue); font-size:25px;" onclick="adjustBet(-100)">-</button>
+            <button onclick="adjustBet(-100)" style="background:none; border:none; color:var(--neon-blue); font-size:25px; cursor:pointer;">-</button>
             <div style="text-align: center; min-width: 100px;">
                 <small style="color:#666; display:block; font-size: 8px;">TARUHAN</small>
                 <span id="bet-amount" style="font-size: 18px; font-weight: 900; color: var(--neon-gold);">400</span>
             </div>
-            <button class="bet-btn" style="background:none; border:none; color:var(--neon-blue); font-size:25px;" onclick="adjustBet(100)">+</button>
+            <button onclick="adjustBet(100)" style="background:none; border:none; color:var(--neon-blue); font-size:25px; cursor:pointer;">+</button>
         </div>
 
-        <button class="btn-spin" id="spinBtn" onclick="startGame()">MULAI MAIN</button>
+        <button class="btn-spin" onclick="spawnBall()">MULAI MAIN</button>
     </div>
 
     <script>
-        // --- KONTROL ADMIN (SETTING KEMENANGAN) ---
-        const ADMIN_SETTINGS = {
-            winRate: 0.3, // 0.3 berarti 30% peluang masuk ke slot UNTUNG (Pink/Gold)
-            forceResult: null // Jika diisi (0-6), bola akan dipaksa masuk ke slot index tersebut
-        };
-
         const canvas = document.getElementById('plinkoCanvas');
         const ctx = canvas.getContext('2d');
         canvas.width = 340; canvas.height = 320;
@@ -87,114 +99,103 @@
         let balance = 91200;
         let bet = 400;
         const multipliers = [5, 2, 1.2, 0.2, 1.2, 2, 5];
+        const balls = [];
         const pins = [];
-        const pinRows = 8;
-        const spacing = 32;
+        const pinRows = 9;
+        const spacing = 30;
 
         // Inisialisasi Paku
         for (let l = 2; l <= pinRows; l++) {
             for (let i = 0; i < l; i++) {
-                pins.push({
-                    x: canvas.width / 2 + (i - (l - 1) / 2) * spacing,
-                    y: l * spacing + 20
-                });
+                pins.push({ x: canvas.width / 2 + (i - (l - 1) / 2) * spacing, y: l * 28 + 10 });
             }
         }
 
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "white";
-            pins.forEach(p => {
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-                ctx.fill();
+        function spawnBall() {
+            if (balance < bet) return alert("Saldo tidak cukup!");
+            balance -= bet; // Saldo berkurang setiap klik
+            updateUI();
+
+            // Tambahkan bola ke array (Multi-Ball)
+            balls.push({
+                x: canvas.width / 2 + (Math.random() * 10 - 5),
+                y: 20,
+                vx: 0,
+                vy: 2,
+                radius: 6,
+                color: "#00d4ff"
             });
         }
 
-        function startGame() {
-            if (balance < bet) return alert("Saldo tidak cukup!");
-            balance -= bet;
-            updateUI();
-            document.getElementById('spinBtn').disabled = true;
+        function update() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            dropBall();
-        }
+            // Gambar Paku
+            ctx.fillStyle = "white";
+            pins.forEach(p => {
+                ctx.beginPath(); ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2); ctx.fill();
+            });
 
-        function dropBall() {
-            let x = canvas.width / 2;
-            let y = 30;
-            let vx = 0;
-            let vy = 3;
-            const gravity = 0.15;
+            // Update & Gambar Bola
+            for (let i = balls.length - 1; i >= 0; i--) {
+                let b = balls[i];
+                b.vy += 0.15; // Gravitas
+                b.y += b.vy;
+                b.x += b.vx;
 
-            // Logika Penentuan Hasil Akhir (Kontrol Admin)
-            let targetSlot;
-            if (ADMIN_SETTINGS.forceResult !== null) {
-                targetSlot = ADMIN_SETTINGS.forceResult;
-            } else {
-                // Berdasarkan Win Rate
-                targetSlot = Math.random() < ADMIN_SETTINGS.winRate ? 
-                             [0, 1, 5, 6][Math.floor(Math.random()*4)] : // Slot Untung
-                             [2, 3, 4][Math.floor(Math.random()*3)];     // Slot Rugi
-            }
-
-            function animate() {
-                draw();
-                vy += gravity;
-                y += vy;
-                x += vx;
-
-                // Tabrakan Paku (Simulasi Sederhana)
+                // Tabrakan Paku
                 pins.forEach(p => {
-                    let dx = x - p.x;
-                    let dy = y - p.y;
+                    let dx = b.x - p.x;
+                    let dy = b.y - p.y;
                     let dist = Math.sqrt(dx*dx + dy*dy);
-                    if (dist < 8) {
-                        vx = (dx / dist) * 2.5;
-                        vy *= -0.4;
-                        y = p.y + 8;
+                    if (dist < b.radius + 3) {
+                        b.vx = (dx / dist) * 2.5;
+                        b.vy *= -0.5;
+                        b.y = p.y + b.radius + 2;
                     }
                 });
 
-                // Gambar Bola Neon
-                ctx.fillStyle = "#00d4ff";
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = "#00d4ff";
-                ctx.beginPath();
-                ctx.arc(x, y, 7, 0, Math.PI * 2);
-                ctx.fill();
+                // Gambar Bola dengan Glow
+                ctx.fillStyle = b.color;
+                ctx.shadowBlur = 10; ctx.shadowColor = b.color;
+                ctx.beginPath(); ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2); ctx.fill();
                 ctx.shadowBlur = 0;
 
-                if (y < canvas.height - 10) {
-                    requestAnimationFrame(animate);
-                } else {
-                    // Bola Sampai Bawah
-                    finishGame(x);
+                // Cek jika bola masuk slot
+                if (b.y > canvas.height - 5) {
+                    handleWin(b.x);
+                    balls.splice(i, 1);
                 }
             }
-            animate();
+            requestAnimationFrame(update);
         }
 
-        function finishGame(finalX) {
-            // Tentukan index slot berdasarkan posisi X terakhir
+        function handleWin(finalX) {
             let slotWidth = canvas.width / 7;
             let index = Math.floor(finalX / slotWidth);
             index = Math.max(0, Math.min(6, index));
 
-            let winAmount = bet * multipliers[index];
-            balance += winAmount;
+            let winValue = bet * multipliers[index];
+            balance += winValue; // Saldo bertambah sesuai perkalian
             
-            // Efek Visual Menang
+            // Tampilkan Skor di Papan Skor
+            const sb = document.getElementById('score-board');
+            const item = document.createElement('div');
+            item.className = 'score-item';
+            item.innerHTML = `+IDR ${winValue.toLocaleString()}`;
+            sb.appendChild(item);
+            setTimeout(() => item.remove(), 3000);
+
+            // Efek Visual Slot
             const slots = document.querySelectorAll('.m-slot');
-            slots[index].classList.add('highlight');
-            setTimeout(() => slots[index].classList.remove('highlight'), 1000);
+            slots[index].classList.add('active-slot');
+            setTimeout(() => slots[index].classList.remove('active-slot'), 500);
 
             updateUI();
-            document.getElementById('spinBtn').disabled = false;
         }
 
         function updateUI() {
-            document.getElementById('balance').innerText = Math.floor(balance);
+            document.getElementById('balance').innerText = Math.floor(balance).toLocaleString();
             document.getElementById('bet-amount').innerText = bet;
         }
 
@@ -203,7 +204,7 @@
             updateUI();
         }
 
-        draw();
+        update();
         updateUI();
     </script>
 </body>
