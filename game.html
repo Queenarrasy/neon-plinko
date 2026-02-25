@@ -8,7 +8,6 @@
     <style>
         :root { --pink: #ff0077; --blue: #00d4ff; --yellow: #fbff00; --bg: #070816; }
         
-        /* Fix: Height 100vh dan flex membantu elemen tetap di dalam layar */
         body { 
             background: var(--bg); 
             color: white; 
@@ -26,38 +25,38 @@
         #tier-name { font-size: 8px; font-weight: 900; display: block; text-transform: uppercase; }
         #display-saldo { font-size: 16px; font-weight: 900; }
 
-        /* Board Area - Diperkecil sedikit agar kontrol naik */
+        /* Board Area - Fixed Height */
         #game-container { position: relative; width: 100%; height: 280px; margin-top: 5px; flex-shrink: 0; }
         .peg { position: absolute; width: 6px; height: 6px; background: white; border-radius: 50%; box-shadow: 0 0 5px #fff; }
         .ball { position: absolute; width: 12px; height: 12px; background: var(--pink); border-radius: 50%; box-shadow: 0 0 10px var(--pink); z-index: 10; }
 
-        /* Multipliers - Jarak disesuaikan */
-        .multipliers { display: flex; justify-content: center; gap: 4px; padding: 5px 10px; margin-top: 15px; flex-shrink: 0; }
-        .slot { flex: 1; padding: 8px 0; border-radius: 6px; text-align: center; font-size: 10px; font-weight: 900; }
+        /* Multipliers - Diperkecil & Kasi Jarak dari Piramida */
+        .multipliers { display: flex; justify-content: center; gap: 4px; padding: 0 15px; margin-top: 25px; flex-shrink: 0; }
+        .slot { flex: 1; padding: 6px 0; border-radius: 6px; text-align: center; font-size: 9px; font-weight: 900; max-width: 45px; }
         .m-pink { background: var(--pink); box-shadow: 0 0 10px var(--pink); }
         .m-yellow { background: var(--yellow); color: black; box-shadow: 0 0 10px var(--yellow); }
         .m-blue { background: var(--blue); color: black; box-shadow: 0 0 10px var(--blue); }
 
-        /* Nav Buttons */
-        .nav-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 0 15px; margin-top: 15px; flex-shrink: 0; }
-        .btn-nav { background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 10px 5px; border-radius: 12px; text-align: center; cursor: pointer; }
-        .btn-nav i { display: block; font-size: 20px; margin-bottom: 4px; }
+        /* Nav Buttons - Turun sedikit & Kasi Jarak dari Perkalian */
+        .nav-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 0 20px; margin-top: 25px; flex-shrink: 0; }
+        .btn-nav { background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 12px 5px; border-radius: 12px; text-align: center; cursor: pointer; }
+        .btn-nav i { display: block; font-size: 18px; margin-bottom: 4px; }
         .c-pink { color: var(--pink); border-color: var(--pink); }
         .c-blue { color: var(--blue); border-color: var(--blue); }
         .c-yellow { color: var(--yellow); border-color: var(--yellow); }
 
-        /* CONTROLS AREA - Dibuat lebih padat agar naik ke atas */
-        .play-area { text-align: center; padding: 10px 15px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
-        .mode-toggles { display: flex; justify-content: center; gap: 5px; margin-bottom: 10px; }
-        .toggle { padding: 6px 10px; border-radius: 20px; font-size: 9px; font-weight: 900; cursor: pointer; border: 1px solid #333; background: #000; color: #555; }
+        /* CONTROLS AREA - Jarak seimbang ke tombol main */
+        .play-area { text-align: center; padding: 15px; margin-top: auto; padding-bottom: 20px; }
+        .mode-toggles { display: flex; justify-content: center; gap: 5px; margin-bottom: 15px; }
+        .toggle { padding: 8px 12px; border-radius: 20px; font-size: 9px; font-weight: 900; cursor: pointer; border: 1px solid #333; background: #000; color: #555; }
         .toggle.active { color: #fff; border-color: var(--pink); box-shadow: 0 0 10px var(--pink); }
         .btn-stop { border-color: #ff3333; color: #ff3333; }
 
-        .bet-selector { display: flex; align-items: center; justify-content: center; gap: 10px; background: #000; border-radius: 50px; padding: 4px; margin-bottom: 10px; border: 1px solid #333; width: 80%; margin-left: auto; margin-right: auto; }
-        .bet-btn { background: none; border: none; color: var(--blue); font-size: 18px; font-weight: 900; cursor: pointer; padding: 0 10px; }
+        .bet-selector { display: flex; align-items: center; justify-content: center; gap: 15px; background: #000; border-radius: 50px; padding: 6px; margin-bottom: 15px; border: 1px solid #333; width: 85%; margin-left: auto; margin-right: auto; }
+        .bet-btn { background: none; border: none; color: var(--blue); font-size: 20px; font-weight: 900; cursor: pointer; }
 
-        .btn-main { width: 100%; padding: 15px; border-radius: 50px; border: none; font-weight: 900; font-size: 16px; text-transform: uppercase; cursor: pointer; background: linear-gradient(90deg, var(--pink), var(--blue)); box-shadow: 0 0 15px var(--pink); color: white; }
-        .btn-main.auto-active { background: var(--yellow); color: #000; box-shadow: 0 0 15px var(--yellow); }
+        .btn-main { width: 100%; padding: 18px; border-radius: 50px; border: none; font-weight: 900; font-size: 16px; text-transform: uppercase; cursor: pointer; background: linear-gradient(90deg, var(--pink), var(--blue)); box-shadow: 0 0 20px var(--pink); color: white; }
+        .btn-main.auto-active { background: var(--yellow); color: #000; box-shadow: 0 0 20px var(--yellow); }
 
         /* Floating Win Pop Up */
         .win-popup {
@@ -127,7 +126,7 @@
             <button class="bet-btn" onclick="changeBet(-1)">-</button>
             <div style="min-width: 100px;">
                 <small style="font-size: 7px; color: #666; display: block;">TARUHAN</small>
-                <span id="current-bet" style="font-weight: 900; color: var(--yellow); font-size: 14px;">1,000</span>
+                <span id="current-bet" style="font-weight: 900; color: var(--yellow); font-size: 15px;">1,000</span>
             </div>
             <button class="bet-btn" onclick="changeBet(1)">+</button>
         </div>
@@ -147,7 +146,6 @@
         const container = document.getElementById('game-container');
         const slots = [5, 2, 1.2, 0.2, 1.2, 2, 5];
 
-        // Memperkecil jarak antar peg (35px) agar papan lebih pendek
         for (let r = 2; r <= 8; r++) {
             for (let i = 0; i < r; i++) {
                 const peg = document.createElement('div');
@@ -256,7 +254,7 @@
 
             const move = setInterval(() => {
                 row++;
-                posY += 35; // Sinkron dengan jarak peg
+                posY += 35;
                 
                 let dir;
                 if (isSettinganMenang) {
