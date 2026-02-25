@@ -21,6 +21,31 @@
         .reward-header p { font-size: 11px; color: #aaa; margin: 10px 0; line-height: 1.5; }
         .bonus-tag { background: var(--pink); color: white; padding: 5px 15px; border-radius: 50px; font-weight: 900; font-size: 12px; display: inline-block; }
 
+        /* REFERRAL CODE BOX (NEW) */
+        .referral-code-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--blue);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .code-box {
+            background: #000;
+            border: 1px dashed var(--blue);
+            color: var(--yellow);
+            padding: 10px;
+            font-size: 20px;
+            font-family: monospace;
+            font-weight: 900;
+            letter-spacing: 3px;
+            margin: 10px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: inset 0 0 10px rgba(0, 212, 255, 0.2);
+        }
+        .copy-hint { font-size: 9px; color: #666; text-transform: uppercase; }
+
         /* DAILY REWARD SECTION */
         .daily-reward-card {
             background: rgba(255, 255, 255, 0.05); border: 2px dashed var(--yellow);
@@ -124,6 +149,14 @@
 
     <a href="game.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> KEMBALI KE GAME</a>
 
+    <div class="referral-code-container">
+        <small style="color: var(--blue); font-weight: 900;">KODE REFERRAL ANDA</small>
+        <div class="code-box" id="my-referral-code" onclick="copyReferralCode()">
+            MEMUAT...
+        </div>
+        <div class="copy-hint">Klik kode di atas untuk menyalin</div>
+    </div>
+
     <div class="daily-reward-card">
         <small style="color: var(--yellow); font-weight: 900;">DAILY CHECK-IN</small>
         <div style="font-size: 18px; font-weight: 900; margin: 5px 0;">IDR 1.000</div>
@@ -172,6 +205,31 @@
 
     <script src="global.js"></script>
     <script>
+        // --- LOGIKA KODE REFERRAL UNIK (NEW) ---
+        function generateMyCode() {
+            const username = localStorage.getItem('user_session') || "MEMBER";
+            let myCode = localStorage.getItem('unique_referral_code');
+            
+            if (!myCode) {
+                // Buat kode: 3 huruf username + 4 angka acak
+                const cleanUser = username.substring(0, 3).toUpperCase().replace(/\s/g, 'X');
+                const randomNum = Math.floor(1000 + Math.random() * 9000);
+                myCode = cleanUser + randomNum;
+                localStorage.setItem('unique_referral_code', myCode);
+            }
+            document.getElementById('my-referral-code').innerText = myCode;
+        }
+
+        function copyReferralCode() {
+            const code = document.getElementById('my-referral-code').innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                showNeonModal("Kode Referral " + code + " berhasil disalin!", "BERHASIL");
+            }).catch(() => {
+                // Fallback jika navigator.clipboard tidak didukung
+                alert("Kode Referral: " + code);
+            });
+        }
+
         // --- CUSTOM MODAL ENGINE ---
         function showNeonModal(msg, title = "INFO") {
             document.getElementById('modal-title').innerText = title;
@@ -200,7 +258,6 @@
             if (updateSaldo(1000)) { 
                 localStorage.setItem('last_daily_claim', today);
                 showNeonModal("Selamat! Hadiah check-in IDR 1.000 telah ditambahkan ke saldo Anda.", "KLAIM BERHASIL");
-                // Tunggu sebentar sebelum reload agar user bisa baca modal
                 setTimeout(() => { location.reload(); }, 2000);
             }
         }
@@ -243,6 +300,7 @@
 
         // --- LOGIKA REFERRAL ---
         function renderRewardPage() {
+            generateMyCode(); // Panggil generator kode
             checkDailyStatus();
             renderInbox();
 
@@ -294,6 +352,7 @@
 
         function kirimDataKeAdmin(data) {
             const userSekarang = localStorage.getItem('user_session') || "MEMBER_VIP";
+            const myCode = localStorage.getItem('unique_referral_code') || "NONE";
             const aktifOnly = data.filter(u => u.hasDeposited === true);
             
             if (aktifOnly.length === 0) {
@@ -303,7 +362,7 @@
 
             const totalBonus = aktifOnly.length * 5000;
             const detailTeman = aktifOnly.map(u => u.invitedUser).join(", ");
-            const pesan = `HALO ADMIN NEON PLINKO\nSAYA INGIN KLAIM REWARD REFERRAL\nUsername: ${userSekarang}\nBonus: IDR ${totalBonus.toLocaleString()}\nUser: ${detailTeman}`;
+            const pesan = `HALO ADMIN NEON PLINKO\nSAYA INGIN KLAIM REWARD REFERRAL\nUsername: ${userSekarang}\nKode Referral: ${myCode}\nBonus: IDR ${totalBonus.toLocaleString()}\nUser: ${detailTeman}`;
             const linkWA = `https://wa.me/6289510249551?text=${encodeURIComponent(pesan)}`;
             window.open(linkWA, '_blank');
         }
