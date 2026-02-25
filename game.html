@@ -124,11 +124,11 @@
         let isAuto = false;
         let autoInterval = null;
         let isAlerting = false; 
+        let activeBalls = []; // Simpan data bola untuk deteksi tabrakan
 
         const container = document.getElementById('game-container');
         const slots = [5, 2, 1.2, 0.2, 1.2, 2, 5];
 
-        // Buat Paku
         for (let r = 2; r <= 8; r++) {
             for (let i = 0; i < r; i++) {
                 const peg = document.createElement('div');
@@ -170,7 +170,7 @@
 
         function startAuto() {
             dropBall();
-            autoInterval = setInterval(dropBall, isTurbo ? 400 : 1000);
+            autoInterval = setInterval(dropBall, isTurbo ? 300 : 800);
         }
 
         function stopAuto() { clearInterval(autoInterval); }
@@ -182,8 +182,8 @@
 
         function stopGame() {
             if(isAuto) toggleAuto();
-            const activeBalls = document.querySelectorAll('.ball');
-            activeBalls.forEach(b => b.remove());
+            activeBalls.forEach(b => b.el.remove());
+            activeBalls = [];
         }
 
         function handlePlay() {
@@ -222,94 +222,112 @@
             const winRate = typeof getWinRate === "function" ? getWinRate() : 30;
             const isSettinganMenang = (Math.random() * 100) <= winRate;
 
-            const ball = document.createElement('div');
-            ball.className = 'ball';
+            const ballEl = document.createElement('div');
+            ballEl.className = 'ball';
             
-            // Physics Variabel
-            let posX = container.offsetWidth / 2 + (Math.random() * 4 - 2); 
-            let posY = 15;
-            let vx = 0; // Velocity X
-            let vy = 0; // Velocity Y
-            let gravity = 0.25; // Berat bola
-            let bounce = 0.4; // Kekuatan pantulan
-            let friction = 0.98; // Gesekan udara
-            
-            ball.style.left = posX + 'px';
-            ball.style.top = posY + 'px';
-            container.appendChild(ball);
+            const ballObj = {
+                el: ballEl,
+                x: container.offsetWidth / 2 + (Math.random() * 6 - 3),
+                y: 15,
+                vx: 0,
+                vy: 0,
+                row: 0,
+                radius: 6,
+                isFinished: false
+            };
 
-            let currentRow = 0;
-            const totalRows = 7;
+            ballEl.style.left = ballObj.x + 'px';
+            ballEl.style.top = ballObj.y + 'px';
+            container.appendChild(ballEl);
+            activeBalls.push(ballObj);
+
+            let gravity = 0.25;
+            let bounce = 0.45;
+            let friction = 0.99;
             const speedFactor = isTurbo ? 2.5 : 1;
 
             const move = setInterval(() => {
-                // Terapkan Fisika
-                vy += gravity * speedFactor;
-                posX += vx * speedFactor;
-                posY += vy * speedFactor;
-                vx *= friction;
-
-                // Cek Tabrakan Paku (Deteksi baris)
-                let targetY = (currentRow + 2) * 35;
-                if (posY >= targetY && currentRow < totalRows) {
-                    currentRow++;
-                    
-                    // Tentukan arah pantulan
-                    let dir;
-                    if (isSettinganMenang) {
-                        dir = (posX > container.offsetWidth / 2) ? 1 : -1;
-                    } else {
-                        dir = (posX > container.offsetWidth / 2) ? -1 : 1;
-                    }
-                    
-                    // Berpencar/Acak sedikit
-                    if (Math.random() > 0.7) dir *= -1;
-
-                    // Berikan Efek Pantulan (Rebound)
-                    vx = dir * (2 + Math.random() * 2); 
-                    vy *= -bounce; // Memantul ke atas sedikit
-                    posY = targetY - 2; // Hindari stuck di paku
+                if (ballObj.isFinished) {
+                    clearInterval(move);
+                    return;
                 }
 
-                ball.style.left = posX + 'px';
-                ball.style.top = posY + 'px';
+                // 1. Fisika Dasar
+                ballObj.vy += gravity * speedFactor;
+                ballObj.x += ballObj.vx * speedFactor;
+                ballObj.y += ballObj.vy * speedFactor;
+                ballObj.vx *= friction;
 
-                // Mencapai bagian multiplier
-                if (posY > 320) {
+                // 2. Deteksi Tabrakan Antar Bola (Realistis)
+                activeBalls.forEach(other => {
+                    if (other === ballObj || other.isFinished) return;
+                    let dx = other.x - ballObj.x;
+                    let dy = other.y - ballObj.y;
+                    let dist = Math.sqrt(dx * dx + dy * dy);
+                    let minDist = ballObj.radius + other.radius;
+
+                    if (dist < minDist) {
+                        // Reaksi tabrakan
+                        let angle = Math.atan2(dy, dx);
+                        let tx = ballObj.x + Math.cos(angle) * minDist;
+                        let ty = ballObj.y + Math.sin(angle) * minDist;
+                        let ax = (tx - other.x) * 0.1;
+                        let ay = (ty - other.y) * 0.1;
+
+                        ballObj.vx -= ax;
+                        ballObj.vy -= ay;
+                        other.vx += ax;
+                        other.vy += ay;
+                    }
+                });
+
+                // 3. Tabrakan Paku
+                let targetY = (ballObj.row + 2) * 35;
+                if (ballObj.y >= targetY && ballObj.row < 7) {
+                    ballObj.row++;
+                    let dir = (isSettinganMenang) ? (ballObj.x > container.offsetWidth / 2 ? 1 : -1) : (ballObj.x > container.offsetWidth / 2 ? -1 : 1);
+                    
+                    // Logic Berpencar vs Lurus
+                    if (Math.random() > 0.8) dir *= -1; // 20% kemungkinan arah terbalik agar acak
+                    
+                    ballObj.vx += dir * (1.5 + Math.random() * 2);
+                    ballObj.vy *= -bounce;
+                    ballObj.y = targetY - 1;
+                }
+
+                ballEl.style.left = ballObj.x + 'px';
+                ballEl.style.top = ballObj.y + 'px';
+
+                // 4. Masuk Slot Multiplier
+                if (ballObj.y > 320) {
+                    ballObj.isFinished = true;
                     clearInterval(move);
                     
-                    // Hitung slot tujuan (0-6)
-                    let centerOffset = posX - (container.offsetWidth / 2);
+                    let centerOffset = ballObj.x - (container.offsetWidth / 2);
                     let finalIdx = Math.round(centerOffset / 32 + 3);
                     finalIdx = Math.max(0, Math.min(6, finalIdx));
 
-                    // Animasi masuk kotak dengan smooth
-                    const slotElems = document.querySelectorAll('.slot');
-                    const targetSlot = slotElems[finalIdx].getBoundingClientRect();
-                    const ballRect = ball.getBoundingClientRect();
-
-                    ball.style.transition = "all 0.2s ease-out";
-                    ball.style.left = (container.offsetWidth / 2 + (finalIdx - 3) * 44) + "px";
-                    ball.style.top = "335px";
+                    ballEl.style.transition = "all 0.2s ease-out";
+                    ballEl.style.left = (container.offsetWidth / 2 + (finalIdx - 3) * 44) + "px";
+                    ballEl.style.top = "335px";
 
                     setTimeout(() => {
-                        ball.remove();
+                        const ballRect = ballEl.getBoundingClientRect();
+                        ballEl.remove();
+                        activeBalls = activeBalls.filter(b => b !== ballObj);
+                        
                         const winMult = slots[finalIdx];
                         const totalWin = currentBet * winMult;
-                        
                         updateSaldo(totalWin);
 
-                        if(totalWin > 0) {
-                             showFloatingWin(totalWin, ballRect.left, ballRect.top);
-                        }
-                        
+                        if(totalWin > 0) showFloatingWin(totalWin, ballRect.left, ballRect.top);
                         if(winMult >= 2) {
                             document.body.style.boxShadow = "inset 0 0 50px var(--yellow)";
                             setTimeout(() => document.body.style.boxShadow = "none", 500);
                         }
                     }, 200);
                 }
-            }, 16); // 60 FPS
+            }, 16);
         }
     </script>
 </body>
