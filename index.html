@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Welcome - AR.GAMING</title>
+    <title>NEON PLINKO VIP - Official Login</title>
     <style>
         :root {
             --neon-pink: #ff0077;
             --neon-blue: #00d4ff;
+            --gold: #fbff00;
             --bg-dark: #0a0b1e;
         }
 
         body {
             background: var(--bg-dark);
             color: white;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             display: flex;
             justify-content: center;
@@ -23,129 +24,196 @@
             overflow: hidden;
         }
 
-        .login-box {
+        .auth-container {
             width: 90%;
-            max-width: 380px;
+            max-width: 400px;
             padding: 30px;
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.02);
             border: 2px solid var(--neon-pink);
             border-radius: 30px;
-            box-shadow: 0 0 20px rgba(255, 0, 119, 0.2);
+            box-shadow: 0 0 25px rgba(255, 0, 119, 0.3);
             text-align: center;
+            position: relative;
         }
 
-        h2 { color: var(--neon-blue); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 25px; }
+        /* LOGO NEON PLINKO VIP */
+        .logo-box { margin-bottom: 25px; }
+        .neon-pink { color: var(--neon-pink); text-shadow: 0 0 10px var(--neon-pink), 0 0 20px var(--neon-pink); }
+        .neon-blue { color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue); }
+        .neon-gold { color: var(--gold); text-shadow: 0 0 15px var(--gold); font-style: italic; }
+        
+        .game-title { font-size: 30px; font-weight: 900; letter-spacing: 2px; }
 
-        .input-group { margin-bottom: 15px; text-align: left; }
+        /* TABS */
+        .auth-tabs {
+            display: flex;
+            background: rgba(0,0,0,0.4);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            padding: 5px;
+        }
+        .tab {
+            flex: 1;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 12px;
+            color: #555;
+            transition: 0.3s;
+        }
+        .tab.active {
+            background: rgba(0, 212, 255, 0.1);
+            color: var(--neon-blue);
+            box-shadow: inset 0 0 10px rgba(0, 212, 255, 0.2);
+        }
+
+        /* FORM STYLE */
+        .input-group { text-align: left; margin-bottom: 15px; }
         label { font-size: 10px; color: var(--neon-pink); font-weight: bold; margin-left: 10px; text-transform: uppercase; }
-
+        
         input {
             width: 100%;
-            padding: 12px 15px;
+            padding: 14px;
             margin-top: 5px;
-            background: rgba(0,0,0,0.5);
-            border: 1px solid rgba(0, 212, 255, 0.3);
+            background: rgba(0,0,0,0.6);
+            border: 1px solid rgba(0, 212, 255, 0.2);
             border-radius: 15px;
             color: white;
             box-sizing: border-box;
             outline: none;
+            font-size: 14px;
         }
+        input:focus { border-color: var(--neon-blue); box-shadow: 0 0 8px rgba(0, 212, 255, 0.3); }
 
-        input:focus { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0, 212, 255, 0.2); }
-
-        .btn-regis {
+        .btn-action {
             width: 100%;
-            padding: 15px;
-            margin-top: 20px;
+            padding: 16px;
             background: linear-gradient(45deg, var(--neon-pink), #ff0055);
             border: none;
-            border-radius: 15px;
+            border-radius: 18px;
             color: white;
-            font-weight: bold;
+            font-weight: 900;
             text-transform: uppercase;
             cursor: pointer;
-            box-shadow: 0 5px 15px rgba(255, 0, 119, 0.3);
+            margin-top: 10px;
+            box-shadow: 0 5px 15px rgba(255, 0, 119, 0.4);
         }
 
-        .footer-text { font-size: 10px; color: #555; margin-top: 15px; }
+        .footer-note {
+            margin-top: 15px;
+            font-size: 10px;
+            color: #444;
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body>
 
-    <div class="login-box">
-        <h2>AR.GAMING</h2>
-        <p style="font-size: 11px; color: #888; margin-top: -15px; margin-bottom: 25px;">REGISTRASI AKUN VIP</p>
-
-        <div class="input-group">
-            <label>Username Game</label>
-            <input type="text" id="regUser" placeholder="Contoh: ABCD">
+    <div class="auth-container">
+        <div class="logo-box">
+            <div class="game-title">
+                <span class="neon-pink">NEON</span> 
+                <span class="neon-blue">PLINKO</span> 
+                <span class="neon-gold">VIP</span>
+            </div>
         </div>
 
-        <div class="input-group">
-            <label>Nama Lengkap (Sesuai Rekening)</label>
-            <input type="text" id="regFullName" placeholder="Nama asli Anda">
+        <div class="auth-tabs">
+            <div id="tabReg" class="tab active" onclick="switchMode('register')">DAFTAR BARU</div>
+            <div id="tabLog" class="tab" onclick="switchMode('login')">MASUK AKUN</div>
         </div>
 
-        <div class="input-group">
-            <label>Nomor Rekening / E-Wallet</label>
-            <input type="number" id="regBankAcc" placeholder="Untuk pencairan saldo">
+        <div id="form-container">
+            <div class="input-group">
+                <label>Username Game</label>
+                <input type="text" id="userInput" placeholder="Contoh: ABCD">
+            </div>
+
+            <div id="extra-fields">
+                <div class="input-group">
+                    <label>Nama Lengkap (Sesuai Rekening)</label>
+                    <input type="text" id="nameInput" placeholder="Nama asli Anda">
+                </div>
+                <div class="input-group">
+                    <label>Nomor Rekening / E-Wallet</label>
+                    <input type="number" id="bankInput" placeholder="Untuk pencairan saldo">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Password Akun</label>
+                <input type="password" id="passInput" placeholder="******">
+            </div>
+
+            <button class="btn-action" id="btnSubmit" onclick="handleAuth()">DAFTAR SEKARANG</button>
         </div>
 
-        <div class="input-group">
-            <label>Password</label>
-            <input type="password" id="regPass" placeholder="******">
-        </div>
-
-        <button class="btn-regis" onclick="handleRegister()">DAFTAR SEKARANG</button>
-
-        <div class="footer-text">
-            Dengan mendaftar, data rekening Anda akan terkunci <br> demi keamanan pencairan dana.
+        <div class="footer-note">
+            Data rekening Anda akan terkunci secara otomatis demi <br> keamanan pencairan saldo di AR.GAMING.
         </div>
     </div>
 
     <script>
-        function handleRegister() {
-            const user = document.getElementById('regUser').value;
-            const name = document.getElementById('regFullName').value;
-            const bank = document.getElementById('regBankAcc').value;
-            const pass = document.getElementById('regPass').value;
+        let currentMode = 'register';
 
-            if(!user || !name || !bank || !pass) {
-                alert("Mohon isi semua data dengan benar!");
-                return;
+        function switchMode(mode) {
+            currentMode = mode;
+            const extra = document.getElementById('extra-fields');
+            const btn = document.getElementById('btnSubmit');
+            const tabReg = document.getElementById('tabReg');
+            const tabLog = document.getElementById('tabLog');
+
+            if(mode === 'login') {
+                extra.style.display = 'none';
+                btn.innerText = "MASUK SEKARANG";
+                tabLog.classList.add('active');
+                tabReg.classList.remove('active');
+            } else {
+                extra.style.display = 'block';
+                btn.innerText = "DAFTAR SEKARANG";
+                tabReg.classList.add('active');
+                tabLog.classList.remove('active');
             }
+        }
 
-            // Menyimpan Data User Secara Permanen
-            const userData = {
-                username: user,
-                fullName: name,
-                accountNumber: bank,
-                password: pass
-            };
+        function handleAuth() {
+            const user = document.getElementById('userInput').value;
+            const pass = document.getElementById('passInput').value;
 
-            localStorage.setItem('plinko_user', JSON.stringify(userData));
-            
-            // Inisialisasi Saldo Awal & Akumulasi Depo
-            if(!localStorage.getItem('user_balance')) {
+            if(currentMode === 'register') {
+                const name = document.getElementById('nameInput').value;
+                const bank = document.getElementById('bankInput').value;
+
+                if(!user || !name || !bank || !pass) return alert("Lengkapi semua data!");
+
+                // Simpan Data
+                const userData = { username: user, fullName: name, accountNumber: bank, password: pass };
+                localStorage.setItem('plinko_user', JSON.stringify(userData));
+                localStorage.setItem('is_logged_in', 'true');
+                
+                // Set awal stats
                 localStorage.setItem('user_balance', '0');
-            }
-            if(!localStorage.getItem('total_deposit_accumulated')) {
                 localStorage.setItem('total_deposit_accumulated', '0');
-            }
 
-            // Set Status Login
-            localStorage.setItem('is_logged_in', 'true');
-
-            alert("Registrasi Berhasil! Selamat Datang di AR.GAMING.");
-            window.location.href = 'game.html';
-        }
-
-        // Cek jika sudah login
-        window.onload = function() {
-            if(localStorage.getItem('is_logged_in') === 'true') {
+                alert("Selamat! Akun NEON PLINKO VIP Anda aktif.");
                 window.location.href = 'game.html';
+            } else {
+                // Proses Login
+                const savedData = JSON.parse(localStorage.getItem('plinko_user'));
+                if(savedData && user === savedData.username && pass === savedData.password) {
+                    localStorage.setItem('is_logged_in', 'true');
+                    window.location.href = 'game.html';
+                } else {
+                    alert("Username atau Password salah!");
+                }
             }
         }
+
+        // Cek Sesi
+        window.onload = () => {
+            if(localStorage.getItem('is_logged_in') === 'true') window.location.href = 'game.html';
+        };
     </script>
 </body>
 </html>
