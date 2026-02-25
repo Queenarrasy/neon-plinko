@@ -25,37 +25,73 @@
         #tier-name { font-size: 8px; font-weight: 900; display: block; text-transform: uppercase; }
         #display-saldo { font-size: 16px; font-weight: 900; }
 
-        /* Board Area - Fixed Height */
+        /* Board Area - Tetap ringkas */
         #game-container { position: relative; width: 100%; height: 280px; margin-top: 5px; flex-shrink: 0; }
         .peg { position: absolute; width: 6px; height: 6px; background: white; border-radius: 50%; box-shadow: 0 0 5px #fff; }
         .ball { position: absolute; width: 12px; height: 12px; background: var(--pink); border-radius: 50%; box-shadow: 0 0 10px var(--pink); z-index: 10; }
 
-        /* Multipliers - Diperkecil & Kasi Jarak dari Piramida */
-        .multipliers { display: flex; justify-content: center; gap: 4px; padding: 0 15px; margin-top: 25px; flex-shrink: 0; }
-        .slot { flex: 1; padding: 6px 0; border-radius: 6px; text-align: center; font-size: 9px; font-weight: 900; max-width: 45px; }
+        /* Multipliers - Turun sedikit dari piramida sesuai permintaan */
+        .multipliers { display: flex; justify-content: center; gap: 4px; padding: 0 15px; margin-top: 35px; flex-shrink: 0; }
+        .slot { flex: 1; padding: 8px 0; border-radius: 6px; text-align: center; font-size: 9px; font-weight: 900; max-width: 45px; }
         .m-pink { background: var(--pink); box-shadow: 0 0 10px var(--pink); }
         .m-yellow { background: var(--yellow); color: black; box-shadow: 0 0 10px var(--yellow); }
         .m-blue { background: var(--blue); color: black; box-shadow: 0 0 10px var(--blue); }
 
-        /* Nav Buttons - Turun sedikit & Kasi Jarak dari Perkalian */
+        /* Nav Buttons (Deposit, etc) - Jarak konsisten ke atas */
         .nav-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 0 20px; margin-top: 25px; flex-shrink: 0; }
-        .btn-nav { background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 12px 5px; border-radius: 12px; text-align: center; cursor: pointer; }
+        .btn-nav { background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 10px 5px; border-radius: 12px; text-align: center; cursor: pointer; }
         .btn-nav i { display: block; font-size: 18px; margin-bottom: 4px; }
         .c-pink { color: var(--pink); border-color: var(--pink); }
         .c-blue { color: var(--blue); border-color: var(--blue); }
         .c-yellow { color: var(--yellow); border-color: var(--yellow); }
 
-        /* CONTROLS AREA - Jarak seimbang ke tombol main */
-        .play-area { text-align: center; padding: 15px; margin-top: auto; padding-bottom: 20px; }
-        .mode-toggles { display: flex; justify-content: center; gap: 5px; margin-bottom: 15px; }
+        /* Area Kontrol Utama - Diatur agar Naik & Seimbang */
+        .play-area { 
+            text-align: center; 
+            padding: 10px 15px; 
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: flex-start; /* Memulai dari atas area kontrol agar naik */
+            margin-top: 25px; /* Jarak ke atas (ke nav-grid) */
+        }
+
+        /* Grup Toggles (Normal, Turbo, dll) */
+        .mode-toggles { display: flex; justify-content: center; gap: 5px; margin-bottom: 25px; } /* Jarak ke bawah (ke bet) 25px */
         .toggle { padding: 8px 12px; border-radius: 20px; font-size: 9px; font-weight: 900; cursor: pointer; border: 1px solid #333; background: #000; color: #555; }
         .toggle.active { color: #fff; border-color: var(--pink); box-shadow: 0 0 10px var(--pink); }
-        .btn-stop { border-color: #ff3333; color: #ff3333; }
 
-        .bet-selector { display: flex; align-items: center; justify-content: center; gap: 15px; background: #000; border-radius: 50px; padding: 6px; margin-bottom: 15px; border: 1px solid #333; width: 85%; margin-left: auto; margin-right: auto; }
+        /* Bet Selector */
+        .bet-selector { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 15px; 
+            background: #000; 
+            border-radius: 50px; 
+            padding: 6px; 
+            margin-bottom: 25px; /* Jarak ke bawah (ke tombol main) 25px */
+            border: 1px solid #333; 
+            width: 85%; 
+            margin-left: auto; 
+            margin-right: auto; 
+        }
         .bet-btn { background: none; border: none; color: var(--blue); font-size: 20px; font-weight: 900; cursor: pointer; }
 
-        .btn-main { width: 100%; padding: 18px; border-radius: 50px; border: none; font-weight: 900; font-size: 16px; text-transform: uppercase; cursor: pointer; background: linear-gradient(90deg, var(--pink), var(--blue)); box-shadow: 0 0 20px var(--pink); color: white; }
+        /* Tombol Main - Naik */
+        .btn-main { 
+            width: 100%; 
+            padding: 16px; 
+            border-radius: 50px; 
+            border: none; 
+            font-weight: 900; 
+            font-size: 16px; 
+            text-transform: uppercase; 
+            cursor: pointer; 
+            background: linear-gradient(90deg, var(--pink), var(--blue)); 
+            box-shadow: 0 0 20px var(--pink); 
+            color: white; 
+        }
         .btn-main.auto-active { background: var(--yellow); color: #000; box-shadow: 0 0 20px var(--yellow); }
 
         /* Floating Win Pop Up */
