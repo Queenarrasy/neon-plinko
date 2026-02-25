@@ -7,15 +7,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --neon-pink: #ff0077; --neon-blue: #00d4ff; --neon-gold: #fbff00; --bg-dark: #070816; }
-        body, html { background: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; min-height: 100vh; }
+        body, html { background: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; min-height: 100vh; overflow-x: hidden; }
         .container { padding: 20px; max-width: 450px; margin: auto; }
         
-        .btn-back { color: var(--neon-blue); text-decoration: none; font-weight: 900; font-size: 12px; display: flex; align-items: center; gap: 5px; margin-bottom: 25px; text-transform: uppercase; }
+        .btn-back { color: var(--neon-blue); text-decoration: none; font-weight: 900; font-size: 12px; display: flex; align-items: center; gap: 5px; margin-bottom: 25px; text-transform: uppercase; text-shadow: 0 0 5px var(--neon-blue); }
 
         /* REWARD CARDS */
         .card { 
             background: rgba(255, 255, 255, 0.03); border: 2px solid rgba(255, 255, 255, 0.1); 
             border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: 0.3s;
         }
         .card h3 { margin: 0 0 15px 0; font-size: 14px; color: var(--neon-gold); letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
 
@@ -26,19 +27,32 @@
         .btn-claim { background: var(--neon-pink); border: none; padding: 12px 25px; border-radius: 12px; color: white; font-weight: 900; cursor: pointer; box-shadow: 0 0 15px var(--neon-pink); transition: 0.3s; }
         .btn-claim:disabled { background: #222; box-shadow: none; color: #555; cursor: not-allowed; }
 
-        /* INBOX STYLE */
+        /* INBOX & REFERRAL */
         .inbox-box { background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px; text-align: center; border: 1px dashed #333; }
-        .msg-text { font-size: 13px; color: #777; font-style: italic; }
         .msg-active { border: 1px solid var(--neon-blue); background: rgba(0, 212, 255, 0.05); text-align: left; }
-        .msg-active b { color: var(--neon-blue); display: block; margin-bottom: 5px; }
-
-        /* REFERRAL BOX */
         .ref-display { background: #000; border: 1px solid var(--neon-blue); padding: 20px; border-radius: 15px; text-align: center; margin-top: 10px; box-shadow: inset 0 0 15px rgba(0, 212, 255, 0.2); }
         .ref-code { font-size: 28px; font-weight: 900; color: var(--neon-blue); letter-spacing: 5px; margin: 10px 0; display: block; }
-        .copy-info { font-size: 10px; color: var(--neon-gold); text-transform: uppercase; cursor: pointer; }
+
+        /* CUSTOM NEON POPUP */
+        #neon-popup { 
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            width: 80%; max-width: 320px; background: #000; border: 2px solid var(--neon-blue); 
+            border-radius: 20px; padding: 25px; z-index: 10000; text-align: center;
+            box-shadow: 0 0 50px var(--neon-blue); animation: popScale 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popScale { from { transform: translate(-50%, -50%) scale(0.5); opacity: 0; } to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
+        .popup-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; }
+        .popup-msg { color: white; font-weight: 700; font-size: 15px; line-height: 1.5; margin-bottom: 20px; }
+        .popup-btn { background: var(--neon-blue); border: none; padding: 10px 30px; border-radius: 10px; color: #000; font-weight: 900; cursor: pointer; text-transform: uppercase; }
     </style>
 </head>
 <body>
+
+    <div class="popup-overlay" id="overlay"></div>
+    <div id="neon-popup">
+        <div class="popup-msg" id="popup-text">Pesan Reward</div>
+        <button class="popup-btn" onclick="closePopup()">TUTUP</button>
+    </div>
 
     <div class="container">
         <a href="game.html" class="btn-back"><i class="fa-solid fa-chevron-left"></i> KEMBALI KE GAME</a>
@@ -49,13 +63,12 @@
                 <div class="reward-val">1.000 <span>IDR</span></div>
                 <button class="btn-claim" id="btnClaim" onclick="claimDaily()">KLAIM</button>
             </div>
-            <p style="font-size: 10px; color: #666; margin-top: 10px;">*Klaim tersedia setiap 24 jam. Jika terlewat maka hangus.</p>
         </div>
 
         <div class="card" style="border-color: var(--neon-blue);">
             <h3><i class="fa-solid fa-bell"></i> PESAN MASUK</h3>
             <div id="inbox-area" class="inbox-box">
-                <span class="msg-text">Pesan kosong, cek lain hari untuk reward lain nya.</span>
+                <span style="color:#555; font-style:italic; font-size:13px;">Pesan kosong, cek lain hari.</span>
             </div>
         </div>
 
@@ -64,32 +77,41 @@
             <div class="ref-display">
                 <small style="color: #555;">KODE REFERRAL ANDA</small>
                 <span class="ref-code" id="refCodeDisplay">---</span>
-                <div class="copy-info" onclick="copyRef()">KLIK UNTUK SALIN KODE</div>
-            </div>
-            <div style="margin-top: 15px; font-size: 11px; color: #aaa; line-height: 1.5;">
-                <i class="fa-solid fa-circle-check" style="color: var(--neon-blue);"></i> 
-                Undang teman & dapatkan <b>IDR 5.000</b> jika teman deposit min. <b>IDR 20.000</b>.
+                <div style="color: var(--neon-gold); font-size: 10px; font-weight: 900; cursor: pointer;" onclick="copyRef()">KLIK UNTUK SALIN KODE</div>
             </div>
         </div>
     </div>
 
     <script>
-        // Inisialisasi Data
+        // FUNGSI POPUP NEON
+        function showNeonPopup(msg, isError = false) {
+            const popup = document.getElementById('neon-popup');
+            const overlay = document.getElementById('overlay');
+            const text = document.getElementById('popup-text');
+            
+            popup.style.borderColor = isError ? 'var(--neon-pink)' : 'var(--neon-blue)';
+            popup.style.boxShadow = isError ? '0 0 50px var(--neon-pink)' : '0 0 50px var(--neon-blue)';
+            text.innerText = msg;
+            
+            popup.style.display = 'block';
+            overlay.style.display = 'block';
+        }
+
+        function closePopup() {
+            document.getElementById('neon-popup').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        // LOGIKA REWARD & REFERRAL
         let currentBalance = parseInt(localStorage.getItem('saldo_vip')) || 0;
         let lastClaimDate = localStorage.getItem('last_claim_date');
-        let userRefCode = localStorage.getItem('my_ref_code');
-
-        // Buat Kode Referral Unik Otomatis
-        if (!userRefCode) {
-            userRefCode = "VIP" + Math.floor(1000 + Math.random() * 9000);
-            localStorage.setItem('my_ref_code', userRefCode);
-        }
+        let userRefCode = localStorage.getItem('my_ref_code') || "VIP" + Math.floor(1000 + Math.random() * 8999);
+        
+        localStorage.setItem('my_ref_code', userRefCode);
         document.getElementById('refCodeDisplay').innerText = userRefCode;
 
-        // Cek Status Klaim Hari Ini
         function checkDaily() {
-            const today = new Date().toDateString();
-            if (lastClaimDate === today) {
+            if (lastClaimDate === new Date().toDateString()) {
                 const btn = document.getElementById('btnClaim');
                 btn.disabled = true;
                 btn.innerText = "SUDAH KLAIM";
@@ -102,30 +124,26 @@
             localStorage.setItem('saldo_vip', currentBalance);
             localStorage.setItem('last_claim_date', today);
             
-            alert("Selamat! Anda mendapatkan IDR 1.000 harian.");
-            location.reload();
-        }
-
-        // Cek Pesan dari Admin
-        function loadInbox() {
-            const adminMsg = localStorage.getItem('inbox_admin'); 
-            if (adminMsg) {
-                const area = document.getElementById('inbox-area');
-                area.classList.add('msg-active');
-                area.innerHTML = `<b>Pesan Reward:</b> ${adminMsg}`;
-            }
+            showNeonPopup("SELAMAT! SALDO +1.000 TELAH DITAMBAHKAN KE AKUN ANDA.");
+            setTimeout(() => { location.reload(); }, 2000);
         }
 
         function copyRef() {
             const code = document.getElementById('refCodeDisplay').innerText;
             navigator.clipboard.writeText(code);
-            alert("Kode Referral disalin: " + code);
+            showNeonPopup("KODE REFERRAL BERHASIL DISALIN KE CLIPBOARD!");
         }
 
-        window.onload = () => {
-            checkDaily();
-            loadInbox();
-        };
+        function loadInbox() {
+            const adminMsg = localStorage.getItem('inbox_admin'); 
+            if (adminMsg) {
+                const area = document.getElementById('inbox-area');
+                area.classList.add('msg-active');
+                area.innerHTML = `<b style="color:var(--neon-blue)">Pesan Reward:</b><br><span style="font-size:13px">${adminMsg}</span>`;
+            }
+        }
+
+        window.onload = () => { checkDaily(); loadInbox(); };
     </script>
 </body>
 </html>
