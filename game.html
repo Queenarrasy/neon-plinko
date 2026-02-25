@@ -3,166 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEON PLINKO - SALDO PERMAINAN</title>
+    <title>NEON PLINKO</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --neon-pink: #ff0077; --neon-blue: #00d4ff; --neon-gold: #fbff00; --bg-dark: #070816; }
-        body, html { background: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; height: 100vh; overflow: hidden; }
-        
-        /* HEADER AREA */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; }
-        .profile-btn { width: 45px; height: 45px; background: var(--neon-pink); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px var(--neon-pink); cursor: pointer; }
-        
-        .balance-box { 
-            background: #000; border: 2px solid var(--neon-blue); border-radius: 30px; 
-            padding: 5px 25px; text-align: center; box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
-        }
-        .balance-label { font-size: 8px; color: var(--neon-blue); font-weight: 900; letter-spacing: 1px; display: block; }
-        .balance-value { font-size: 18px; font-weight: 900; color: white; }
-
-        .reward-btn { width: 45px; height: 45px; background: var(--neon-gold); border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px var(--neon-gold); cursor: pointer; color: #000; font-size: 20px; }
-
-        /* MULTIPLIER SLOTS */
-        .multiplier-container { display: flex; justify-content: center; gap: 5px; margin-top: 50px; padding: 0 10px; }
-        .slot { flex: 1; padding: 10px 0; border-radius: 8px; text-align: center; font-weight: 900; font-size: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        .s5x { background: var(--neon-pink); }
-        .s2x { background: var(--neon-gold); color: #000; }
-        .s1-2x { background: #eaff00; color: #000; }
-        .s0-2x { background: var(--neon-blue); color: #000; }
-
-        /* NAVIGATION MENU */
-        .nav-menu { display: flex; justify-content: center; gap: 15px; margin-top: 30px; }
-        .nav-item { 
-            background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 15px; 
-            width: 85px; padding: 15px 0; text-align: center; cursor: pointer; transition: 0.3s;
-        }
-        .nav-item i { font-size: 24px; margin-bottom: 8px; display: block; }
-        .nav-item span { font-size: 10px; font-weight: 900; text-transform: uppercase; }
-        .t-tarik { color: var(--neon-gold); }
-        .t-depo { color: var(--neon-blue); }
-        .t-rank { color: var(--neon-pink); }
-
-        /* BETTING CONTROLS */
-        .bet-area { margin-top: 40px; text-align: center; }
-        .bet-box { 
-            display: inline-flex; align-items: center; background: #000; 
-            border-radius: 50px; padding: 5px; border: 2px solid #222; margin-bottom: 25px;
-        }
-        .bet-btn { width: 40px; height: 40px; background: none; border: none; color: var(--neon-blue); font-size: 24px; cursor: pointer; }
-        .bet-info { width: 120px; text-align: center; }
-        .bet-info small { display: block; font-size: 8px; color: #555; font-weight: 900; }
-        .bet-info span { font-size: 20px; font-weight: 900; color: var(--neon-gold); }
-
-        .btn-play { 
-            width: 80%; max-width: 300px; padding: 18px; border-radius: 50px; border: none;
-            background: linear-gradient(to right, #0084ff, #00d4ff);
-            color: white; font-size: 20px; font-weight: 900; text-transform: uppercase;
-            box-shadow: 0 0 30px var(--neon-blue); cursor: pointer;
-        }
-
-        /* POPUP */
-        #neon-popup { 
-            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-            width: 280px; background: #000; border: 2px solid var(--neon-blue); 
-            border-radius: 20px; padding: 25px; z-index: 10000; text-align: center; box-shadow: 0 0 50px var(--neon-blue);
-        }
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; }
+        body { background: var(--bg-dark); color: white; font-family: sans-serif; margin: 0; overflow: hidden; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px; }
+        .profile-btn { width: 45px; height: 45px; background: var(--neon-pink); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .balance-box { background: #000; border: 2px solid var(--neon-blue); border-radius: 30px; padding: 5px 20px; text-align: center; }
+        .balance-label { font-size: 8px; color: var(--neon-blue); font-weight: 900; display: block; }
+        .balance-value { font-size: 16px; font-weight: 900; }
+        .multiplier-container { display: flex; justify-content: center; gap: 5px; margin-top: 50px; }
+        .slot { flex: 1; padding: 8px 0; border-radius: 5px; text-align: center; font-size: 10px; font-weight: bold; background: var(--neon-pink); }
+        .nav-menu { display: flex; justify-content: center; gap: 10px; margin-top: 20px; }
+        .nav-item { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px; width: 80px; text-align: center; cursor: pointer; font-size: 10px; }
+        .btn-play { width: 80%; padding: 15px; border-radius: 50px; border: none; background: var(--neon-blue); color: black; font-weight: 900; margin-top: 30px; cursor: pointer; }
     </style>
 </head>
 <body>
-
-    <div class="overlay" id="overlay"></div>
-    <div id="neon-popup">
-        <div id="popup-msg" style="font-weight: bold; margin-bottom: 20px;">SALDO TIDAK CUKUP!</div>
-        <button onclick="closePopup()" style="background: var(--neon-blue); border: none; padding: 10px 25px; border-radius: 8px; font-weight: 900; cursor: pointer;">OKE</button>
-    </div>
-
     <div class="header">
         <div class="profile-btn" onclick="location.href='profil.html'"><i class="fa-solid fa-user"></i></div>
         <div class="balance-box">
             <span class="balance-label">SALDO PERMAINAN</span>
             <span class="balance-value" id="display-saldo">IDR 0</span>
         </div>
-        <div class="reward-btn" onclick="location.href='reward.html'"><i class="fa-solid fa-box-open"></i></div>
+        <div class="profile-btn" style="background:var(--neon-gold)" onclick="location.href='reward.html'"><i class="fa-solid fa-gift" style="color:black"></i></div>
     </div>
 
     <div class="multiplier-container">
-        <div class="slot s5x">5x</div>
-        <div class="slot s2x">2x</div>
-        <div class="slot s1-2x">1.2x</div>
-        <div class="slot s0-2x">0.2x</div>
-        <div class="slot s1-2x">1.2x</div>
-        <div class="slot s2x">2x</div>
-        <div class="slot s5x">5x</div>
+        <div class="slot">5x</div><div class="slot" style="background:var(--neon-gold); color:black">2x</div><div class="slot" style="background:var(--neon-blue); color:black">0.2x</div><div class="slot" style="background:var(--neon-gold); color:black">2x</div><div class="slot">5x</div>
     </div>
 
     <div class="nav-menu">
-        <div class="nav-item" onclick="location.href='tarik.html'">
-            <i class="fa-solid fa-hand-holding-dollar t-tarik"></i>
-            <span class="t-tarik">Tarik</span>
-        </div>
-        <div class="nav-item" onclick="location.href='deposit.html'">
-            <i class="fa-solid fa-bank t-depo"></i>
-            <span class="t-depo">Deposit</span>
-        </div>
-        <div class="nav-item" onclick="location.href='rank.html'">
-            <i class="fa-solid fa-crown t-rank"></i>
-            <span class="t-rank">Rank</span>
-        </div>
+        <div class="nav-item" onclick="location.href='tarik.html'">TARIK</div>
+        <div class="nav-item" onclick="location.href='deposit.html'">DEPOSIT</div>
     </div>
 
-    <div class="bet-area">
-        <div class="bet-box">
-            <button class="bet-btn" onclick="changeBet(-200)">-</button>
-            <div class="bet-info">
-                <small>TARUHAN</small>
-                <span id="bet-value">400</span>
-            </div>
-            <button class="bet-btn" onclick="changeBet(200)">+</button>
-        </div>
-        <br>
-        <button class="btn-play" onclick="playGame()">Mulai Main</button>
+    <div style="text-align: center; margin-top: 50px;">
+        <div style="color:var(--neon-gold); font-weight: bold; margin-bottom: 10px;">TARUHAN: 400</div>
+        <button class="btn-play" onclick="main()">MULAI MAIN</button>
     </div>
 
     <script src="global.js"></script>
     <script>
-        let currentBet = 400;
-
-        function changeBet(val) {
-            if (currentBet + val >= 200) {
-                currentBet += val;
-                document.getElementById('bet-value').innerText = currentBet;
-            }
-        }
-
-        function showNeonPopup(msg) {
-            document.getElementById('popup-msg').innerText = msg;
-            document.getElementById('neon-popup').style.display = 'block';
-            document.getElementById('overlay').style.display = 'block';
-        }
-
-        function closePopup() {
-            document.getElementById('neon-popup').style.display = 'none';
-            document.getElementById('overlay').style.display = 'none';
-        }
-
-        function playGame() {
-            // Gunakan fungsi dari global.js untuk memotong saldo permainan
-            if (updateSaldo(-currentBet)) {
-                // Simulasi Game: Bola jatuh
-                console.log("Bola dilepas dengan bet: " + currentBet);
-                
-                // Contoh: Simulasi menang acak setelah 2 detik
+        function main() {
+            if(updateSaldo(-400)) {
                 setTimeout(() => {
-                    const multipliers = [5, 2, 1.2, 0.2, 1.2, 2, 5];
-                    const winMult = multipliers[Math.floor(Math.random() * multipliers.length)];
-                    const winAmount = Math.floor(currentBet * winMult);
-                    
-                    updateSaldo(winAmount);
-                    showNeonPopup("BOLA MASUK KE " + winMult + "x! ANDA MENDAPATKAN IDR " + winAmount.toLocaleString());
-                }, 1500);
+                    let win = Math.random() > 0.5 ? 800 : 0;
+                    updateSaldo(win);
+                    alert(win > 0 ? "MENANG IDR 800!" : "ZONK!");
+                }, 1000);
             } else {
-                showNeonPopup("SALDO PERMAINAN TIDAK CUKUP!");
+                alert("Saldo tidak cukup!");
             }
         }
     </script>
