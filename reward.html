@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>REWARD REFERRAL - NEON PLINKO</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         :root { --pink: #ff0077; --blue: #00d4ff; --yellow: #fbff00; --bg: #070816; }
         body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; padding: 20px; }
@@ -21,7 +21,7 @@
         .reward-header p { font-size: 11px; color: #aaa; margin: 10px 0; line-height: 1.5; }
         .bonus-tag { background: var(--pink); color: white; padding: 5px 15px; border-radius: 50px; font-weight: 900; font-size: 12px; display: inline-block; }
 
-        /* REWARD CALCULATOR */
+        /* STATS */
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
         .stat-card { background: rgba(0,0,0,0.4); border: 1px solid #333; padding: 15px; border-radius: 15px; text-align: center; }
         .stat-card small { font-size: 9px; color: #888; text-transform: uppercase; }
@@ -30,10 +30,12 @@
         /* KLAIM BUTTON */
         .btn-claim { 
             width: 100%; padding: 18px; border-radius: 15px; border: none; font-weight: 900; font-size: 16px; 
-            text-transform: uppercase; cursor: pointer; transition: 0.3s; margin-bottom: 30px;
+            text-transform: uppercase; cursor: pointer; transition: 0.3s; margin-bottom: 10px;
         }
         .btn-active { background: var(--yellow); color: black; box-shadow: 0 0 20px var(--yellow); }
-        .btn-locked { background: #222; color: #555; cursor: not-allowed; border: 1px solid #333; }
+        .btn-locked { background: #1a1a1a; color: #444; cursor: not-allowed; border: 1px solid #333; }
+
+        .day-info { font-size: 10px; text-align: center; margin-bottom: 20px; font-weight: bold; }
 
         /* HISTORY LIST */
         .history-section h3 { font-size: 14px; color: var(--blue); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
@@ -41,23 +43,23 @@
             background: rgba(255,255,255,0.03); border: 1px solid #222; padding: 12px 15px; border-radius: 12px;
             display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
         }
-        .user-info b { font-size: 14px; display: block; }
-        .user-info small { font-size: 9px; color: #666; }
-        .status-badge { font-size: 9px; font-weight: 900; padding: 4px 8px; border-radius: 5px; text-transform: uppercase; }
+        .user-info b { font-size: 14px; display: block; color: #fff; }
+        .user-info small { font-size: 9px; color: #555; }
+        .status-badge { font-size: 9px; font-weight: 900; padding: 5px 10px; border-radius: 50px; text-transform: uppercase; }
+        
         .status-aktif { background: rgba(0, 255, 136, 0.1); color: #00ff88; border: 1px solid #00ff88; }
         .status-belum { background: rgba(255, 255, 255, 0.05); color: #777; border: 1px solid #444; }
 
-        /* ALERT NEON */
-        .day-info { font-size: 10px; color: var(--pink); font-weight: bold; text-align: center; margin-top: -10px; margin-bottom: 20px; }
+        #empty-state { text-align: center; padding: 40px 0; color: #444; font-size: 12px; }
     </style>
 </head>
 <body>
 
-    <a href="game.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> KEMBALI</a>
+    <a href="game.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> KEMBALI KE GAME</a>
 
     <div class="reward-header">
-        <h2>Program Referral VIP</h2>
-        <p>Ajak temanmu bergabung menggunakan Kode Referral-mu. Klaim bonus saldo setelah mereka melakukan deposit pertama!</p>
+        <h2>PROGRAM REFERRAL VIP</h2>
+        <p>Setiap teman yang mendaftar dan melakukan deposit pertama, Anda berhak mendapatkan bonus saldo.</p>
         <div class="bonus-tag">BONUS IDR 5.000 / TEMAN</div>
     </div>
 
@@ -72,31 +74,31 @@
         </div>
     </div>
 
-    <div id="day-warning" class="day-info"></div>
-    <button id="btn-klaim-reward" class="btn-claim btn-locked" onclick="prosesKlaim()">Klaim Saldo Reward</button>
+    <div id="day-warning" class="day-info" style="color: var(--pink);">
+        <i class="fa-solid fa-lock"></i> Klaim hanya tersedia hari Minggu
+    </div>
+    
+    <button id="btn-klaim-reward" class="btn-claim btn-locked">
+        KLAIM REWARD (MINGGU)
+    </button>
 
     <div class="history-section">
-        <h3><i class="fa-solid fa-users"></i> Riwayat Undangan</h3>
+        <h3><i class="fa-solid fa-users"></i> RIWAYAT UNDANGAN</h3>
         <div id="referral-list">
             </div>
     </div>
 
     <script src="global.js"></script>
     <script>
-        // Data Dummy untuk simulasi (Ini nantinya terhubung ke Database/LocalStorage pendaftaran)
-        // Format: Nama Akun, Apakah sudah Deposit?
-        const dummyReferrals = [
-            { username: "Player_Gacor22", deposit: true, date: "12/02/2026" },
-            { username: "NeonHunter", deposit: false, date: "13/02/2026" },
-            { username: "SlotMaster99", deposit: true, date: "14/02/2026" }
-        ];
-
-        function initReward() {
+        function renderRewardPage() {
             const listContainer = document.getElementById('referral-list');
             const btnKlaim = document.getElementById('btn-klaim-reward');
             const dayWarning = document.getElementById('day-warning');
             
-            // 1. Cek Hari (0 = Minggu)
+            // 1. Ambil Data Real dari Global.js (referral_database)
+            const databaseRef = JSON.parse(localStorage.getItem('referral_database')) || [];
+            
+            // 2. Cek Hari (0 = Minggu)
             const d = new Date();
             const isSunday = d.getDay() === 0;
 
@@ -104,54 +106,73 @@
                 btnKlaim.classList.remove('btn-locked');
                 btnKlaim.classList.add('btn-active');
                 btnKlaim.innerText = "KLAIM REWARD SEKARANG";
-                dayWarning.innerText = "HARI MINGGU TERBUKA! Silakan klaim reward Anda.";
+                btnKlaim.onclick = function() { kirimDataKeAdmin(databaseRef); };
+                dayWarning.innerHTML = '<i class="fa-solid fa-unlock"></i> HARI MINGGU: Gerbang klaim terbuka!';
                 dayWarning.style.color = "#00ff88";
-            } else {
-                btnKlaim.disabled = true;
-                btnKlaim.innerText = "TERKUNCI (HANYA HARI MINGGU)";
-                dayWarning.innerText = "Tombol klaim hanya terbuka setiap hari Minggu.";
             }
 
-            // 2. Hitung & Render Daftar
+            // 3. Render Daftar Undangan
+            if (databaseRef.length === 0) {
+                listContainer.innerHTML = '<div id="empty-state">Belum ada teman yang menggunakan kode Anda.</div>';
+                return;
+            }
+
             let totalAktif = 0;
             listContainer.innerHTML = "";
 
-            dummyReferrals.forEach(user => {
-                if(user.deposit) totalAktif++;
-                
+            databaseRef.forEach(user => {
+                // Status Aktif hanya jika user tsb sudah deposit (hasDeposited: true)
+                const isAktif = user.hasDeposited === true;
+                if (isAktif) totalAktif++;
+
                 listContainer.innerHTML += `
                     <div class="referral-item">
                         <div class="user-info">
-                            <b>${user.username}</b>
-                            <small>Terdaftar: ${user.date}</small>
+                            <b>${user.invitedUser}</b>
+                            <small>Join: ${user.date}</small>
                         </div>
-                        <span class="status-badge ${user.deposit ? 'status-aktif' : 'status-belum'}">
-                            ${user.deposit ? 'AKTIF' : 'BELUM AKTIF'}
+                        <span class="status-badge ${isAktif ? 'status-aktif' : 'status-belum'}">
+                            ${isAktif ? 'AKTIF' : 'BELUM AKTIF'}
                         </span>
                     </div>
                 `;
             });
 
-            document.getElementById('total-invite').innerText = dummyReferrals.length;
+            // 4. Update Angka Statistik
+            document.getElementById('total-invite').innerText = databaseRef.length;
             document.getElementById('total-reward').innerText = "IDR " + (totalAktif * 5000).toLocaleString();
         }
 
-        function prosesKlaim() {
-            const aktif = dummyReferrals.filter(u => u.deposit).length;
-            if(aktif === 0) {
-                alert("Tidak ada pengguna aktif untuk diklaim.");
+        function kirimDataKeAdmin(data) {
+            const userSekarang = localStorage.getItem('user_session') || "MEMBER_VIP";
+            const aktifOnly = data.filter(u => u.hasDeposited === true);
+            
+            if (aktifOnly.length === 0) {
+                alert("Anda belum memiliki undangan yang AKTIF (Sudah Deposit).");
                 return;
             }
 
-            // Simulasi kirim data ke Admin via WA atau Logs
-            const pesan = `Halo Admin, Saya ingin klaim Reward Referral.\nTotal Undangan Aktif: ${aktif}\nTotal Bonus: IDR ${aktif * 5000}`;
+            const totalBonus = aktifOnly.length * 5000;
+            const detailTeman = aktifOnly.map(u => u.invitedUser).join(", ");
+
+            const pesan = `HALO ADMIN NEON PLINKO\n` +
+                          `---------------------------\n` +
+                          `SAYA INGIN KLAIM REWARD REFERRAL\n` +
+                          `Username: ${userSekarang}\n` +
+                          `Total Teman Aktif: ${aktifOnly.length}\n` +
+                          `Bonus Diklaim: IDR ${totalBonus.toLocaleString()}\n` +
+                          `Daftar User: ${detailTeman}\n` +
+                          `---------------------------\n` +
+                          `Mohon dicek datanya, Terimakasih!`;
+
             const linkWA = `https://wa.me/6289510249551?text=${encodeURIComponent(pesan)}`;
             
-            alert("Data undangan Anda telah ditarik. Silakan konfirmasi ke Admin untuk pengecekan saldo.");
+            alert("Data sedang dikirim ke Admin untuk pengecekan riwayat deposit teman Anda.");
             window.open(linkWA, '_blank');
         }
 
-        window.onload = initReward;
+        // Jalankan fungsi saat halaman dimuat
+        window.onload = renderRewardPage;
     </script>
 </body>
 </html>
