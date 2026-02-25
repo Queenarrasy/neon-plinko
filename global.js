@@ -70,3 +70,64 @@ function checkReferralOnDeposit() {
 window.addEventListener('load', () => {
     updateSaldo(0);
 });
+
+// ============================================================
+// 5. SISTEM NOTIFIKASI NEON GLOBAL (AUTO-INJECT)
+// ============================================================
+
+// Memasukkan CSS Neon ke dalam Head secara otomatis
+const styleNeon = document.createElement('style');
+styleNeon.innerHTML = `
+    #neon-global-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.95); backdrop-filter: blur(10px);
+        display: none; justify-content: center; align-items: center; z-index: 9999999;
+        font-family: 'Segoe UI', sans-serif;
+    }
+    .neon-global-modal {
+        background: #050612; border: 2px solid #00d4ff; border-radius: 25px;
+        padding: 30px; text-align: center; width: 85%; max-width: 320px;
+        box-shadow: 0 0 40px rgba(0, 212, 255, 0.4);
+        animation: neonPopup 0.3s ease-out;
+    }
+    @keyframes neonPopup { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .neon-global-modal h2 { color: #fbff00; text-shadow: 0 0 10px #fbff00; margin: 0 0 15px 0; font-size: 22px; text-transform: uppercase; letter-spacing: 2px; }
+    .neon-global-modal p { color: #ffffff; line-height: 1.6; margin-bottom: 25px; font-size: 15px; }
+    .neon-global-btn {
+        background: transparent; border: 2px solid #ff0077; color: #ff0077;
+        padding: 12px 0; width: 100%; border-radius: 50px; font-weight: 900;
+        cursor: pointer; box-shadow: 0 0 15px #ff0077; text-transform: uppercase;
+        transition: 0.3s;
+    }
+    .neon-global-btn:hover { background: #ff0077; color: #000; }
+`;
+document.head.appendChild(styleNeon);
+
+// Memasukkan HTML Modal ke dalam Body secara otomatis
+const modalContainer = document.createElement('div');
+modalContainer.id = 'neon-global-overlay';
+modalContainer.innerHTML = `
+    <div class="neon-global-modal">
+        <h2 id="neon-title">INFO</h2>
+        <p id="neon-msg">Pesan sistem di sini.</p>
+        <button class="neon-global-btn" onclick="closeNeonAlert()">MENGERTI</button>
+    </div>
+`;
+document.body.appendChild(modalContainer);
+
+// Fungsi untuk menutup alert
+window.closeNeonAlert = function() {
+    document.getElementById('neon-global-overlay').style.display = 'none';
+};
+
+// Fungsi utama pemanggil modal
+window.showNeonAlert = function(msg, title = "INFO") {
+    document.getElementById('neon-title').innerText = title;
+    document.getElementById('neon-msg').innerText = msg;
+    document.getElementById('neon-global-overlay').style.display = 'flex';
+};
+
+// FORCE OVERRIDE: Mengganti fungsi alert() bawaan browser agar menggunakan tema Neon
+window.alert = function(message) {
+    showNeonAlert(message, "NOTIFIKASI");
+};
