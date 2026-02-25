@@ -57,9 +57,38 @@
 
         .win-popup { position: absolute; font-weight: 900; color: var(--yellow); text-shadow: 0 0 10px #000, 0 0 20px var(--yellow); pointer-events: none; z-index: 1000; animation: floatUp 1.2s ease-out forwards; font-size: 22px; }
         @keyframes floatUp { 0% { transform: translateY(0) scale(0.5); opacity: 0; } 20% { opacity: 1; transform: translateY(-15px) scale(1.1); } 100% { transform: translateY(-80px) scale(1); opacity: 0; } }
+
+        /* --- STYLES FOR CUSTOM NEON MODAL --- */
+        #neon-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px);
+            display: none; justify-content: center; align-items: center; z-index: 9999;
+        }
+        .neon-modal {
+            background: #0d0f26; border: 2px solid var(--pink); border-radius: 25px;
+            padding: 30px; width: 85%; max-width: 320px; text-align: center;
+            box-shadow: 0 0 30px var(--pink), inset 0 0 15px rgba(255, 0, 119, 0.2);
+            animation: modalIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes modalIn { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .neon-modal h2 { color: var(--pink); text-shadow: 0 0 10px var(--pink); margin-top: 0; letter-spacing: 2px; }
+        .neon-modal p { color: #fff; line-height: 1.5; margin-bottom: 25px; font-size: 15px; }
+        .neon-btn {
+            background: linear-gradient(90deg, var(--blue), #0088ff); border: none; padding: 12px 0; width: 100%;
+            border-radius: 50px; color: #000; font-weight: 900; cursor: pointer; box-shadow: 0 0 15px var(--blue);
+            text-transform: uppercase;
+        }
     </style>
 </head>
 <body>
+
+    <div id="neon-overlay">
+        <div class="neon-modal">
+            <h2 id="modal-title">INFO</h2>
+            <p id="modal-msg">Pesan sistem di sini.</p>
+            <button class="neon-btn" onclick="closeNeonModal()">MENGERTI</button>
+        </div>
+    </div>
 
     <div class="header">
         <i class="fa-solid fa-circle-user prof-link" onclick="location.href='profil.html'"></i>
@@ -117,6 +146,17 @@
 
     <script src="global.js"></script>
     <script>
+        // --- CUSTOM NEON MODAL LOGIC ---
+        function showNeonModal(msg, title = "PERHATIAN") {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-msg').innerText = msg;
+            document.getElementById('neon-overlay').style.display = 'flex';
+        }
+
+        function closeNeonModal() {
+            document.getElementById('neon-overlay').style.display = 'none';
+        }
+
         const bets = [400,600,800,1000,1200,1400,1600,1800,2000,4000,6000,8000,10000,12000,14000,16000,18000,20000];
         let betIdx = 3; 
         let isTurbo = false;
@@ -179,12 +219,6 @@
             startAuto();
         }
 
-        function stopGame() {
-            if(isAuto) toggleAuto();
-            activeBalls.forEach(b => b.el.remove());
-            activeBalls = [];
-        }
-
         function handlePlay() {
             isAlerting = false;
             if(isAuto) toggleAuto();
@@ -207,12 +241,11 @@
                 if (!isAlerting) {
                     isAlerting = true;
                     if(isAuto) toggleAuto();
-                    alert("Saldo Tidak Cukup!");
+                    showNeonModal("Saldo Anda tidak mencukupi untuk melanjutkan permainan!", "SALDO HABIS");
                 }
                 return;
             }
 
-            // ADMIN CONTROL: Kemenangan & Kekalahan
             const winRate = typeof getWinRate === "function" ? getWinRate() : 30;
             const isSettinganMenang = (Math.random() * 100) <= winRate;
 
@@ -252,38 +285,11 @@
                 ballObj.y += ballObj.vy * speedFactor;
                 ballObj.vx *= friction;
 
-                if (ballObj.inPegArea) {
-                    activeBalls.forEach(other => {
-                        if (other === ballObj || other.isFinished || !other.inPegArea) return;
-                        let dx = other.x - ballObj.x;
-                        let dy = other.y - ballObj.y;
-                        let dist = Math.sqrt(dx * dx + dy * dy);
-                        let minDist = ballObj.radius + other.radius;
-
-                        if (dist < minDist) {
-                            let angle = Math.atan2(dy, dx);
-                            let tx = ballObj.x + Math.cos(angle) * minDist;
-                            let ty = ballObj.y + Math.sin(angle) * minDist;
-                            let ax = (tx - other.x) * 0.08;
-                            let ay = (ty - other.y) * 0.08;
-
-                            ballObj.vx -= ax;
-                            ballObj.vy -= ay;
-                            other.vx += ax;
-                            other.vy += ay;
-                        }
-                    });
-                }
-
                 let targetY = (ballObj.row + 2) * 35;
                 if (ballObj.y >= targetY && ballObj.row < 7) {
                     ballObj.row++;
-                    // LOGIKA ADMIN: Jika isSettinganMenang true, bola menjauh dari tengah (target pinggir)
-                    // Jika false, bola dipaksa mendekat ke tengah (target multiplier 0.2x)
                     let dir = (isSettinganMenang) ? (ballObj.x > container.offsetWidth / 2 ? 1 : -1) : (ballObj.x > container.offsetWidth / 2 ? -1 : 1);
-                    
                     if (Math.random() > 0.8) dir *= -1; 
-                    
                     ballObj.vx += dir * (1.2 + Math.random() * 1.5);
                     ballObj.vy *= -bounce;
                     ballObj.y = targetY - 1;
