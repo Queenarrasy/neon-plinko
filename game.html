@@ -8,15 +8,22 @@
     <style>
         :root { --pink: #ff0077; --blue: #00d4ff; --yellow: #fbff00; --bg: #070816; }
         body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; overflow: hidden; }
+        
         .header { display: flex; justify-content: center; align-items: center; padding: 15px; position: relative; }
         .prof-link { position: absolute; left: 20px; font-size: 24px; color: var(--pink); cursor: pointer; }
         .balance-box { background: #000; border: 2px solid var(--blue); border-radius: 20px; padding: 5px 25px; text-align: center; min-width: 150px; box-shadow: 0 0 15px rgba(0,212,255,0.3); }
-        #tier-name { font-size: 8px; font-weight: 900; display: block; }
+        #tier-name { font-size: 8px; font-weight: 900; display: block; text-transform: uppercase; }
         #display-saldo { font-size: 18px; font-weight: 900; }
 
+        /* WIN SCORE BOARD */
+        .win-board { position: absolute; right: 10px; top: 80px; background: rgba(0,0,0,0.6); padding: 10px; border-radius: 10px; border: 1px solid var(--yellow); min-width: 80px; text-align: center; z-index: 100; }
+        .win-board small { font-size: 8px; color: var(--yellow); display: block; }
+        #last-win { font-weight: 900; color: #fff; font-size: 14px; }
+
         /* Plinko Board */
-        #game-container { position: relative; width: 100%; height: 350px; margin-top: 20px; }
-        .peg { position: absolute; width: 6px; height: 6px; background: white; border-radius: 50%; }
+        #game-container { position: relative; width: 100%; height: 320px; margin-top: 10px; }
+        .peg { position: absolute; width: 6px; height: 6px; background: white; border-radius: 50%; box-shadow: 0 0 5px #fff; }
+        .ball { position: absolute; width: 12px; height: 12px; background: var(--pink); border-radius: 50%; box-shadow: 0 0 10px var(--pink); z-index: 10; }
 
         /* Multipliers */
         .multipliers { display: flex; justify-content: center; gap: 4px; padding: 10px; }
@@ -26,15 +33,24 @@
         .m-blue { background: var(--blue); color: black; box-shadow: 0 0 10px var(--blue); }
 
         /* Nav Buttons */
-        .nav-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 0 15px; margin-top: 15px; }
-        .btn-nav { background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 15px 5px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.3s; }
+        .nav-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 0 15px; margin-top: 5px; }
+        .btn-nav { background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 12px 5px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.3s; }
         .btn-nav i { display: block; font-size: 20px; margin-bottom: 5px; }
         .c-pink { color: var(--pink); border-color: var(--pink); }
         .c-blue { color: var(--blue); border-color: var(--blue); }
         .c-yellow { color: var(--yellow); border-color: var(--yellow); }
 
-        .play-area { text-align: center; margin-top: 20px; }
-        .btn-main { width: 85%; padding: 18px; border-radius: 50px; border: none; font-weight: 900; font-size: 18px; text-transform: uppercase; cursor: pointer; background: linear-gradient(90deg, var(--pink), var(--blue)); box-shadow: 0 0 20px var(--pink); }
+        /* CONTROLS */
+        .play-area { text-align: center; padding: 10px 15px; }
+        .mode-toggles { display: flex; justify-content: center; gap: 10px; margin-bottom: 10px; }
+        .toggle { padding: 5px 15px; border-radius: 20px; font-size: 10px; font-weight: 900; cursor: pointer; border: 1px solid #333; background: #000; color: #555; }
+        .toggle.active { color: #fff; border-color: var(--pink); box-shadow: 0 0 10px var(--pink); }
+
+        .bet-selector { display: flex; align-items: center; justify-content: center; gap: 15px; background: #000; border-radius: 50px; padding: 5px; margin-bottom: 10px; border: 1px solid #333; }
+        .bet-btn { background: none; border: none; color: var(--blue); font-size: 20px; font-weight: 900; cursor: pointer; }
+
+        .btn-main { width: 100%; padding: 18px; border-radius: 50px; border: none; font-weight: 900; font-size: 18px; text-transform: uppercase; cursor: pointer; background: linear-gradient(90deg, var(--pink), var(--blue)); box-shadow: 0 0 20px var(--pink); color: white; }
+        .btn-main.auto-active { background: var(--yellow); color: #000; box-shadow: 0 0 20px var(--yellow); }
     </style>
 </head>
 <body>
@@ -42,9 +58,14 @@
     <div class="header">
         <i class="fa-solid fa-circle-user prof-link" onclick="location.href='profil.html'"></i>
         <div class="balance-box">
-            <span id="tier-name">BRONZE</span>
+            <span id="tier-name">LOADING...</span>
             <span id="display-saldo">IDR 0</span>
         </div>
+    </div>
+
+    <div class="win-board">
+        <small>LAST WIN</small>
+        <div id="last-win">IDR 0</div>
     </div>
 
     <div id="game-container"></div>
@@ -62,27 +83,50 @@
     <div class="nav-grid">
         <div class="btn-nav c-pink" onclick="location.href='withdraw.html'">
             <i class="fa-solid fa-money-bill-transfer"></i>
-            <span style="font-size: 9px; font-weight: 900;">WITHDRAW</span>
+            <span style="font-size: 8px; font-weight: 900;">WITHDRAW</span>
         </div>
         <div class="btn-nav c-blue" onclick="location.href='deposit.html'">
             <i class="fa-solid fa-building-columns"></i>
-            <span style="font-size: 9px; font-weight: 900;">DEPOSIT</span>
+            <span style="font-size: 8px; font-weight: 900;">DEPOSIT</span>
         </div>
         <div class="btn-nav c-yellow" onclick="location.href='reward.html'">
             <i class="fa-solid fa-trophy"></i>
-            <span style="font-size: 9px; font-weight: 900;">REWARD</span>
+            <span style="font-size: 8px; font-weight: 900;">REWARD</span>
         </div>
     </div>
 
     <div class="play-area">
-        <div style="color: var(--yellow); font-weight: 900; margin-bottom: 10px; font-size: 14px;">BET: IDR 1,000</div>
-        <button class="btn-main" onclick="dropBall()">MULAI MAIN</button>
+        <div class="mode-toggles">
+            <div id="btn-normal" class="toggle active" onclick="setSpeed('normal')">NORMAL</div>
+            <div id="btn-turbo" class="toggle" onclick="setSpeed('turbo')">TURBO</div>
+            <div id="btn-auto" class="toggle" onclick="toggleAuto()">AUTO</div>
+        </div>
+
+        <div class="bet-selector">
+            <button class="bet-btn" onclick="changeBet(-1)">-</button>
+            <div style="min-width: 120px;">
+                <small style="font-size: 8px; color: #666; display: block;">TARUHAN</small>
+                <span id="current-bet" style="font-weight: 900; color: var(--yellow);">1,000</span>
+            </div>
+            <button class="bet-btn" onclick="changeBet(1)">+</button>
+        </div>
+
+        <button class="btn-main" id="play-text" onclick="handlePlay()">MULAI MAIN</button>
     </div>
 
     <script src="global.js"></script>
     <script>
-        // Logika Board Plinko
+        // Konfigurasi Taruhan
+        const bets = [400,600,800,1000,1200,1400,1600,1800,2000,4000,6000,8000,10000,12000,14000,16000,18000,20000];
+        let betIdx = 3; 
+        let isTurbo = false;
+        let isAuto = false;
+        let autoInterval = null;
+
         const container = document.getElementById('game-container');
+        const slots = [5, 2, 1.2, 0.2, 1.2, 2, 5];
+
+        // Buat Paku Piramida
         for (let r = 2; r <= 8; r++) {
             for (let i = 0; i < r; i++) {
                 const peg = document.createElement('div');
@@ -92,7 +136,112 @@
                 container.appendChild(peg);
             }
         }
-        function dropBall() { if(updateSaldo(-1000)) { alert("Bola Meluncur!"); updateSaldo(Math.random() > 0.5 ? 2000 : 0); } else { alert("Saldo Habis!"); } }
+
+        function changeBet(dir) {
+            betIdx = Math.max(0, Math.min(bets.length - 1, betIdx + dir));
+            document.getElementById('current-bet').innerText = bets[betIdx].toLocaleString();
+        }
+
+        function setSpeed(mode) {
+            isTurbo = (mode === 'turbo');
+            document.getElementById('btn-normal').classList.toggle('active', !isTurbo);
+            document.getElementById('btn-turbo').classList.toggle('active', isTurbo);
+        }
+
+        function toggleAuto() {
+            isAuto = !isAuto;
+            document.getElementById('btn-auto').classList.toggle('active', isAuto);
+            const btn = document.getElementById('play-text');
+            if(isAuto) {
+                btn.innerText = "STOP AUTO";
+                btn.classList.add('auto-active');
+                startAuto();
+            } else {
+                btn.innerText = "MULAI MAIN";
+                btn.classList.remove('auto-active');
+                stopAuto();
+            }
+        }
+
+        function startAuto() {
+            dropBall();
+            autoInterval = setInterval(dropBall, isTurbo ? 400 : 1000);
+        }
+
+        function stopAuto() { clearInterval(autoInterval); }
+
+        function handlePlay() {
+            if(isAuto) toggleAuto();
+            else dropBall();
+        }
+
+        // LOGIKA BOLA TERKONTROL ADMIN
+        function dropBall() {
+            const currentBet = bets[betIdx];
+            if (!updateSaldo(-currentBet)) {
+                alert("Saldo Tidak Cukup!");
+                if(isAuto) toggleAuto();
+                return;
+            }
+
+            // Ambil Win Rate dari global.js
+            const winRate = typeof getWinRate === "function" ? getWinRate() : 30;
+            const isSettinganMenang = (Math.random() * 100) <= winRate;
+
+            const ball = document.createElement('div');
+            ball.className = 'ball';
+            let posX = container.offsetWidth / 2;
+            let posY = 15;
+            ball.style.left = posX + 'px';
+            ball.style.top = posY + 'px';
+            container.appendChild(ball);
+
+            let row = 0;
+            let idx = 0;
+            const speed = isTurbo ? 80 : 200;
+
+            const move = setInterval(() => {
+                row++;
+                posY += 40;
+                
+                let dir;
+                if (isSettinganMenang) {
+                    // Paksa bola menjauh dari tengah (target 5x atau 2x)
+                    dir = (idx >= 0) ? 1 : -1;
+                } else {
+                    // Paksa bola ke tengah (target 0.2x)
+                    dir = (idx > 0) ? -1 : 1;
+                }
+
+                // Beri variasi acak 20% agar gerakan tidak kaku
+                if (Math.random() > 0.8) dir = (Math.random() > 0.5 ? 1 : -1);
+
+                idx += dir * 0.5;
+                posX += dir * 18;
+
+                ball.style.top = posY + 'px';
+                ball.style.left = posX + 'px';
+
+                if (row >= 7) {
+                    clearInterval(move);
+                    setTimeout(() => {
+                        ball.remove();
+                        const finalIdx = Math.max(0, Math.min(6, Math.round(idx + 3)));
+                        const winMult = slots[finalIdx];
+                        const totalWin = currentBet * winMult;
+                        
+                        updateSaldo(totalWin);
+                        document.getElementById('last-win').innerText = "IDR " + totalWin.toLocaleString();
+                        
+                        // Efek cahaya kemenangan besar
+                        if(winMult >= 2) {
+                            document.body.style.boxShadow = "inset 0 0 50px var(--yellow)";
+                            setTimeout(() => document.body.style.boxShadow = "none", 500);
+                        }
+                    }, 100);
+                }
+            }, speed);
+        }
     </script>
 </body>
 </html>
