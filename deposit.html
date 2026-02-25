@@ -191,7 +191,6 @@
             if(!nom || nom < 20000) return showPopup("MINIMAL DEPOSIT IDR 20.000", true);
 
             const skrg = new Date();
-            // PERBAIKAN FORMAT WAKTU LENGKAP: Tgl/Bln/Thn Jam:Menit:Detik
             const d = String(skrg.getDate()).padStart(2, '0');
             const m = String(skrg.getMonth() + 1).padStart(2, '0');
             const y = skrg.getFullYear();
@@ -213,21 +212,14 @@
             riwayat.unshift(data);
             localStorage.setItem('riwayat_depo', JSON.stringify(riwayat));
 
+            // Notifikasi ke user bahwa data sudah dikirim ke admin
             showPopup("KONFIRMASI TERKIRIM! HARAP TUNGGU VALIDASI ADMIN.");
             document.getElementById('input-nominal').value = "";
             muatRiwayat();
 
-            setTimeout(() => {
-                let current = JSON.parse(localStorage.getItem('riwayat_depo')) || [];
-                let target = current.find(i => i.id === data.id);
-                if(target && target.status === "PENDING") {
-                    target.status = "SUKSES";
-                    localStorage.setItem('riwayat_depo', JSON.stringify(current));
-                    let saldoSkrg = parseInt(localStorage.getItem('saldo_permainan')) || 0;
-                    localStorage.setItem('saldo_permainan', saldoSkrg + data.jumlah);
-                    muatRiwayat();
-                }
-            }, 15000);
+            // FITUR OTOMATIS DIHAPUS UNTUK KEAMANAN
+            // Saldo tidak akan bertambah secara otomatis.
+            // Admin harus memvalidasi data ini secara manual.
         }
 
         function muatRiwayat() {
