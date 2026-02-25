@@ -223,6 +223,51 @@
         function startBall() {
             console.log("Bola dilepaskan...");
         }
-    </script>
+    </script>// --- KONTROL ADMIN (SETTING KEMENANGAN) ---
+const ADMIN_SETTINGS = {
+    winRate: 0.3, // 0.3 berarti 30% peluang masuk ke slot UNTUNG (Pink/Gold)
+    forceResult: null // Jika diisi (0-6), bola akan dipaksa masuk ke slot index tersebut
+};
+
+function determineFinalSlot() {
+    // Jika admin ingin memaksa hasil tertentu
+    if (ADMIN_SETTINGS.forceResult !== null) return ADMIN_SETTINGS.forceResult;
+
+    const rand = Math.random();
+    
+    // Logika Probabilitas:
+    // Slot Index: 0 (5x), 1 (2x), 2 (1.2x), 3 (0.2x), 4 (1.2x), 5 (2x), 6 (5x)
+    if (rand < ADMIN_SETTINGS.winRate) {
+        // Pilih salah satu slot UNTUNG secara acak (0, 1, 5, atau 6)
+        const winSlots = [0, 1, 5, 6];
+        return winSlots[Math.floor(Math.random() * winSlots.length)];
+    } else {
+        // Pilih slot RUGI/BALIK MODAL (2, 3, atau 4)
+        const loseSlots = [2, 3, 4];
+        return loseSlots[Math.floor(Math.random() * loseSlots.length)];
+    }
+}
+
+function startBall() {
+    const bet = parseInt(document.getElementById('betVal').innerText);
+    let balance = parseInt(localStorage.getItem('user_balance')) || 0;
+
+    if (balance < bet) {
+        alert("Saldo tidak cukup!");
+        return;
+    }
+
+    // Kurangi saldo
+    balance -= bet;
+    localStorage.setItem('user_balance', balance);
+    document.getElementById('balance').innerText = "IDR " + balance.toLocaleString();
+
+    // Tentukan hasil akhir berdasarkan setting admin
+    const targetSlot = determineFinalSlot();
+    
+    // Jalankan animasi bola menuju targetSlot tersebut
+    animateBallToSlot(targetSlot);
+}
+
 </body>
 </html>
