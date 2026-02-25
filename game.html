@@ -6,164 +6,93 @@
     <title>NEON PLINKO VIP</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --neon-pink: #ff0077; --neon-blue: #00d4ff; --neon-gold: #fbff00; --bg-dark: #070816; }
-        body { background: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; }
-        
-        /* HEADER */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; }
-        .balance-box { 
-            background: #000; border: 2px solid var(--neon-blue); border-radius: 20px; 
-            padding: 5px 15px; text-align: center; min-width: 130px;
-            box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
-        }
-        .balance-box #tier-name { font-size: 8px; font-weight: 900; letter-spacing: 1px; display: block; }
-        .balance-box #display-saldo { font-size: 16px; font-weight: 900; }
+        :root { --pink: #ff0077; --blue: #00d4ff; --yellow: #fbff00; --bg: #070816; }
+        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; overflow: hidden; }
+        .header { display: flex; justify-content: center; align-items: center; padding: 15px; position: relative; }
+        .prof-link { position: absolute; left: 20px; font-size: 24px; color: var(--pink); cursor: pointer; }
+        .balance-box { background: #000; border: 2px solid var(--blue); border-radius: 20px; padding: 5px 25px; text-align: center; min-width: 150px; box-shadow: 0 0 15px rgba(0,212,255,0.3); }
+        #tier-name { font-size: 8px; font-weight: 900; display: block; }
+        #display-saldo { font-size: 18px; font-weight: 900; }
 
-        .icon-btn { font-size: 24px; cursor: pointer; transition: 0.3s; }
-        .icon-btn:hover { transform: scale(1.1); }
+        /* Plinko Board */
+        #game-container { position: relative; width: 100%; height: 350px; margin-top: 20px; }
+        .peg { position: absolute; width: 6px; height: 6px; background: white; border-radius: 50%; }
 
-        /* PLINKO BOARD AREA */
-        #game-container { position: relative; width: 100%; height: 380px; margin-top: 10px; }
-        .peg { position: absolute; width: 6px; height: 6px; background: white; border-radius: 50%; box-shadow: 0 0 5px white; }
-        .ball { position: absolute; width: 12px; height: 12px; background: var(--neon-pink); border-radius: 50%; box-shadow: 0 0 10px var(--neon-pink); z-index: 10; }
+        /* Multipliers */
+        .multipliers { display: flex; justify-content: center; gap: 4px; padding: 10px; }
+        .slot { flex: 1; padding: 10px 0; border-radius: 6px; text-align: center; font-size: 10px; font-weight: 900; }
+        .m-pink { background: var(--pink); box-shadow: 0 0 10px var(--pink); }
+        .m-yellow { background: var(--yellow); color: black; box-shadow: 0 0 10px var(--yellow); }
+        .m-blue { background: var(--blue); color: black; box-shadow: 0 0 10px var(--blue); }
 
-        /* MULTIPLIER SLOTS - NEON THEME */
-        .multipliers { display: flex; justify-content: center; gap: 5px; padding: 10px; margin-top: 5px; }
-        .slot { 
-            flex: 1; padding: 10px 0; border-radius: 6px; text-align: center; 
-            font-size: 11px; font-weight: 900; text-shadow: 1px 1px 2px #000;
-        }
-        /* Warna Neon Berdasarkan Angka */
-        .m-high { background: var(--neon-pink); box-shadow: 0 0 10px var(--neon-pink); color: white; }
-        .m-mid { background: var(--neon-gold); box-shadow: 0 0 10px var(--neon-gold); color: black; }
-        .m-low { background: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); color: black; }
+        /* Nav Buttons */
+        .nav-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 0 15px; margin-top: 15px; }
+        .btn-nav { background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 15px 5px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.3s; }
+        .btn-nav i { display: block; font-size: 20px; margin-bottom: 5px; }
+        .c-pink { color: var(--pink); border-color: var(--pink); }
+        .c-blue { color: var(--blue); border-color: var(--blue); }
+        .c-yellow { color: var(--yellow); border-color: var(--yellow); }
 
-        /* NAVIGATION BUTTONS UNDER SLOTS */
-        .nav-container { 
-            display: flex; justify-content: center; gap: 10px; padding: 15px;
-            background: rgba(255,255,255,0.02); margin: 10px 15px; border-radius: 20px;
-        }
-        .btn-nav { 
-            flex: 1; padding: 12px 5px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);
-            background: #000; color: white; font-size: 10px; font-weight: 900; 
-            display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer;
-        }
-        .btn-nav i { font-size: 18px; }
-        .b-wd { color: var(--neon-pink); border-color: var(--neon-pink); }
-        .b-depo { color: var(--neon-blue); border-color: var(--neon-blue); }
-        .b-reward { color: var(--neon-gold); border-color: var(--neon-gold); }
-
-        /* BETTING CONTROLS */
-        .bet-controls { text-align: center; padding-top: 5px; }
-        .btn-play { 
-            width: 85%; padding: 18px; border-radius: 50px; background: linear-gradient(90deg, var(--neon-pink), var(--neon-blue));
-            color: white; font-weight: 900; border: none; cursor: pointer; 
-            box-shadow: 0 0 20px var(--neon-pink); text-transform: uppercase; font-size: 18px;
-        }
+        .play-area { text-align: center; margin-top: 20px; }
+        .btn-main { width: 85%; padding: 18px; border-radius: 50px; border: none; font-weight: 900; font-size: 18px; text-transform: uppercase; cursor: pointer; background: linear-gradient(90deg, var(--pink), var(--blue)); box-shadow: 0 0 20px var(--pink); }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="icon-btn" onclick="location.href='profil.html'"><i class="fa-solid fa-circle-user" style="color: var(--neon-pink);"></i></div>
+        <i class="fa-solid fa-circle-user prof-link" onclick="location.href='profil.html'"></i>
         <div class="balance-box">
-            <span id="tier-name">LOADING...</span>
+            <span id="tier-name">BRONZE</span>
             <span id="display-saldo">IDR 0</span>
         </div>
-        <div class="icon-btn" onclick="location.href='reward.html'"><i class="fa-solid fa-gift" style="color: var(--neon-gold);"></i></div>
     </div>
 
     <div id="game-container"></div>
 
     <div class="multipliers">
-        <div class="slot m-high">5x</div>
-        <div class="slot m-mid">2x</div>
-        <div class="slot m-low">1.2x</div>
-        <div class="slot m-low" style="background: #fff; color: #000;">0.2x</div>
-        <div class="slot m-low">1.2x</div>
-        <div class="slot m-mid">2x</div>
-        <div class="slot m-high">5x</div>
+        <div class="slot m-pink">5x</div>
+        <div class="slot m-yellow">2x</div>
+        <div class="slot m-blue">1.2x</div>
+        <div class="slot m-blue" style="background:#fff">0.2x</div>
+        <div class="slot m-blue">1.2x</div>
+        <div class="slot m-yellow">2x</div>
+        <div class="slot m-pink">5x</div>
     </div>
 
-    <div class="nav-container">
-        <div class="btn-nav b-wd" onclick="location.href='withdraw.html'">
+    <div class="nav-grid">
+        <div class="btn-nav c-pink" onclick="location.href='withdraw.html'">
             <i class="fa-solid fa-money-bill-transfer"></i>
-            WITHDRAW
+            <span style="font-size: 9px; font-weight: 900;">WITHDRAW</span>
         </div>
-        <div class="btn-nav b-depo" onclick="location.href='deposit.html'">
+        <div class="btn-nav c-blue" onclick="location.href='deposit.html'">
             <i class="fa-solid fa-building-columns"></i>
-            DEPOSIT
+            <span style="font-size: 9px; font-weight: 900;">DEPOSIT</span>
         </div>
-        <div class="btn-nav b-reward" onclick="location.href='reward.html'">
+        <div class="btn-nav c-yellow" onclick="location.href='reward.html'">
             <i class="fa-solid fa-trophy"></i>
-            REWARD
+            <span style="font-size: 9px; font-weight: 900;">REWARD</span>
         </div>
     </div>
 
-    <div class="bet-controls">
-        <div style="color: var(--neon-gold); font-weight: 900; margin-bottom: 10px; letter-spacing: 2px;">BET: IDR 1,000</div>
-        <button class="btn-play" onclick="dropBall()">Mulai Main</button>
+    <div class="play-area">
+        <div style="color: var(--yellow); font-weight: 900; margin-bottom: 10px; font-size: 14px;">BET: IDR 1,000</div>
+        <button class="btn-main" onclick="dropBall()">MULAI MAIN</button>
     </div>
 
     <script src="global.js"></script>
     <script>
+        // Logika Board Plinko
         const container = document.getElementById('game-container');
-        const rows = 8;
-        const slots = [5, 2, 1.2, 0.2, 1.2, 2, 5];
-
-        // Buat Paku Piramida
-        for (let r = 2; r <= rows; r++) {
+        for (let r = 2; r <= 8; r++) {
             for (let i = 0; i < r; i++) {
                 const peg = document.createElement('div');
                 peg.className = 'peg';
-                peg.style.top = (r * 42) + 'px';
-                peg.style.left = `calc(50% + ${(i - (r - 1) / 2) * 38}px)`;
+                peg.style.top = (r * 40) + 'px';
+                peg.style.left = `calc(50% + ${(i - (r - 1) / 2) * 36}px)`;
                 container.appendChild(peg);
             }
         }
-
-        function dropBall() {
-            if (!updateSaldo(-1000)) return alert("Saldo tidak cukup!");
-
-            const ball = document.createElement('div');
-            ball.className = 'ball';
-            let posX = container.offsetWidth / 2;
-            let posY = 20;
-            ball.style.left = posX + 'px';
-            ball.style.top = posY + 'px';
-            container.appendChild(ball);
-
-            let currentRow = 0;
-            let currentIdx = 0;
-
-            const interval = setInterval(() => {
-                currentRow++;
-                posY += 42;
-                const move = Math.random() > 0.5 ? 1 : -1;
-                currentIdx += move * 0.5;
-                posX += move * 19;
-
-                ball.style.top = posY + 'px';
-                ball.style.left = posX + 'px';
-
-                if (currentRow >= rows - 1) {
-                    clearInterval(interval);
-                    setTimeout(() => {
-                        ball.remove();
-                        const finalIdx = Math.round(currentIdx + 3);
-                        const safeIdx = Math.max(0, Math.min(6, finalIdx));
-                        const winMult = slots[safeIdx];
-                        updateSaldo(1000 * winMult);
-                        
-                        // Efek cahaya saat menang
-                        if(winMult >= 2) {
-                            document.body.style.boxShadow = "inset 0 0 50px var(--neon-gold)";
-                            setTimeout(() => document.body.style.boxShadow = "none", 500);
-                        }
-                    }, 100);
-                }
-            }, 150);
-        }
+        function dropBall() { if(updateSaldo(-1000)) { alert("Bola Meluncur!"); updateSaldo(Math.random() > 0.5 ? 2000 : 0); } else { alert("Saldo Habis!"); } }
     </script>
 </body>
 </html>
