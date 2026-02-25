@@ -1,3 +1,207 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NEON PLINKO VIP</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root { --pink: #ff0077; --blue: #00d4ff; --yellow: #fbff00; --bg: #070816; }
+        
+        body { 
+            background: var(--bg); 
+            color: white; 
+            font-family: sans-serif; 
+            margin: 0; 
+            overflow: hidden; 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            transition: box-shadow 0.3s;
+        }
+        
+        .header { display: flex; justify-content: center; align-items: center; padding: 10px; position: relative; flex-shrink: 0; }
+        .prof-link { position: absolute; left: 20px; font-size: 24px; color: var(--pink); cursor: pointer; }
+        .balance-box { background: #000; border: 2px solid var(--blue); border-radius: 20px; padding: 5px 20px; text-align: center; min-width: 140px; box-shadow: 0 0 15px rgba(0,212,255,0.3); }
+        #tier-name { font-size: 8px; font-weight: 900; display: block; text-transform: uppercase; }
+        #display-saldo { font-size: 16px; font-weight: 900; }
+
+        #game-container { position: relative; width: 100%; height: 280px; margin-top: 5px; flex-shrink: 0; }
+        .peg { position: absolute; width: 6px; height: 6px; background: white; border-radius: 50%; box-shadow: 0 0 5px #fff; transform: translate(-50%, -50%); }
+        .ball { position: absolute; width: 12px; height: 12px; background: var(--pink); border-radius: 50%; box-shadow: 0 0 10px var(--pink); z-index: 10; transform: translate(-50%, -50%); pointer-events: none; }
+
+        .multipliers { display: flex; justify-content: center; gap: 4px; padding: 0 15px; margin-top: 35px; flex-shrink: 0; }
+        .slot { flex: 1; padding: 8px 0; border-radius: 6px; text-align: center; font-size: 9px; font-weight: 900; max-width: 45px; }
+        .m-pink { background: var(--pink); box-shadow: 0 0 10px var(--pink); }
+        .m-yellow { background: var(--yellow); color: black; box-shadow: 0 0 10px var(--yellow); }
+        .m-blue { background: var(--blue); color: black; box-shadow: 0 0 10px var(--blue); }
+
+        .nav-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 0 20px; margin-top: 25px; flex-shrink: 0; }
+        .btn-nav { background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 10px 5px; border-radius: 12px; text-align: center; cursor: pointer; }
+        .btn-nav i { display: block; font-size: 18px; margin-bottom: 4px; }
+        .c-pink { color: var(--pink); border-color: var(--pink); }
+        .c-blue { color: var(--blue); border-color: var(--blue); }
+        .c-yellow { color: var(--yellow); border-color: var(--yellow); }
+
+        .play-area { text-align: center; padding: 10px 15px; flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; margin-top: 25px; }
+
+        .mode-toggles { display: flex; justify-content: center; gap: 5px; margin-bottom: 25px; }
+        .toggle { padding: 8px 12px; border-radius: 20px; font-size: 9px; font-weight: 900; cursor: pointer; border: 1px solid #333; background: #000; color: #555; }
+        .toggle.active { color: #fff; border-color: var(--pink); box-shadow: 0 0 10px var(--pink); }
+
+        .bet-selector { display: flex; align-items: center; justify-content: center; gap: 15px; background: #000; border-radius: 50px; padding: 6px; margin-bottom: 25px; border: 1px solid #333; width: 85%; margin-left: auto; margin-right: auto; }
+        .bet-btn { background: none; border: none; color: var(--blue); font-size: 20px; font-weight: 900; cursor: pointer; }
+
+        .btn-main { width: 100%; padding: 16px; border-radius: 50px; border: none; font-weight: 900; font-size: 16px; text-transform: uppercase; cursor: pointer; background: linear-gradient(90deg, var(--pink), var(--blue)); box-shadow: 0 0 20px var(--pink); color: white; }
+        .btn-main.auto-active { background: var(--yellow); color: #000; box-shadow: 0 0 20px var(--yellow); }
+
+        .win-popup { position: absolute; font-weight: 900; color: var(--yellow); text-shadow: 0 0 10px #000, 0 0 20px var(--yellow); pointer-events: none; z-index: 1000; animation: floatUp 1.2s ease-out forwards; font-size: 22px; }
+        @keyframes floatUp { 0% { transform: translateY(0) scale(0.5); opacity: 0; } 20% { opacity: 1; transform: translateY(-15px) scale(1.1); } 100% { transform: translateY(-80px) scale(1); opacity: 0; } }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <i class="fa-solid fa-circle-user prof-link" onclick="location.href='profil.html'"></i>
+        <div class="balance-box">
+            <span id="tier-name">LOADING...</span>
+            <span id="display-saldo">IDR 0</span>
+        </div>
+    </div>
+
+    <div id="game-container"></div>
+
+    <div class="multipliers">
+        <div class="slot m-pink">5x</div>
+        <div class="slot m-yellow">2x</div>
+        <div class="slot m-blue">1.2x</div>
+        <div class="slot m-blue" style="background:#fff">0.2x</div>
+        <div class="slot m-blue">1.2x</div>
+        <div class="slot m-yellow">2x</div>
+        <div class="slot m-pink">5x</div>
+    </div>
+
+    <div class="nav-grid">
+        <div class="btn-nav c-pink" onclick="location.href='withdraw.html'">
+            <i class="fa-solid fa-wallet"></i> 
+            <span style="font-size: 8px; font-weight: 900;">WITHDRAW</span>
+        </div>
+        <div class="btn-nav c-blue" onclick="location.href='deposit.html'">
+            <i class="fa-solid fa-building-columns"></i>
+            <span style="font-size: 8px; font-weight: 900;">DEPOSIT</span>
+        </div>
+        <div class="btn-nav c-yellow" onclick="location.href='reward.html'">
+            <i class="fa-solid fa-gift"></i>
+            <span style="font-size: 8px; font-weight: 900;">REWARD</span>
+        </div>
+    </div>
+
+    <div class="play-area">
+        <div class="mode-toggles">
+            <div id="btn-normal" class="toggle active" onclick="setSpeed('normal')">NORMAL</div>
+            <div id="btn-turbo" class="toggle" onclick="setSpeed('turbo')">TURBO</div>
+            <div id="btn-auto" class="toggle" onclick="toggleAuto()">AUTO</div>
+            <div id="btn-stop" class="toggle btn-stop" onclick="stopGame()">STOP</div>
+        </div>
+
+        <div class="bet-selector">
+            <button class="bet-btn" onclick="changeBet(-1)">-</button>
+            <div style="min-width: 100px;">
+                <small style="font-size: 7px; color: #666; display: block;">TARUHAN</small>
+                <span id="current-bet" style="font-weight: 900; color: var(--yellow); font-size: 15px;">1,000</span>
+            </div>
+            <button class="bet-btn" onclick="changeBet(1)">+</button>
+        </div>
+
+        <button class="btn-main" id="play-text" onclick="handlePlay()">MULAI MAIN</button>
+    </div>
+
+    <script src="global.js"></script>
+    <script>
+        const bets = [400,600,800,1000,1200,1400,1600,1800,2000,4000,6000,8000,10000,12000,14000,16000,18000,20000];
+        let betIdx = 3; 
+        let isTurbo = false;
+        let isAuto = false;
+        let autoInterval = null;
+        let isAlerting = false; 
+
+        const container = document.getElementById('game-container');
+        const slots = [5, 2, 1.2, 0.2, 1.2, 2, 5];
+
+        // Buat Paku
+        for (let r = 2; r <= 8; r++) {
+            for (let i = 0; i < r; i++) {
+                const peg = document.createElement('div');
+                peg.className = 'peg';
+                peg.style.top = (r * 35) + 'px'; 
+                peg.style.left = `calc(50% + ${(i - (r - 1) / 2) * 32}px)`;
+                container.appendChild(peg);
+            }
+        }
+
+        function changeBet(dir) {
+            betIdx = Math.max(0, Math.min(bets.length - 1, betIdx + dir));
+            document.getElementById('current-bet').innerText = bets[betIdx].toLocaleString();
+        }
+
+        function setSpeed(mode) {
+            isTurbo = (mode === 'turbo');
+            document.getElementById('btn-normal').classList.toggle('active', !isTurbo);
+            document.getElementById('btn-turbo').classList.toggle('active', isTurbo);
+            if(isAuto) { restartAuto(); }
+        }
+
+        function toggleAuto() {
+            isAuto = !isAuto;
+            isAlerting = false; 
+            const btn = document.getElementById('play-text');
+            document.getElementById('btn-auto').classList.toggle('active', isAuto);
+            
+            if(isAuto) {
+                btn.innerText = "STOP AUTO";
+                btn.classList.add('auto-active');
+                startAuto();
+            } else {
+                btn.innerText = "MULAI MAIN";
+                btn.classList.remove('auto-active');
+                stopAuto();
+            }
+        }
+
+        function startAuto() {
+            dropBall();
+            autoInterval = setInterval(dropBall, isTurbo ? 400 : 1000);
+        }
+
+        function stopAuto() { clearInterval(autoInterval); }
+
+        function restartAuto() {
+            stopAuto();
+            startAuto();
+        }
+
+        function stopGame() {
+            if(isAuto) toggleAuto();
+            const activeBalls = document.querySelectorAll('.ball');
+            activeBalls.forEach(b => b.remove());
+        }
+
+        function handlePlay() {
+            isAlerting = false;
+            if(isAuto) toggleAuto();
+            else dropBall();
+        }
+
+        function showFloatingWin(amount, x, y) {
+            const popup = document.createElement('div');
+            popup.className = 'win-popup';
+            popup.innerText = `+${amount.toLocaleString()}`;
+            popup.style.left = (x - 40) + 'px';
+            popup.style.top = (y - 20) + 'px';
+            document.body.appendChild(popup);
+            setTimeout(() => popup.remove(), 1200);
+        }
+
         function dropBall() {
             const currentBet = bets[betIdx];
             if (!updateSaldo(-currentBet)) {
@@ -21,77 +225,74 @@
             const ball = document.createElement('div');
             ball.className = 'ball';
             
-            // Start Position dengan variasi sedikit agar tidak kaku
-            let posX = (container.offsetWidth / 2) + (Math.random() * 4 - 2);
+            // Physics Variabel
+            let posX = container.offsetWidth / 2 + (Math.random() * 4 - 2); 
             let posY = 15;
-            let velocityX = 0;
-            let gravity = 0.8; // Efek berat
-            let friction = 0.95; // Gesekan udara
+            let vx = 0; // Velocity X
+            let vy = 0; // Velocity Y
+            let gravity = 0.25; // Berat bola
+            let bounce = 0.4; // Kekuatan pantulan
+            let friction = 0.98; // Gesekan udara
             
             ball.style.left = posX + 'px';
             ball.style.top = posY + 'px';
             container.appendChild(ball);
 
             let currentRow = 0;
-            let currentPathIdx = 0; // Melacak posisi relatif terhadap paku
             const totalRows = 7;
-            const frameRate = 1000 / 60; // 60 FPS untuk gerakan smooth
+            const speedFactor = isTurbo ? 2.5 : 1;
 
             const move = setInterval(() => {
-                // Simulasi Gravitasi & Kecepatan
-                posY += 4.5; // Kecepatan jatuh konstan tiap frame
-                
-                // Cek jika bola mencapai baris paku baru
-                let nextRowY = (currentRow + 2) * 35;
-                
-                if (posY >= nextRowY && currentRow < totalRows) {
+                // Terapkan Fisika
+                vy += gravity * speedFactor;
+                posX += vx * speedFactor;
+                posY += vy * speedFactor;
+                vx *= friction;
+
+                // Cek Tabrakan Paku (Deteksi baris)
+                let targetY = (currentRow + 2) * 35;
+                if (posY >= targetY && currentRow < totalRows) {
                     currentRow++;
                     
-                    // Logika Pantulan: Tentukan arah ke kiri (-1) atau kanan (1)
-                    let direction;
-                    
-                    // Logic keberuntungan vs settingan
+                    // Tentukan arah pantulan
+                    let dir;
                     if (isSettinganMenang) {
-                        // Cenderung ke arah pinggir (multiplier pink/5x)
-                        direction = (currentPathIdx >= 0) ? 1 : -1;
+                        dir = (posX > container.offsetWidth / 2) ? 1 : -1;
                     } else {
-                        // Cenderung ke tengah (multiplier putih/0.2x)
-                        direction = (currentPathIdx > 0) ? -1 : 1;
+                        dir = (posX > container.offsetWidth / 2) ? -1 : 1;
                     }
+                    
+                    // Berpencar/Acak sedikit
+                    if (Math.random() > 0.7) dir *= -1;
 
-                    // Tambahkan randomness agar bola "berpencar" tidak monoton
-                    if (Math.random() > 0.6) direction *= -1;
-
-                    // Beri dorongan horizontal (Impulse)
-                    velocityX = direction * (isTurbo ? 3.5 : 2.5);
-                    currentPathIdx += direction;
-
-                    // Efek visual paku bergetar sedikit (optional impact feel)
-                    posY -= 2; // Pantulan ke atas sedikit saat kena paku
+                    // Berikan Efek Pantulan (Rebound)
+                    vx = dir * (2 + Math.random() * 2); 
+                    vy *= -bounce; // Memantul ke atas sedikit
+                    posY = targetY - 2; // Hindari stuck di paku
                 }
 
-                // Update posisi horizontal dengan physics sederhana
-                posX += velocityX;
-                velocityX *= friction; // Bola melambat setelah memantul
-
-                ball.style.top = posY + 'px';
                 ball.style.left = posX + 'px';
+                ball.style.top = posY + 'px';
 
-                // Jika sudah melewati semua baris
-                if (currentRow >= totalRows && posY > (totalRows + 2) * 35 + 10) {
+                // Mencapai bagian multiplier
+                if (posY > 320) {
                     clearInterval(move);
                     
-                    // Snap bola agar masuk ke tengah kotak
-                    const containerWidth = container.offsetWidth;
-                    const slotWidth = containerWidth / 7;
-                    const finalIdx = Math.max(0, Math.min(6, Math.round(currentPathIdx + 3)));
-                    
-                    // Animasi masuk ke kotak
-                    ball.style.transition = "all 0.3s ease-out";
-                    ball.style.left = `calc(50% + ${(finalIdx - 3) * (containerWidth / 10)}px)`;
-                    
+                    // Hitung slot tujuan (0-6)
+                    let centerOffset = posX - (container.offsetWidth / 2);
+                    let finalIdx = Math.round(centerOffset / 32 + 3);
+                    finalIdx = Math.max(0, Math.min(6, finalIdx));
+
+                    // Animasi masuk kotak dengan smooth
+                    const slotElems = document.querySelectorAll('.slot');
+                    const targetSlot = slotElems[finalIdx].getBoundingClientRect();
+                    const ballRect = ball.getBoundingClientRect();
+
+                    ball.style.transition = "all 0.2s ease-out";
+                    ball.style.left = (container.offsetWidth / 2 + (finalIdx - 3) * 44) + "px";
+                    ball.style.top = "335px";
+
                     setTimeout(() => {
-                        const ballRect = ball.getBoundingClientRect();
                         ball.remove();
                         const winMult = slots[finalIdx];
                         const totalWin = currentBet * winMult;
@@ -106,7 +307,10 @@
                             document.body.style.boxShadow = "inset 0 0 50px var(--yellow)";
                             setTimeout(() => document.body.style.boxShadow = "none", 500);
                         }
-                    }, 150);
+                    }, 200);
                 }
-            }, isTurbo ? 10 : 16); // Durasi per frame (Turbo lebih cepat)
+            }, 16); // 60 FPS
         }
+    </script>
+</body>
+</html>
