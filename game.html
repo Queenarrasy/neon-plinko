@@ -7,112 +7,93 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --neon-pink: #ff0077; --neon-blue: #00d4ff; --neon-gold: #fbff00; --bg-dark: #070816; }
-        body, html { 
-            background: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif; 
-            margin: 0; padding: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; 
-        }
+        body, html { background: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; }
         
-        /* HEADER */
+        /* HEADER & SALDO */
         .header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; box-sizing: border-box; }
-        .nav-icon { 
-            width: 45px; height: 45px; border: 2px solid var(--neon-pink); border-radius: 12px;
-            display: flex; align-items: center; justify-content: center; background: rgba(255,0,119,0.1);
-            animation: pulsePink 2s infinite; cursor: pointer;
+        .saldo-display { background: rgba(0,0,0,0.8); border: 2px solid var(--neon-blue); border-radius: 20px; padding: 5px 15px; text-align: center; box-shadow: 0 0 15px var(--neon-blue); }
+
+        /* PAPAN SKOR KEMENANGAN (FLOATING SCORE) */
+        #win-popup-container { position: absolute; top: 100px; width: 100%; pointer-events: none; display: flex; flex-direction: column; align-items: center; z-index: 1000; }
+        .win-popup { 
+            color: var(--neon-gold); font-size: 24px; font-weight: 900; text-shadow: 0 0 10px var(--neon-gold);
+            animation: floatUp 1.5s forwards; opacity: 0;
         }
-        @keyframes pulsePink { 0% { box-shadow: 0 0 5px var(--neon-pink); } 50% { box-shadow: 0 0 15px var(--neon-pink); } 100% { box-shadow: 0 0 5px var(--neon-pink); } }
-        
-        .saldo-display { 
-            background: rgba(0,0,0,0.8); border: 2px solid var(--neon-blue); border-radius: 20px; 
-            padding: 5px 15px; text-align: center; box-shadow: 0 0 15px var(--neon-blue);
+        @keyframes floatUp { 
+            0% { transform: translateY(0); opacity: 1; } 
+            100% { transform: translateY(-100px); opacity: 0; } 
         }
 
-        /* GAME BOARD */
-        #game-area { position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; flex-grow: 1; }
-        canvas { background: transparent; max-width: 100%; }
+        /* GRID TOMBOL */
+        .action-nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 92%; margin: 15px 0; }
+        .nav-card { background: rgba(255,255,255,0.05); border-radius: 15px; padding: 12px 5px; text-align: center; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; }
+        .nav-card i { font-size: 24px; margin-bottom: 8px; display: block; filter: drop-shadow(0 0 5px var(--neon-blue)); }
+        .nav-card span { font-size: 10px; font-weight: 900; color: var(--neon-pink); text-transform: uppercase; text-shadow: 0 0 8px var(--neon-pink); }
 
-        /* SLOTS */
+        /* MULTIPLIER & BET */
         .multiplier-bar { display: flex; justify-content: center; gap: 4px; width: 95%; margin: 5px 0; }
-        .m-slot { 
-            flex: 1; padding: 8px 0; font-size: 10px; font-weight: 900; text-align: center; 
-            border-radius: 6px; color: white; text-shadow: 0 0 5px black;
-        }
+        .m-slot { flex: 1; padding: 8px 0; font-size: 10px; font-weight: 900; text-align: center; border-radius: 6px; color: white; }
         .pink { background: var(--neon-pink); } .gold { background: var(--neon-gold); color: black; } .blue { background: var(--neon-blue); color: black; }
 
-        /* TOMBOL NAVIGASI */
-        .action-nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 92%; margin: 15px 0; }
-        .nav-card { 
-            background: rgba(255,255,255,0.05); border-radius: 15px; padding: 12px 5px; 
-            text-align: center; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;
-        }
-        .nav-card i { font-size: 24px; margin-bottom: 8px; display: block; filter: drop-shadow(0 0 5px var(--neon-blue)); }
-        .nav-card span { 
-            font-size: 10px; font-weight: 900; color: var(--neon-pink); 
-            text-transform: uppercase; text-shadow: 0 0 8px var(--neon-pink);
-        }
-
-        /* CONTROLS */
-        .bet-area { 
-            background: rgba(0,0,0,0.6); border-radius: 30px; display: flex; 
-            align-items: center; padding: 5px 20px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.1); 
-        }
-        .btn-spin { 
-            width: 85%; padding: 18px; background: linear-gradient(180deg, var(--neon-blue), #0055ff); 
-            border: none; border-radius: 40px; color: white; font-size: 20px; font-weight: 900; 
-            box-shadow: 0 0 25px rgba(0, 212, 255, 0.5); cursor: pointer; margin-bottom: 20px;
-        }
+        .bet-area { background: rgba(0,0,0,0.6); border-radius: 30px; display: flex; align-items: center; padding: 5px 20px; border: 1px solid rgba(255,255,255,0.1); }
+        .btn-spin { width: 85%; padding: 18px; background: linear-gradient(180deg, var(--neon-blue), #0055ff); border: none; border-radius: 40px; color: white; font-size: 20px; font-weight: 900; box-shadow: 0 0 25px rgba(0, 212, 255, 0.5); cursor: pointer; margin-top: 15px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
+    <div id="win-popup-container"></div>
+
     <div class="header">
-        <div class="nav-icon" onclick="location.href='profile.html'"><i class="fa-solid fa-user-ninja" style="color:white; font-size:22px;"></i></div>
+        <div class="nav-card" style="border:none; background:none; padding:0;" onclick="location.href='profile.html'">
+            <i class="fa-solid fa-circle-user" style="font-size: 40px; color: var(--neon-pink);"></i>
+        </div>
         <div class="saldo-display">
             <small style="color: var(--neon-blue); font-size: 8px; font-weight: bold; display: block;">SALDO VIP</small>
             <div id="balance-display" style="font-size: 18px; font-weight: 900;">100.000</div>
         </div>
-        <div class="nav-icon" style="border-color:var(--neon-gold);" onclick="location.href='reward.html'"><i class="fa-solid fa-gift" style="color:var(--neon-gold); font-size:22px;"></i></div>
+        <div class="nav-card" style="border:none; background:none; padding:0;" onclick="location.href='reward.html'">
+            <i class="fa-solid fa-box-open" style="font-size: 35px; color: var(--neon-gold);"></i>
+        </div>
     </div>
 
-    <div id="game-area">
-        <canvas id="plinkoCanvas"></canvas>
+    <canvas id="plinkoCanvas"></canvas>
 
-        <div class="multiplier-bar">
-            <div class="m-slot pink">5x</div><div class="m-slot gold">2x</div><div class="m-slot gold">1.2x</div>
-            <div class="m-slot blue">0.2x</div>
-            <div class="m-slot gold">1.2x</div><div class="m-slot gold">2x</div><div class="m-slot pink">5x</div>
-        </div>
-
-        <div class="action-nav">
-            <div class="nav-card" onclick="location.href='withdraw.html'">
-                <i class="fa-solid fa-money-bill-trend-up" style="color:var(--neon-gold);"></i>
-                <span>Tarik</span>
-            </div>
-            <div class="nav-card" onclick="location.href='deposit.html'">
-                <i class="fa-solid fa-wallet" style="color:var(--neon-blue);"></i>
-                <span>Deposit</span>
-            </div>
-            <div class="nav-card" onclick="location.href='rank.html'">
-                <i class="fa-solid fa-trophy" style="color:var(--neon-gold);"></i>
-                <span>Rank</span>
-            </div>
-        </div>
-
-        <div class="bet-area">
-            <button onclick="changeBet(-1)" style="background:none; border:none; color:var(--neon-blue); font-size:30px; cursor:pointer;">-</button>
-            <div style="text-align: center; min-width: 140px;">
-                <small style="color:#666; display:block; font-size: 8px;">TARUHAN</small>
-                <span id="bet-display" style="font-size: 20px; font-weight: 900; color: var(--neon-gold);">400</span>
-            </div>
-            <button onclick="changeBet(1)" style="background:none; border:none; color:var(--neon-blue); font-size:30px; cursor:pointer;">+</button>
-        </div>
-
-        <button class="btn-spin" onclick="dropBall()">MULAI MAIN</button>
+    <div class="multiplier-bar">
+        <div class="m-slot pink">5x</div><div class="m-slot gold">2x</div><div class="m-slot gold">1.2x</div>
+        <div class="m-slot blue">0.2x</div>
+        <div class="m-slot gold">1.2x</div><div class="m-slot gold">2x</div><div class="m-slot pink">5x</div>
     </div>
+
+    <div class="action-nav">
+        <div class="nav-card" onclick="location.href='withdraw.html'">
+            <i class="fa-solid fa-hand-holding-dollar" style="color:var(--neon-gold);"></i>
+            <span>Tarik</span>
+        </div>
+        <div class="nav-card" onclick="location.href='deposit.html'">
+            <i class="fa-solid fa-building-columns" style="color:var(--neon-blue);"></i>
+            <span>Deposit</span>
+        </div>
+        <div class="nav-card" onclick="location.href='rank.html'">
+            <i class="fa-solid fa-crown" style="color:var(--neon-gold);"></i>
+            <span>Rank</span>
+        </div>
+    </div>
+
+    <div class="bet-area">
+        <button onclick="changeBet(-1)" style="background:none; border:none; color:var(--neon-blue); font-size:30px;">-</button>
+        <div style="text-align: center; min-width: 140px;">
+            <small style="color:#666; display:block; font-size: 8px;">TARUHAN</small>
+            <span id="bet-display" style="font-size: 20px; font-weight: 900; color: var(--neon-gold);">400</span>
+        </div>
+        <button onclick="changeBet(1)" style="background:none; border:none; color:var(--neon-blue); font-size:30px;">+</button>
+    </div>
+
+    <button class="btn-spin" onclick="dropBall()">MULAI MAIN</button>
 
     <script>
         const canvas = document.getElementById('plinkoCanvas');
         const ctx = canvas.getContext('2d');
-        canvas.width = 340; canvas.height = 360;
+        canvas.width = 340; canvas.height = 320;
 
         const betLevels = [400, 600, 800, 1000, 1200, 1600, 1800, 2000, 4000, 6000, 8000, 10000, 12000, 16000, 18000, 20000];
         let betIdx = 0;
@@ -121,10 +102,9 @@
         const pins = [];
         const multipliers = [5, 2, 1.2, 0.2, 1.2, 2, 5];
 
-        // Paku Board
         for (let r = 2; r <= 10; r++) {
             for (let i = 0; i < r; i++) {
-                pins.push({ x: canvas.width/2 + (i - (r-1)/2)*28, y: r*28 + 20 });
+                pins.push({ x: canvas.width/2 + (i - (r-1)/2)*28, y: r*25 + 10 });
             }
         }
 
@@ -134,49 +114,55 @@
         }
 
         function dropBall() {
-            if (balance < betLevels[betIdx]) return alert("Saldo Kurang!");
-            balance -= betLevels[betIdx];
+            let currentBet = betLevels[betIdx];
+            if (balance < currentBet) return alert("Saldo Kurang!");
+            
+            // Pengurangan Saldo Saat Bermain
+            balance -= currentBet;
             updateUI();
             
-            balls.push({
-                x: canvas.width / 2 + (Math.random() * 4 - 2),
-                y: 20, vx: 0, vy: 1.5, radius: 7
-            });
+            balls.push({ x: canvas.width/2 + (Math.random()*2-1), y: 10, vx: 0, vy: 2, radius: 7 });
+        }
+
+        function showWinPopup(amount) {
+            const container = document.getElementById('win-popup-container');
+            const popup = document.createElement('div');
+            popup.className = 'win-popup';
+            popup.innerText = `+IDR ${amount.toLocaleString()}`;
+            container.appendChild(popup);
+            setTimeout(() => popup.remove(), 1500);
         }
 
         function update() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw Pins
             ctx.fillStyle = "white";
-            pins.forEach(p => {
-                ctx.beginPath(); ctx.arc(p.x, p.y, 2.5, 0, Math.PI*2); ctx.fill();
-            });
+            pins.forEach(p => { ctx.beginPath(); ctx.arc(p.x, p.y, 2.5, 0, Math.PI*2); ctx.fill(); });
 
-            // Physics Bola
             for (let i = balls.length - 1; i >= 0; i--) {
                 let b = balls[i];
-                b.vy += 0.15; b.y += b.vy; b.x += b.vx;
+                b.vy += 0.2; b.y += b.vy; b.x += b.vx;
 
                 pins.forEach(p => {
                     let dx = b.x - p.x; let dy = b.y - p.y;
                     let dist = Math.sqrt(dx*dx + dy*dy);
                     if (dist < 10) {
-                        b.vx = (dx / dist) * 2;
-                        b.vy *= -0.5; b.y = p.y + 10;
+                        b.vx = (dx / dist) * 2.5; b.vy *= -0.5; b.y = p.y + 10;
                     }
                 });
 
-                // Render Bola Neon
                 ctx.fillStyle = "#00d4ff";
-                ctx.shadowBlur = 15; ctx.shadowColor = "#00d4ff";
+                ctx.shadowBlur = 10; ctx.shadowColor = "#00d4ff";
                 ctx.beginPath(); ctx.arc(b.x, b.y, b.radius, 0, Math.PI*2); ctx.fill();
                 ctx.shadowBlur = 0;
 
                 if (b.y > canvas.height) {
                     let idx = Math.floor(b.x / (canvas.width / 7));
                     idx = Math.max(0, Math.min(6, idx));
-                    balance += betLevels[betIdx] * multipliers[idx];
+                    
+                    // Penambahan Saldo Sesuai Kemenangan
+                    let winAmount = betLevels[betIdx] * multipliers[idx];
+                    balance += winAmount;
+                    showWinPopup(winAmount); // Menampilkan papan skor kemenangan
                     updateUI();
                     balls.splice(i, 1);
                 }
