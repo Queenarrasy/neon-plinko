@@ -195,6 +195,7 @@
             const label = document.getElementById('form-label');
             const btnText = document.getElementById('btn-text');
             const switchLink = document.getElementById('auth-switch');
+            const userInput = document.getElementById('username');
 
             if (isLogin) {
                 extraFields.style.display = 'none';
@@ -202,12 +203,14 @@
                 label.innerText = "LOGIN MEMBER";
                 btnText.innerText = "Masuk Sekarang";
                 switchLink.innerHTML = "Belum punya akun? <b>Daftar Akun VIP</b>";
+                userInput.placeholder = "masukkan username anda";
             } else {
                 extraFields.style.display = 'block';
                 refGroup.style.display = 'block'; 
                 label.innerText = "PENDAFTARAN";
                 btnText.innerText = "Daftar Sekarang";
                 switchLink.innerHTML = "Sudah punya akun? <b>Login di sini</b>";
+                userInput.placeholder = "Buat username unik";
             }
         }
 
