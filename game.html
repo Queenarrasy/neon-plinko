@@ -124,7 +124,7 @@
         let isAuto = false;
         let autoInterval = null;
         let isAlerting = false; 
-        let activeBalls = []; // Simpan data bola untuk deteksi tabrakan
+        let activeBalls = [];
 
         const container = document.getElementById('game-container');
         const slots = [5, 2, 1.2, 0.2, 1.2, 2, 5];
@@ -233,7 +233,8 @@
                 vy: 0,
                 row: 0,
                 radius: 6,
-                isFinished: false
+                isFinished: false,
+                inPegArea: true // Deteksi apakah masih di area paku
             };
 
             ballEl.style.left = ballObj.x + 'px';
@@ -252,53 +253,54 @@
                     return;
                 }
 
-                // 1. Fisika Dasar
                 ballObj.vy += gravity * speedFactor;
                 ballObj.x += ballObj.vx * speedFactor;
                 ballObj.y += ballObj.vy * speedFactor;
                 ballObj.vx *= friction;
 
-                // 2. Deteksi Tabrakan Antar Bola (Realistis)
-                activeBalls.forEach(other => {
-                    if (other === ballObj || other.isFinished) return;
-                    let dx = other.x - ballObj.x;
-                    let dy = other.y - ballObj.y;
-                    let dist = Math.sqrt(dx * dx + dy * dy);
-                    let minDist = ballObj.radius + other.radius;
+                // FIX: Tabrakan antar bola HANYA jika inPegArea = true
+                if (ballObj.inPegArea) {
+                    activeBalls.forEach(other => {
+                        if (other === ballObj || other.isFinished || !other.inPegArea) return;
+                        let dx = other.x - ballObj.x;
+                        let dy = other.y - ballObj.y;
+                        let dist = Math.sqrt(dx * dx + dy * dy);
+                        let minDist = ballObj.radius + other.radius;
 
-                    if (dist < minDist) {
-                        // Reaksi tabrakan
-                        let angle = Math.atan2(dy, dx);
-                        let tx = ballObj.x + Math.cos(angle) * minDist;
-                        let ty = ballObj.y + Math.sin(angle) * minDist;
-                        let ax = (tx - other.x) * 0.1;
-                        let ay = (ty - other.y) * 0.1;
+                        if (dist < minDist) {
+                            let angle = Math.atan2(dy, dx);
+                            let tx = ballObj.x + Math.cos(angle) * minDist;
+                            let ty = ballObj.y + Math.sin(angle) * minDist;
+                            let ax = (tx - other.x) * 0.08; // Dibuat lebih lembut (0.08)
+                            let ay = (ty - other.y) * 0.08;
 
-                        ballObj.vx -= ax;
-                        ballObj.vy -= ay;
-                        other.vx += ax;
-                        other.vy += ay;
-                    }
-                });
+                            ballObj.vx -= ax;
+                            ballObj.vy -= ay;
+                            other.vx += ax;
+                            other.vy += ay;
+                        }
+                    });
+                }
 
-                // 3. Tabrakan Paku
                 let targetY = (ballObj.row + 2) * 35;
                 if (ballObj.y >= targetY && ballObj.row < 7) {
                     ballObj.row++;
                     let dir = (isSettinganMenang) ? (ballObj.x > container.offsetWidth / 2 ? 1 : -1) : (ballObj.x > container.offsetWidth / 2 ? -1 : 1);
+                    if (Math.random() > 0.8) dir *= -1; 
                     
-                    // Logic Berpencar vs Lurus
-                    if (Math.random() > 0.8) dir *= -1; // 20% kemungkinan arah terbalik agar acak
-                    
-                    ballObj.vx += dir * (1.5 + Math.random() * 2);
+                    ballObj.vx += dir * (1.2 + Math.random() * 1.5); // Power seimbang
                     ballObj.vy *= -bounce;
                     ballObj.y = targetY - 1;
+                }
+
+                // Jika sudah melewati paku terakhir, matikan deteksi tabrakan
+                if (ballObj.row >= 7) {
+                    ballObj.inPegArea = false;
                 }
 
                 ballEl.style.left = ballObj.x + 'px';
                 ballEl.style.top = ballObj.y + 'px';
 
-                // 4. Masuk Slot Multiplier
                 if (ballObj.y > 320) {
                     ballObj.isFinished = true;
                     clearInterval(move);
