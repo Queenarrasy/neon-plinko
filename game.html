@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEON PLINKO VIP - GAME</title>
+    <title>NEON PLINKO VIP</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -13,112 +13,148 @@
         body, html {
             background: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif;
             margin: 0; padding: 0; height: 100vh; overflow: hidden;
+            display: flex; flex-direction: column; align-items: center;
         }
 
-        /* HEADER & TOMBOL ATAS */
-        .top-nav {
-            position: relative; z-index: 1000; /* Memastikan tombol di atas canvas */
+        /* HEADER */
+        .header {
             width: 100%; display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 20px; box-sizing: border-box;
+            padding: 15px 20px; box-sizing: border-box; position: relative; z-index: 10;
         }
+        .p-img { width: 55px; height: 55px; border-radius: 50%; border: 3px solid var(--neon-pink); cursor: pointer; }
+        .saldo-box { 
+            background: rgba(0,0,0,0.8); border: 2px solid var(--neon-blue); 
+            border-radius: 20px; padding: 5px 20px; text-align: center; min-width: 120px;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+        }
+
+        /* JUDUL NEON TEBAL */
+        .title-container { text-align: center; margin: 10px 0; }
+        .neon-title { 
+            font-size: 28px; font-weight: 900; color: var(--neon-blue); 
+            text-transform: uppercase; margin: 0;
+            text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
+        }
+        .sub-tile { font-size: 10px; color: #888; letter-spacing: 3px; font-weight: bold; }
+
+        /* GRID MENU 6 TOMBOL (SESUAI GAMBAR BARU) */
+        .menu-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 15px; width: 90%; margin: 15px 0; z-index: 10;
+        }
+        .menu-item {
+            background: white; border-radius: 15px; padding: 15px 5px;
+            display: flex; flex-direction: column; align-items: center;
+            text-decoration: none; cursor: pointer; transition: 0.2s;
+        }
+        .menu-item:active { transform: scale(0.95); }
+        .menu-item i { font-size: 24px; color: var(--neon-pink); margin-bottom: 5px; }
+        .menu-item span { color: var(--neon-pink); font-size: 11px; font-weight: 900; }
+
+        /* MULTIPLIER SLOTS */
+        .slots { display: flex; justify-content: center; gap: 5px; width: 95%; margin: 15px 0; }
+        .slot { 
+            flex: 1; padding: 8px 0; font-size: 10px; font-weight: 900; 
+            text-align: center; border-radius: 6px; color: black;
+        }
+        .s-pink { background: #ff0077; box-shadow: 0 0 10px #ff0077; color: white; }
+        .s-gold { background: #fbff00; box-shadow: 0 0 10px #fbff00; }
+        .s-blue { background: #00d4ff; box-shadow: 0 0 10px #00d4ff; }
+
+        /* BOLA NEON BIRU */
+        #ball-visual {
+            width: 50px; height: 50px; background: #00d4ff;
+            border-radius: 50%; margin: 10px 0;
+            box-shadow: 0 0 30px #00d4ff, 0 0 60px #00d4ff;
+            background: radial-gradient(circle, #fff, #00d4ff);
+        }
+
+        /* BET CONTROL */
+        .bet-ctrl { 
+            background: rgba(0,0,0,0.6); border-radius: 30px; display: flex; 
+            align-items: center; padding: 5px 25px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1); 
+        }
+        .b-btn { background: none; border: none; color: var(--neon-blue); font-size: 25px; cursor: pointer; font-weight: bold; }
         
-        /* Tombol Profil */
-        .profile-btn { 
-            width: 55px; height: 55px; border-radius: 50%; 
-            border: 3px solid var(--neon-pink); cursor: pointer; 
-            box-shadow: 0 0 10px var(--neon-pink);
-        }
-
-        .saldo-badge {
-            background: rgba(0, 0, 0, 0.8); border: 2px solid var(--neon-blue);
-            border-radius: 20px; padding: 5px 20px; text-align: center;
-        }
-
-        /* Tombol Hadiah */
-        .gift-btn { width: 50px; cursor: pointer; transition: 0.3s; }
-        .gift-btn:active { transform: scale(0.9); }
-
-        /* AREA GAME */
-        .game-zone { position: relative; width: 100%; height: 320px; display: flex; justify-content: center; }
-        canvas { position: absolute; top: 0; z-index: 1; pointer-events: none; }
-
-        /* TOMBOL NAVIGASI BARU (Deposit, Withdraw, Rank) */
-        .action-row { 
-            position: relative; z-index: 1000;
-            display: grid; grid-template-columns: repeat(3, 1fr); 
-            gap: 15px; width: 90%; margin: 15px auto; 
-        }
-        .nav-card { 
-            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); 
-            border-radius: 15px; padding: 12px 0; text-align: center; cursor: pointer;
-            text-decoration: none; color: white; transition: 0.3s;
-        }
-        .nav-card:active { background: rgba(255, 255, 255, 0.2); }
-        .nav-card i { font-size: 20px; margin-bottom: 5px; display: block; }
-        .nav-label { font-size: 9px; font-weight: 900; color: var(--neon-pink); letter-spacing: 1px; }
-
-        /* KONTROL TARUHAN & MULAI */
-        .controls { position: relative; z-index: 1000; width: 100%; display: flex; flex-direction: column; align-items: center; }
-        .bet-bar {
-            background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 30px; display: flex; align-items: center; padding: 5px 25px; margin-bottom: 15px;
-        }
-        .btn-main {
-            width: 85%; padding: 18px; background: linear-gradient(180deg, var(--neon-blue), #0055ff);
-            border: none; border-radius: 40px; color: white; font-size: 20px; font-weight: 900;
-            box-shadow: 0 0 25px rgba(0, 212, 255, 0.5); cursor: pointer;
+        /* TOMBOL MULAI */
+        .btn-play { 
+            width: 88%; padding: 18px; background: linear-gradient(180deg, var(--neon-blue), #0055ff); 
+            border: none; border-radius: 40px; color: white; font-size: 20px; font-weight: 900; 
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.5); cursor: pointer; text-transform: uppercase;
         }
     </style>
 </head>
 <body>
 
-    <div class="top-nav">
-        <img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" class="profile-btn" onclick="location.href='profile.html'">
-        <div class="saldo-badge">
-            <span style="font-size: 8px; color: var(--neon-blue); font-weight: bold; display: block;">SALDO VIP</span>
-            <div id="balance" style="font-size: 18px; font-weight: 900;">IDR 50.000</div>
+    <div class="header">
+        <img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" class="p-img" onclick="location.href='profile.html'">
+        <div class="saldo-box">
+            <small style="color: var(--neon-blue); font-size: 8px; font-weight: bold;">SALDO VIP</small>
+            <div style="font-size: 18px; font-weight: 900;">IDR 91.200</div>
         </div>
-        <img src="https://cdn-icons-png.flaticon.com/512/4213/4213958.png" class="gift-btn" onclick="location.href='hadiah.html'">
+        <img src="https://cdn-icons-png.flaticon.com/512/4213/4213958.png" style="width:50px; filter: drop-shadow(0 0 10px red);" onclick="location.href='hadiah.html'">
     </div>
 
-    <div class="game-zone">
-        <canvas id="plinkoCanvas"></canvas>
-        </div>
-
-    <div class="action-row">
-        <a href="withdraw.html" class="nav-card">
-            <i class="fa-solid fa-money-bill-transfer" style="color: var(--neon-gold);"></i>
-            <span class="nav-label">WITHDRAW</span>
-        </a>
-        <a href="deposit.html" class="nav-card">
-            <i class="fa-solid fa-wallet" style="color: var(--neon-blue);"></i>
-            <span class="nav-label">DEPOSIT</span>
-        </a>
-        <a href="rank.html" class="nav-card">
-            <i class="fa-solid fa-crown" style="color: var(--neon-gold);"></i>
-            <span class="nav-label">RANK</span>
-        </a>
+    <div class="title-container">
+        <h1 class="neon-title">NEON PLINKO VIP</h1>
+        <div class="sub-tile">SUB-TILE MPER</div>
     </div>
 
-    <div class="controls">
-        <div class="bet-bar">
-            <button style="background:none; border:none; color:var(--neon-blue); font-size:25px; cursor:pointer;" onclick="changeBet(-1)">-</button>
-            <div style="margin: 0 30px; text-align: center;">
-                <span style="font-size: 8px; color:#777; display:block;">TARUHAN</span>
-                <span id="betDisplay" style="font-size: 18px; font-weight:900; color: var(--neon-gold);">400</span>
-            </div>
-            <button style="background:none; border:none; color:var(--neon-blue); font-size:25px; cursor:pointer;" onclick="changeBet(1)">+</button>
+    <div class="menu-grid">
+        <div class="menu-item" onclick="location.href='deposit.html'">
+            <i class="fa-solid fa-star"></i>
+            <span>Deposit</span>
         </div>
-        <button class="btn-main" onclick="dropBall()">MULAI MAIN</button>
+        <div class="menu-item" onclick="location.href='withdraw.html'">
+            <i class="fa-solid fa-folder-open"></i>
+            <span>Withdraw</span>
+        </div>
+        <div class="menu-item" onclick="location.href='profile.html'">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>Profile</span>
+        </div>
+        <div class="menu-item" onclick="location.href='rank.html'">
+            <i class="fa-solid fa-life-ring"></i>
+            <span>Rank</span>
+        </div>
+        <div class="menu-item" onclick="location.href='profile.html'">
+            <i class="fa-solid fa-gear"></i>
+            <span>Profile</span>
+        </div>
+        <div class="menu-item" style="background: white;">
+            <i class="fa-solid fa-user"></i>
+            <span>White</span>
+        </div>
     </div>
+
+    <div class="slots">
+        <div class="slot s-pink">5x</div>
+        <div class="slot s-gold">2x</div>
+        <div class="slot s-gold">1.2x</div>
+        <div class="slot s-blue">0.2x</div>
+        <div class="slot s-gold">1.2x</div>
+        <div class="slot s-blue">2x</div>
+        <div class="slot s-pink">5x</div>
+    </div>
+
+    <div id="ball-visual"></div>
+
+    <div class="bet-ctrl">
+        <button class="b-btn" onclick="changeBet(-100)">-</button>
+        <div style="text-align: center; min-width: 100px;">
+            <small style="color:#555; display:block; font-size: 8px;">TARUHAN</small>
+            <span id="bet-val" style="font-size: 18px; font-weight: 900; color: var(--neon-gold);">300</span>
+        </div>
+        <button class="b-btn" onclick="changeBet(100)">+</button>
+    </div>
+
+    <button class="btn-play">MULAI MAIN</button>
 
     <script>
-        // Memastikan link GitHub terbaca, tambahkan logika script Anda di sini
+        let bet = 300;
         function changeBet(val) {
-            // Logika ubah taruhan
-        }
-        function dropBall() {
-            // Logika jatuhkan bola neon
+            bet = Math.max(100, bet + val);
+            document.getElementById('bet-val').innerText = bet;
         }
     </script>
 </body>
