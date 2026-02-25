@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Plinko VIP - Pro Arena</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <title>Arena - NEON PLINKO VIP</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --neon-pink: #ff0077;
@@ -13,229 +13,134 @@
             --bg-dark: #0a0b1e;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
         body {
-            background: radial-gradient(circle at center, #1a1c3d 0%, var(--bg-dark) 100%);
+            background: var(--bg-dark);
             color: white;
-            font-family: 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             margin: 0;
-            overflow: hidden;
             display: flex;
             flex-direction: column;
-            height: 100vh;
-        }
-
-        /* HEADER: Saldo Presisi di Tengah */
-        .game-header {
-            width: 100%;
-            padding: 10px 15px;
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
             align-items: center;
-            background: rgba(0,0,0,0.5);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            height: 100vh;
+            overflow: hidden;
         }
 
-        .header-left { display: flex; align-items: center; gap: 12px; justify-self: start; }
-
-        .profile-img {
-            width: 40px; height: 40px; border-radius: 50%;
-            border: 2px solid var(--neon-pink); box-shadow: 0 0 10px var(--neon-pink);
-            background: #222;
+        /* TOP NAVIGATION */
+        .top-nav {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            box-sizing: border-box;
         }
 
-        .gift-btn { text-align: center; cursor: pointer; animation: pulse 1.5s infinite; }
+        .nav-item { text-align: center; cursor: pointer; text-decoration: none; }
+        .nav-icon { width: 45px; height: 45px; margin-bottom: 5px; filter: drop-shadow(0 0 5px var(--neon-pink)); }
+        .nav-label { font-size: 9px; font-weight: 900; color: var(--neon-pink); text-transform: uppercase; }
 
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-
-        .balance-box {
-            text-align: center;
-            min-width: 130px;
-            padding: 5px 12px;
-            border-radius: 20px;
+        .saldo-box {
+            background: rgba(0, 212, 255, 0.1);
             border: 2px solid var(--neon-blue);
-            background: rgba(0, 212, 255, 0.05);
-            justify-self: center;
+            border-radius: 25px;
+            padding: 8px 25px;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+        }
+        .saldo-label { font-size: 8px; color: var(--neon-blue); font-weight: bold; display: block; }
+        .saldo-amount { font-size: 16px; font-weight: 900; color: white; }
+
+        /* MAIN GAME AREA */
+        .plinko-board { margin: 20px 0; /* Area Papan Pasak */ }
+
+        /* BOTTOM ACTION BUTTONS */
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            width: 90%;
+            max-width: 400px;
+            margin-bottom: 25px;
         }
 
-        .header-right { justify-self: end; text-align: center; cursor: pointer; }
-
-        .menu-label {
-            font-size: 7px; font-weight: 900; color: var(--neon-pink);
-            text-shadow: 0 0 5px var(--neon-pink); text-transform: uppercase; margin-top: 2px;
+        .action-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
         }
+        .action-card:active { transform: scale(0.95); border-color: var(--neon-blue); }
+        .action-card i { font-size: 24px; margin-bottom: 8px; display: block; }
+        .label-action { font-size: 9px; font-weight: bold; text-transform: uppercase; }
 
-        /* ARENA */
-        .game-arena { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-        #plinko-container { width: 100%; max-width: 380px; height: 380px; position: relative; }
-
-        /* MULTIPLIER BUCKETS */
-        #bucket-labels { display: flex; justify-content: center; gap: 4px; width: 100%; position: absolute; bottom: 5px; }
-        .m-badge {
-            font-size: 9px; font-weight: bold; color: #fff; padding: 6px 0; border-radius: 4px;
-            min-width: 36px; text-align: center; border: 1px solid rgba(255,255,255,0.2);
-        }
-        .m-high { background: #ff0033; box-shadow: 0 0 5px #ff0033; }
-        .m-mid { background: #ff9900; }
-        .m-low { background: #00cc66; }
-
-        /* GRID MENU */
-        .menu-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 92%; margin: 10px auto; }
-        .menu-item {
-            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 0, 119, 0.2);
-            border-radius: 12px; padding: 12px 5px; display: flex; flex-direction: column; align-items: center; cursor: pointer;
-        }
-
-        /* FOOTER CONTROLS */
-        .footer { padding: 10px 20px 30px; background: rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; gap: 12px; }
-        .bet-ctrl {
-            display: flex; align-items: center; gap: 25px; 
-            background: rgba(255,255,255,0.05); padding: 5px 25px; border-radius: 25px; border: 1px solid #333;
-        }
+        /* TOMBOL MAIN */
         .btn-play {
-            width: 100%; max-width: 320px; padding: 16px; border-radius: 40px; border: none;
-            background: linear-gradient(to right, #00d4ff, #0055ff); color: white;
-            font-size: 18px; font-weight: 900; box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
-            text-transform: uppercase; letter-spacing: 1px;
+            width: 85%;
+            padding: 18px;
+            background: linear-gradient(180deg, var(--neon-blue), #0088ff);
+            border: none;
+            border-radius: 30px;
+            color: white;
+            font-size: 18px;
+            font-weight: 900;
+            text-transform: uppercase;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+            cursor: pointer;
         }
     </style>
 </head>
-<body onload="initGame()">
+<body>
 
-    <div class="game-header">
-        <div class="header-left">
-            <div onclick="window.location.href='profile.html'" style="text-align:center">
-                <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=Lucky" class="profile-img">
-                <div class="menu-label">PROFILE</div>
-            </div>
-            <div class="gift-btn" onclick="window.location.href='rewards.html'">
-                <div style="font-size:28px">🎁</div>
-                <div class="menu-label">HADIAH</div>
-            </div>
+    <div class="top-nav">
+        <a href="profile.html" class="nav-item">
+            <img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" class="nav-icon">
+            <span class="nav-label">PROFILE</span>
+        </a>
+
+        <div class="saldo-box">
+            <span class="saldo-label">SALDO VIP</span>
+            <span class="saldo-amount" id="displayBalance">IDR 0</span>
         </div>
 
-        <div class="balance-box">
-            <span style="font-size: 7px; color: #00d4ff; display:block; letter-spacing: 1px; margin-bottom: 2px;">SALDO VIP</span>
-            <span id="display-saldo" style="font-weight: bold; font-size: 15px; color: white;">IDR 0</span>
-        </div>
+        <a href="hadiah.html" class="nav-item">
+            <img src="https://cdn-icons-png.flaticon.com/512/679/679821.png" class="nav-icon">
+            <span class="nav-label">HADIAH</span>
+        </a>
+    </div>
 
-        <div class="header-right" onclick="window.location.href='deposit.html'">
-            <div style="font-size:26px; filter: drop-shadow(0 0 5px gold);">💰</div>
-            <div class="menu-label">DEPOSIT</div>
+    <div class="plinko-board">
+        <div style="height: 300px; width: 300px; border: 1px dashed #333; display: flex; align-items: center; justify-content: center; color: #444;">
+            PAPAN PLINKO
         </div>
     </div>
 
-    <div class="game-arena">
-        <div id="plinko-container">
-            <div id="bucket-labels"></div>
+    <div class="action-grid">
+        <div class="action-card" onclick="window.location.href='tarik.html'">
+            <i class="fa-solid fa-money-bill-transfer" style="color: #888;"></i>
+            <span class="label-action" style="color: var(--neon-pink);">TARIK</span>
+        </div>
+        
+        <div class="action-card" onclick="window.location.href='deposit.html'">
+            <i class="fa-solid fa-file-invoice-dollar" style="color: var(--neon-blue);"></i>
+            <span class="label-action" style="color: var(--neon-pink);">DEPOSIT</span>
+        </div>
+
+        <div class="action-card">
+            <i class="fa-solid fa-trophy" style="color: var(--gold);"></i>
+            <span class="label-action" style="color: var(--neon-pink);">RANK</span>
         </div>
     </div>
 
-    <div class="menu-grid">
-        <div class="menu-item" onclick="window.location.href='deposit.html'">
-            <span style="font-size:22px">➕</span><span class="menu-label">TOP UP</span>
-        </div>
-        <div class="menu-item" onclick="window.location.href='withdraw.html'">
-            <span style="font-size:22px">💱</span><span class="menu-label">TARIK</span>
-        </div>
-        <div class="menu-item" onclick="window.location.href='deposit.html'">
-            <span style="font-size:22px">💲</span><span class="menu-label">PROMO</span>
-        </div>
-        <div class="menu-item" onclick="alert('Segera Hadir!')">
-            <span style="font-size:22px">🏆</span><span class="menu-label">RANK</span>
-        </div>
-    </div>
-
-    <div class="footer">
-        <div class="bet-ctrl">
-            <button onclick="changeBet(-200)" style="background:none; border:none; color:var(--neon-blue); font-size:26px; font-weight:bold;">-</button>
-            <div style="text-align:center">
-                <span style="font-size:8px; color:#888; display:block">TARUHAN</span>
-                <span id="display-bet" style="font-weight:bold; font-size:16px; color:var(--gold)">400</span>
-            </div>
-            <button onclick="changeBet(200)" style="background:none; border:none; color:var(--neon-blue); font-size:26px; font-weight:bold;">+</button>
-        </div>
-        <button class="btn-play" onclick="dropBall()">Mulai Main</button>
-    </div>
+    <button class="btn-play">MULAI MAIN</button>
 
     <script>
-        let balance = parseInt(localStorage.getItem('user_balance') || 0);
-        let bet = 400; // Bet awal 400 sesuai permintaan
-        const mults = [5, 2, 1.2, 0.5, 0.2, 0.5, 1.2, 2, 5];
-        let engine, world, render;
-
-        function initGame() {
-            const container = document.getElementById('plinko-container');
-            engine = Matter.Engine.create(); world = engine.world;
-            render = Matter.Render.create({ 
-                element: container, engine: engine, 
-                options: { width: container.clientWidth, height: 380, wireframes: false, background: 'transparent' } 
-            });
-            
-            // Buat Pin
-            for (let r = 0; r < 10; r++) {
-                const pins = r + 2;
-                for (let i = 0; i < pins; i++) {
-                    const x = (container.clientWidth / 2) + (i - (pins - 1) / 2) * (container.clientWidth / 11);
-                    const y = 50 + r * 30;
-                    Matter.World.add(world, Matter.Bodies.circle(x, y, 3, { isStatic: true, render: { fillStyle: '#fff' } }));
-                }
-            }
-
-            // Buat Label Multiplier
-            const labelContainer = document.getElementById('bucket-labels');
-            mults.forEach(m => {
-                const div = document.createElement('div');
-                div.className = 'm-badge ' + (m >= 2 ? 'm-high' : m >= 1 ? 'm-mid' : 'm-low');
-                div.innerText = m + 'x';
-                labelContainer.appendChild(div);
-            });
-
-            updateUI();
-            Matter.Render.run(render);
-            Matter.Runner.run(Matter.Runner.create(), engine);
-        }
-
-        function dropBall() {
-            if (balance < bet) return alert("Saldo tidak cukup! Klaim hadiah harian dulu 🎁");
-            
-            balance -= bet;
-            localStorage.setItem('user_balance', balance);
-            updateUI();
-
-            const ball = Matter.Bodies.circle(document.getElementById('plinko-container').clientWidth/2, 10, 8, {
-                restitution: 0.6, friction: 0.05,
-                render: { fillStyle: '#ff0077' }
-            });
-            Matter.World.add(world, ball);
-
-            setTimeout(() => {
-                Matter.World.remove(world, ball);
-                const winMult = mults[Math.floor(Math.random() * mults.length)];
-                const winAmount = Math.floor(bet * winMult);
-                balance += winAmount;
-                localStorage.setItem('user_balance', balance);
-                updateUI();
-                if(winMult >= 2) alert("MENANG! IDR " + winAmount.toLocaleString());
-            }, 3500);
-        }
-
-        function changeBet(val) {
-            bet = Math.max(400, bet + val); // Minimal bet terkunci di 400
-            updateUI();
-        }
-
-        function updateUI() {
-            document.getElementById('display-saldo').innerText = "IDR " + balance.toLocaleString();
-            document.getElementById('display-bet').innerText = bet.toLocaleString();
-        }
-
-        // Sinkronisasi jika balik dari halaman reward
-        window.addEventListener('focus', () => {
-            balance = parseInt(localStorage.getItem('user_balance') || 0);
-            updateUI();
-        });
+        window.onload = () => {
+            const balance = localStorage.getItem('user_balance') || 0;
+            document.getElementById('displayBalance').innerText = "IDR " + parseInt(balance).toLocaleString();
+        };
     </script>
 </body>
 </html>
