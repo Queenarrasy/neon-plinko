@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROFIL SAYA</title>
+    <style>
+        body { background: #070816; color: white; font-family: sans-serif; text-align: center; padding: 40px; }
+        .card { background: rgba(255,255,255,0.05); padding: 30px; border-radius: 20px; border: 1px solid #00d4ff; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2 id="u-name">USER</h2>
+        <p>SALDO PERMAINAN</p>
+        <h1 id="display-saldo">IDR 0</h1>
+        <button onclick="location.href='game.html'" style="padding:10px 20px; border-radius:10px; border:none; background:#00d4ff; cursor:pointer;">KEMBALI</button>
+    </div>
+    <script src="global.js"></script>
+    <script>
+        document.getElementById('u-name').innerText = (localStorage.getItem('username_neon') || "USER").toUpperCase();
+    </script>
+</body>
+</html>
