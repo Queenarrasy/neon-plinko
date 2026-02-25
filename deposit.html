@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --neon-pink: #ff0077; --neon-blue: #00d4ff; --neon-gold: #fbff00; --bg-dark: #070816; }
-        body, html { background: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; min-height: 100vh; }
+        body, html { background: var(--bg-dark); color: white; font-family: sans-serif; margin: 0; padding: 0; min-height: 100vh; }
         .container { padding: 20px; max-width: 450px; margin: auto; }
         
         .btn-back { color: var(--neon-blue); text-decoration: none; font-weight: 900; font-size: 12px; display: flex; align-items: center; gap: 5px; margin-bottom: 25px; text-transform: uppercase; }
@@ -31,23 +31,26 @@
         .btn-tab.active { border-color: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); background: rgba(0, 212, 255, 0.1); }
 
         /* INSTRUCTION BOX */
-        .instruksi-box { background: #000; border: 1px solid var(--neon-blue); padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; }
+        .instruksi-box { background: #000; border: 1px solid var(--neon-blue); padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; min-height: 240px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        
+        /* RIWAYAT TABLE (Senada dengan Withdraw) */
+        .history-item { 
+            background: rgba(255,255,255,0.02); border: 1px solid #1a1b2e; border-radius: 12px; 
+            padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .hist-info b { font-size: 14px; color: #fff; display: block; }
+        .hist-info small { font-size: 10px; color: #555; }
+        .status-badge { font-size: 10px; font-weight: 900; padding: 5px 10px; border-radius: 50px; text-transform: uppercase; }
+        
+        .status-pending { background: rgba(251, 255, 0, 0.1); color: var(--neon-gold); border: 1px solid var(--neon-gold); }
+        .status-sukses { background: rgba(0, 212, 255, 0.1); color: var(--neon-blue); border: 1px solid var(--neon-blue); }
+
         .btn-primary { 
             width: 100%; padding: 16px; background: var(--neon-pink); border: none; border-radius: 12px; 
             color: white; font-weight: 900; font-size: 14px; cursor: pointer; text-transform: uppercase; box-shadow: 0 0 15px var(--neon-pink);
         }
 
-        /* RIWAYAT TABLE */
-        .history-item { 
-            background: rgba(0,0,0,0.4); border: 1px solid #222; border-radius: 15px; 
-            padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
-        }
-        .hist-info { display: flex; flex-direction: column; }
-        .hist-date { font-size: 9px; color: #666; }
-        .hist-val { font-size: 13px; font-weight: bold; margin-top: 2px; }
-        .hist-status { font-size: 9px; font-weight: 900; padding: 4px 8px; border-radius: 5px; }
-
-        /* POPUP NEON */
+        /* POPUP */
         #neon-popup { 
             display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
             width: 80%; max-width: 320px; background: #000; border: 2px solid var(--neon-blue); 
@@ -61,11 +64,11 @@
     <div class="overlay" id="overlay"></div>
     <div id="neon-popup">
         <div id="popup-msg" style="font-weight: bold; margin-bottom: 20px; font-size: 14px;"></div>
-        <button onclick="closePopup()" style="background: var(--neon-blue); border: none; padding: 10px 25px; border-radius: 8px; font-weight: 900; cursor: pointer;">OKE</button>
+        <button onclick="closePopup()" style="background: var(--neon-blue); border: none; padding: 10px 25px; border-radius: 8px; font-weight: 900; cursor: pointer; color: black;">OKE</button>
     </div>
 
     <div class="container">
-        <a href="game.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> KEMBALI</a>
+        <a href="game.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> KEMBALI KE GAME</a>
 
         <div class="glass-card">
             <h2 class="neon-title">FORM SETOR DANA</h2>
@@ -75,21 +78,25 @@
             <input type="number" id="input-nominal" placeholder="0">
 
             <div class="method-tabs">
-                <button onclick="pilihMetode('QRIS', this)" class="btn-tab active">QRIS RUPIAH</button>
-                <button onclick="pilihMetode('CRYPTO', this)" class="btn-tab">USDT CRYPTO</button>
+                <button id="tab-qris" onclick="pilihMetode('QRIS')" class="btn-tab active">QRIS RUPIAH</button>
+                <button id="tab-crypto" onclick="pilihMetode('CRYPTO')" class="btn-tab">USDT CRYPTO</button>
             </div>
 
             <div id="box-instruksi" class="instruksi-box">
                 <div id="konten-qris">
                     <h4 style="font-size: 12px; margin-bottom: 10px;">SILAKAN SCAN QRIS</h4>
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=ID1024357689073" style="width: 180px; border-radius: 10px; border: 2px solid white;">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=ID1024357689073" style="width: 160px; border-radius: 10px; border: 2px solid white;">
                     <p style="font-size: 10px; margin-top: 10px; color: #aaa;">NMID: ID1024357689073<br>ARRASHY STORE / SAXOPONE</p>
                 </div>
 
                 <div id="konten-crypto" style="display:none;">
-                    <h4 style="color:var(--neon-gold); font-size: 12px;">CRYPTO PAYMENT</h4>
-                    <p style="font-size: 11px; color: #888;">USDT (TRC20 / BEP20)</p>
-                    <a href="https://wa.me/6289510249551" target="_blank" style="background:#25d366; color:white; text-decoration:none; display:inline-block; padding: 10px 20px; border-radius: 10px; font-size: 11px; margin-top: 10px; font-weight: bold;">HUBUNGI ADMIN WHATSAPP</a>
+                    <i class="fa-brands fa-bitcoin" style="font-size: 40px; color: var(--neon-gold); margin-bottom: 10px;"></i>
+                    <h4 style="color:var(--neon-gold); font-size: 13px; margin: 0;">USDT PAYMENT (TRC20)</h4>
+                    <p style="font-size: 10px; color: #888; margin: 5px 0 15px;">Fee Jaringan: 1.0 USDT (~IDR 16k)</p>
+                    <p style="font-size: 11px; color: #fff; background: #111; padding: 10px; border-radius: 8px; border: 1px dashed #444;">Dapatkan Alamat Wallet via Admin</p>
+                    <a href="https://wa.me/6289510249551?text=Halo%20Admin,%20saya%20ingin%20deposit%20via%20USDT" target="_blank" style="background:#25d366; color:white; text-decoration:none; display:inline-block; padding: 12px 20px; border-radius: 10px; font-size: 11px; margin-top: 10px; font-weight: bold;">
+                        <i class="fa-brands fa-whatsapp"></i> HUBUNGI ADMIN WHATSAPP
+                    </a>
                 </div>
             </div>
 
@@ -97,12 +104,13 @@
         </div>
 
         <div class="history-section">
-            <h3 style="font-size: 12px; color: var(--neon-blue); margin-bottom: 15px; text-transform: uppercase;"><i class="fa-solid fa-list"></i> RIWAYAT DEPOSIT</h3>
+            <h3 style="font-size: 12px; color: var(--neon-blue); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;"><i class="fa-solid fa-clock-rotate-left"></i> RIWAYAT DEPOSIT</h3>
             <div id="list-riwayat">
                 </div>
         </div>
     </div>
 
+    <script src="global.js"></script>
     <script>
         let metodeTerpilih = "QRIS";
 
@@ -120,12 +128,22 @@
             document.getElementById('overlay').style.display = 'none';
         }
 
-        function pilihMetode(tipe, btn) {
+        function pilihMetode(tipe) {
             metodeTerpilih = tipe;
-            document.querySelectorAll('.btn-tab').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById('konten-qris').style.display = (tipe === 'QRIS') ? 'block' : 'none';
-            document.getElementById('konten-crypto').style.display = (tipe === 'CRYPTO') ? 'block' : 'none';
+            // Reset Tab UI
+            document.getElementById('tab-qris').classList.remove('active');
+            document.getElementById('tab-crypto').classList.remove('active');
+            
+            // Konten Switch
+            if(tipe === 'QRIS') {
+                document.getElementById('tab-qris').classList.add('active');
+                document.getElementById('konten-qris').style.display = 'block';
+                document.getElementById('konten-crypto').style.display = 'none';
+            } else {
+                document.getElementById('tab-crypto').classList.add('active');
+                document.getElementById('konten-qris').style.display = 'none';
+                document.getElementById('konten-crypto').style.display = 'block';
+            }
         }
 
         function prosesDeposit() {
@@ -133,10 +151,10 @@
             if(!nom || nom < 20000) return showPopup("MINIMAL DEPOSIT IDR 20.000", true);
 
             const skrg = new Date();
-            const waktu = `${skrg.toLocaleDateString('id-ID')} | ${skrg.getHours().toString().padStart(2,'0')}:${skrg.getMinutes().toString().padStart(2,'0')}:${skrg.getSeconds().toString().padStart(2,'0')}`;
+            const waktu = `${skrg.getDate()}/${skrg.getMonth()+1} ${skrg.getHours()}:${skrg.getMinutes()}`;
 
             const data = { 
-                id: "DEP" + Math.floor(100000 + Math.random() * 900000),
+                id: "DEP" + Math.floor(1000 + Math.random() * 9000),
                 waktu, 
                 jumlah: parseInt(nom), 
                 metode: metodeTerpilih, 
@@ -147,23 +165,23 @@
             riwayat.unshift(data);
             localStorage.setItem('riwayat_depo', JSON.stringify(riwayat));
 
-            showPopup("KONFIRMASI TERKIRIM! SALDO AKAN BERTAMBAH SETELAH VALIDASI ADMIN.");
+            showPopup("KONFIRMASI TERKIRIM! HARAP TUNGGU VALIDASI ADMIN.");
             document.getElementById('input-nominal').value = "";
             muatRiwayat();
 
-            // SIMULASI: Status Berhasil setelah 15 detik
+            // Simulasi Sukses otomatis setelah 15 detik (Bisa dihapus jika ingin full manual via Admin)
             setTimeout(() => {
                 let current = JSON.parse(localStorage.getItem('riwayat_depo')) || [];
-                if(current.length > 0 && current[0].id === data.id) {
-                    current[0].status = "SUKSES";
+                let target = current.find(i => i.id === data.id);
+                if(target && target.status === "PENDING") {
+                    target.status = "SUKSES";
                     localStorage.setItem('riwayat_depo', JSON.stringify(current));
                     
-                    // TAMBAH SALDO ASLI KE PROFILE
-                    let saldoSkrg = parseInt(localStorage.getItem('saldo_vip')) || 0;
-                    localStorage.setItem('saldo_vip', saldoSkrg + data.jumlah);
+                    // Update Saldo Permainan (global.js)
+                    let saldoSkrg = parseInt(localStorage.getItem('saldo_permainan')) || 0;
+                    localStorage.setItem('saldo_permainan', saldoSkrg + data.jumlah);
                     
                     muatRiwayat();
-                    showPopup(`DEPOSIT IDR ${data.jumlah.toLocaleString()} TELAH BERHASIL DITERIMA! SALDO BERTAMBAH.`);
                 }
             }, 15000);
         }
@@ -171,25 +189,27 @@
         function muatRiwayat() {
             const container = document.getElementById('list-riwayat');
             const riwayat = JSON.parse(localStorage.getItem('riwayat_depo')) || [];
-            container.innerHTML = riwayat.length === 0 ? '<p style="text-align:center; color:#444; font-size:12px;">Belum ada transaksi.</p>' : '';
             
-            riwayat.forEach(item => {
-                const statusColor = item.status === "SUKSES" ? "var(--neon-blue)" : "var(--neon-gold)";
-                const statusBg = item.status === "SUKSES" ? "rgba(0, 212, 255, 0.1)" : "rgba(251, 255, 0, 0.1)";
-                
-                container.innerHTML += `
-                    <div class="history-item">
-                        <div class="hist-info">
-                            <span class="hist-date">${item.waktu}</span>
-                            <span class="hist-val">IDR ${item.jumlah.toLocaleString()} (${item.metode})</span>
-                        </div>
-                        <span class="hist-status" style="color:${statusColor}; background:${statusBg}">${item.status}</span>
-                    </div>`;
-            });
+            if(riwayat.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:#444; font-size:12px;">Belum ada transaksi deposit.</p>';
+                return;
+            }
+
+            container.innerHTML = riwayat.map(item => `
+                <div class="history-item">
+                    <div class="hist-info">
+                        <b>IDR ${item.jumlah.toLocaleString()}</b>
+                        <small>${item.waktu} • ${item.metode}</small>
+                    </div>
+                    <span class="status-badge ${item.status === 'SUKSES' ? 'status-sukses' : 'status-pending'}">
+                        ${item.status}
+                    </span>
+                </div>
+            `).join('');
         }
 
         window.onload = muatRiwayat;
-    <script src="global.js"></script>
+    </script>
 
 </body>
 </html>
