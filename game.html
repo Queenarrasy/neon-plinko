@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEON PLINKO VIP</title>
+    <title>NEON PLINKO VIP - OFFICIAL</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -23,13 +23,12 @@
             align-items: center;
             height: 100vh;
             overflow: hidden;
-            /* Efek Latar Belakang Neon Samar */
             background-image: 
                 radial-gradient(circle at 10% 20%, rgba(255, 0, 119, 0.08) 0%, transparent 50%),
                 radial-gradient(circle at 90% 80%, rgba(0, 212, 255, 0.08) 0%, transparent 50%);
         }
 
-        /* HEADER NAV */
+        /* HEADER & SALDO */
         .top-nav {
             width: 100%;
             display: flex;
@@ -49,27 +48,25 @@
             text-align: center;
         }
 
-        /* AREA PIRAMIDA & MULTIPLIER */
+        /* GAME ZONE: PIRAMIDA & MULTIPLIER */
         .game-zone {
             position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-top: 10px;
+            margin-top: 5px;
         }
-
         canvas { display: block; }
 
-        /* Jarak Kotak Multiplier Sesuai Konsep */
+        /* MULTIPLIER: JARAK PRESISI & WARNA UNTUNG-RUGI */
         .multiplier-wrap {
             display: flex;
             justify-content: center;
             gap: 4px;
-            margin-top: -5px; /* Menempel presisi di bawah titik pasak terakhir */
-            width: 100%;
-            padding: 0 10px;
+            margin-top: -10px; /* Jarak menempel presisi */
+            width: 95%;
+            padding: 0 5px;
         }
-
         .slot {
             flex: 1;
             padding: 8px 0;
@@ -77,43 +74,55 @@
             font-weight: 900;
             text-align: center;
             border-radius: 6px;
-            transition: 0.2s;
         }
+        .high { background: var(--neon-pink); box-shadow: 0 0 10px var(--neon-pink); color: white; }
+        .mid  { background: var(--neon-gold); box-shadow: 0 0 10px var(--neon-gold); color: #000; }
+        .low  { background: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); color: #000; }
 
-        /* Perhitungan Warna Berdasarkan Risiko */
-        .high { background: var(--neon-pink); box-shadow: 0 0 12px var(--neon-pink); color: white; } /* Profit Tinggi */
-        .mid  { background: var(--neon-gold); box-shadow: 0 0 12px var(--neon-gold); color: #000; }  /* Profit Menengah */
-        .low  { background: var(--neon-blue); box-shadow: 0 0 12px var(--neon-blue); color: #000; }  /* Loss / Balik Modal Kecil */
-
-        /* ACTION AREA MEWAH */
-        .action-row {
+        /* ACTION BUTTONS MEWAH */
+        .action-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 12px;
             width: 90%;
-            margin: 20px 0;
+            margin: 15px 0;
         }
         .action-card {
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 18px;
-            padding: 15px 0;
+            padding: 12px 0;
             text-align: center;
+            cursor: pointer;
         }
-        .icon-glow { font-size: 26px; margin-bottom: 6px; display: block; filter: drop-shadow(0 0 8px currentColor); }
+        .icon-vip { font-size: 24px; margin-bottom: 5px; display: block; filter: drop-shadow(0 0 8px currentColor); }
+        .label-vip { font-size: 10px; font-weight: 900; color: var(--neon-pink); }
 
-        .btn-main {
+        /* BET CONTROL */
+        .bet-bar {
+            background: rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            padding: 5px 20px;
+            margin-bottom: 15px;
+        }
+        .bet-btn { background: none; border: none; color: var(--neon-blue); font-size: 25px; cursor: pointer; font-weight: bold; }
+        .bet-display { margin: 0 30px; text-align: center; }
+
+        .btn-play-now {
             width: 88%;
-            padding: 20px;
+            padding: 18px;
             background: linear-gradient(180deg, var(--neon-blue), #0055ff);
             border: none;
             border-radius: 40px;
             color: white;
             font-size: 22px;
             font-weight: 900;
-            box-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+            box-shadow: 0 5px 25px rgba(0, 212, 255, 0.5);
             cursor: pointer;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
     </style>
 </head>
@@ -130,7 +139,6 @@
 
     <div class="game-zone">
         <canvas id="plinkoCanvas"></canvas>
-        
         <div class="multiplier-wrap">
             <div class="slot high">5x</div>
             <div class="slot mid">2x</div>
@@ -142,38 +150,47 @@
         </div>
     </div>
 
-    <div class="action-row">
+    <div class="action-grid">
         <div class="action-card" onclick="location.href='tarik.html'">
-            <i class="fa-solid fa-hand-holding-dollar icon-glow" style="color: var(--neon-gold);"></i>
-            <span style="font-size: 10px; font-weight: 900; color: var(--neon-pink);">TARIK</span>
+            <i class="fa-solid fa-hand-holding-dollar icon-vip" style="color: var(--neon-gold);"></i>
+            <span class="label-vip">TARIK</span>
         </div>
         <div class="action-card" onclick="location.href='deposit.html'">
-            <i class="fa-solid fa-building-columns icon-glow" style="color: var(--neon-blue);"></i>
-            <span style="font-size: 10px; font-weight: 900; color: var(--neon-pink);">DEPOSIT</span>
+            <i class="fa-solid fa-building-columns icon-vip" style="color: var(--neon-blue);"></i>
+            <span class="label-vip">DEPOSIT</span>
         </div>
         <div class="action-card">
-            <i class="fa-solid fa-crown icon-glow" style="color: var(--neon-gold);"></i>
-            <span style="font-size: 10px; font-weight: 900; color: var(--neon-pink);">RANK</span>
+            <i class="fa-solid fa-crown icon-vip" style="color: var(--neon-gold);"></i>
+            <span class="label-vip">RANK</span>
         </div>
     </div>
 
-    <button class="btn-main" onclick="playGame()">MULAI MAIN</button>
+    <div class="bet-bar">
+        <button class="bet-btn" onclick="adjustBet(-100)">-</button>
+        <div class="bet-display">
+            <span style="font-size: 7px; color:#555; display:block; font-weight:bold;">TARUHAN</span>
+            <span id="betVal" style="font-size: 16px; font-weight:900; color: var(--neon-gold);">400</span>
+        </div>
+        <button class="bet-btn" onclick="adjustBet(100)">+</button>
+    </div>
+
+    <button class="btn-play-now" onclick="startBall()">MULAI MAIN</button>
 
     <script>
         const canvas = document.getElementById('plinkoCanvas');
         const ctx = canvas.getContext('2d');
         canvas.width = 360;
-        canvas.height = 360; 
+        canvas.height = 350; 
 
         const pins = [];
         const rows = 10;
         
-        // Membangun Piramida
+        // Membangun Piramida Pasak
         for (let i = 2; i <= rows; i++) {
             for (let j = 0; j < i; j++) {
                 pins.push({
                     x: canvas.width / 2 + (j - (i - 1) / 2) * 32,
-                    y: i * 32
+                    y: i * 32 + 10
                 });
             }
         }
@@ -185,21 +202,26 @@
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
                 ctx.fill();
-                // Efek glow pada pasak
                 ctx.shadowBlur = 5;
                 ctx.shadowColor = "white";
             });
         }
 
+        function adjustBet(v) {
+            let current = parseInt(document.getElementById('betVal').innerText);
+            current += v;
+            if(current < 400) current = 400;
+            document.getElementById('betVal').innerText = current;
+        }
+
         window.onload = () => {
             drawPins();
-            const bal = localStorage.getItem('user_balance') || 0;
+            const bal = localStorage.getItem('user_balance') || 27480;
             document.getElementById('balance').innerText = "IDR " + parseInt(bal).toLocaleString();
         };
 
-        function playGame() {
-            // Logika jatuhnya bola dan perhitungan profit/loss
-            console.log("Game Started");
+        function startBall() {
+            console.log("Bola dilepaskan...");
         }
     </script>
 </body>
