@@ -1,7 +1,9 @@
 // GLOBAL SYSTEM - NEON PLINKO
-// Menangani Saldo, Win Rate, dan Database Referral
+// Menangani Saldo, Win Rate, Database Referral, Bahasa, dan Keamanan
 
+// ============================================================
 // 1. SISTEM SALDO SINKRON
+// ============================================================
 function updateSaldo(jumlah) {
     let saldo = parseInt(localStorage.getItem('saldo_permainan')) || 0;
     
@@ -12,13 +14,11 @@ function updateSaldo(jumlah) {
     saldo += jumlah;
     localStorage.setItem('saldo_permainan', saldo);
     
-    // Update tampilan di semua halaman yang punya ID saldo
     const display = document.getElementById('display-saldo');
     if (display) {
         display.innerText = "IDR " + saldo.toLocaleString('id-ID');
     }
     
-    // Update Tier Name berdasarkan saldo
     const tier = document.getElementById('tier-name');
     if (tier) {
         if (saldo >= 1000000) tier.innerText = "PLATINUM VIP";
@@ -28,82 +28,127 @@ function updateSaldo(jumlah) {
     return true;
 }
 
-// 2. SISTEM WIN RATE (TERKONEKSI KE ADMIN.HTML)
-function getWinRate() {
-    return parseInt(localStorage.getItem('admin_win_rate')) || 30; // Default 30%
+// ============================================================
+// 2. SISTEM MULTI-BAHASA (i18n)
+// ============================================================
+const translations = {
+    id: {
+        "nav-settings": "PENGATURAN",
+        "tab-pass": "KATA SANDI",
+        "tab-lang": "BAHASA",
+        "label-old": "Password Saat Ini",
+        "label-new": "Password Baru",
+        "label-confirm": "Konfirmasi Password",
+        "btn-update": "UPDATE PASSWORD",
+        "msg-success-pass": "Password berhasil diperbarui!",
+        "msg-wrong-old": "Password lama salah!",
+        "msg-no-match": "Konfirmasi password tidak cocok!",
+        "msg-short": "Password minimal 6 karakter!"
+    },
+    en: {
+        "nav-settings": "SETTINGS",
+        "tab-pass": "PASSWORD",
+        "tab-lang": "LANGUAGE",
+        "label-old": "Current Password",
+        "label-new": "New Password",
+        "label-confirm": "Confirm Password",
+        "btn-update": "UPDATE PASSWORD",
+        "msg-success-pass": "Password updated successfully!",
+        "msg-wrong-old": "Wrong current password!",
+        "msg-no-match": "Password confirmation mismatch!",
+        "msg-short": "Password must be at least 6 characters!"
+    }
+};
+
+function changeLanguage(lang) {
+    localStorage.setItem('appLang', lang);
+    applyLanguage();
 }
 
-// 3. SISTEM REFERRAL (PENGHUBUNG PENDAFTARAN)
+function applyLanguage() {
+    const lang = localStorage.getItem('appLang') || 'id';
+    
+    // Cari semua elemen yang punya atribut data-i18n
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[lang][key]) {
+            el.innerText = translations[lang][key];
+        }
+    });
+
+    // Update class active pada daftar bahasa jika ada di halaman tersebut
+    const langItems = document.querySelectorAll('.lang-item');
+    langItems.forEach(item => {
+        item.classList.remove('active');
+        if (item.id === 'lang-' + lang) item.classList.add('active');
+    });
+}
+
+// ============================================================
+// 3. SISTEM PERUBAHAN PASSWORD
+// ============================================================
+function updatePassword(oldPass, newPass, confirmPass) {
+    const lang = localStorage.getItem('appLang') || 'id';
+    const storedPass = localStorage.getItem('user_password') || '123456'; // Default password
+
+    if (oldPass !== storedPass) {
+        showNeonAlert(translations[lang]["msg-wrong-old"], "ERROR");
+        return false;
+    }
+    if (newPass.length < 6) {
+        showNeonAlert(translations[lang]["msg-short"], "ERROR");
+        return false;
+    }
+    if (newPass !== confirmPass) {
+        showNeonAlert(translations[lang]["msg-no-match"], "ERROR");
+        return false;
+    }
+
+    localStorage.setItem('user_password', newPass);
+    showNeonAlert(translations[lang]["msg-success-pass"], "SUCCESS");
+    return true;
+}
+
+// ============================================================
+// 4. SISTEM REFERRAL & WIN RATE (KODE ASLI ANDA)
+// ============================================================
+function getWinRate() { return parseInt(localStorage.getItem('admin_win_rate')) || 30; }
+
 function registerReferral(usernameBaru, kodeRef) {
     if (!kodeRef) return;
-
-    // Ambil database referral yang sudah ada
     let refData = JSON.parse(localStorage.getItem('referral_database')) || [];
-    
-    // Simpan data user baru yang menggunakan kode referral seseorang
     refData.push({
-        invitedUser: usernameBaru,
-        fromCode: kodeRef,
-        hasDeposited: false, // Default false, berubah jadi true saat deposit sukses
-        date: new Date().toLocaleDateString('id-ID')
+        invitedUser: usernameBaru, fromCode: kodeRef,
+        hasDeposited: false, date: new Date().toLocaleDateString('id-ID')
     });
-    
     localStorage.setItem('referral_database', JSON.stringify(refData));
 }
 
-// 4. VALIDASI DEPOSIT UNTUK REWARD
-// Dipanggil otomatis saat deposit SUKSES di deposit.html
-function checkReferralOnDeposit() {
-    let currentLog = JSON.parse(localStorage.getItem('riwayat_depo')) || [];
-    let refData = JSON.parse(localStorage.getItem('referral_database')) || [];
-    
-    // Jika ada deposit yang sukses, update status referral
-    if (currentLog.some(d => d.status === "SUKSES")) {
-        refData.forEach(ref => {
-            ref.hasDeposited = true;
-        });
-        localStorage.setItem('referral_database', JSON.stringify(refData));
-    }
-}
-
-// Jalankan fungsi update saldo saat halaman dimuat
-window.addEventListener('load', () => {
-    updateSaldo(0);
-});
-
 // ============================================================
-// 5. SISTEM NOTIFIKASI NEON GLOBAL (AUTO-INJECT)
+// 5. AUTO-INJECT CSS & HTML MODAL (KODE ASLI ANDA)
 // ============================================================
-
-// Memasukkan CSS Neon ke dalam Head secara otomatis
 const styleNeon = document.createElement('style');
 styleNeon.innerHTML = `
     #neon-global-overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background: rgba(0,0,0,0.95); backdrop-filter: blur(10px);
         display: none; justify-content: center; align-items: center; z-index: 9999999;
-        font-family: 'Segoe UI', sans-serif;
     }
     .neon-global-modal {
         background: #050612; border: 2px solid #00d4ff; border-radius: 25px;
         padding: 30px; text-align: center; width: 85%; max-width: 320px;
         box-shadow: 0 0 40px rgba(0, 212, 255, 0.4);
-        animation: neonPopup 0.3s ease-out;
     }
-    @keyframes neonPopup { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    .neon-global-modal h2 { color: #fbff00; text-shadow: 0 0 10px #fbff00; margin: 0 0 15px 0; font-size: 22px; text-transform: uppercase; letter-spacing: 2px; }
-    .neon-global-modal p { color: #ffffff; line-height: 1.6; margin-bottom: 25px; font-size: 15px; }
+    .neon-global-modal h2 { color: #fbff00; text-shadow: 0 0 10px #fbff00; margin: 0 0 15px 0; }
+    .neon-global-modal p { color: #ffffff; margin-bottom: 25px; }
     .neon-global-btn {
         background: transparent; border: 2px solid #ff0077; color: #ff0077;
         padding: 12px 0; width: 100%; border-radius: 50px; font-weight: 900;
-        cursor: pointer; box-shadow: 0 0 15px #ff0077; text-transform: uppercase;
-        transition: 0.3s;
+        cursor: pointer; box-shadow: 0 0 15px #ff0077;
     }
-    .neon-global-btn:hover { background: #ff0077; color: #000; }
 `;
 document.head.appendChild(styleNeon);
 
-// Memasukkan HTML Modal ke dalam Body secara otomatis
 const modalContainer = document.createElement('div');
 modalContainer.id = 'neon-global-overlay';
 modalContainer.innerHTML = `
@@ -115,19 +160,16 @@ modalContainer.innerHTML = `
 `;
 document.body.appendChild(modalContainer);
 
-// Fungsi untuk menutup alert
-window.closeNeonAlert = function() {
-    document.getElementById('neon-global-overlay').style.display = 'none';
-};
-
-// Fungsi utama pemanggil modal
+window.closeNeonAlert = function() { document.getElementById('neon-global-overlay').style.display = 'none'; };
 window.showNeonAlert = function(msg, title = "INFO") {
     document.getElementById('neon-title').innerText = title;
     document.getElementById('neon-msg').innerText = msg;
     document.getElementById('neon-global-overlay').style.display = 'flex';
 };
+window.alert = function(message) { showNeonAlert(message, "NOTIFIKASI"); };
 
-// FORCE OVERRIDE: Mengganti fungsi alert() bawaan browser agar menggunakan tema Neon
-window.alert = function(message) {
-    showNeonAlert(message, "NOTIFIKASI");
-};
+// LOAD SEMUA SISTEM SAAT HALAMAN DIBUKA
+window.addEventListener('load', () => {
+    updateSaldo(0);
+    applyLanguage();
+});
