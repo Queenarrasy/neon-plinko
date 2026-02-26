@@ -56,7 +56,7 @@
         .history-title::before { content: ""; width: 3px; height: 12px; background: var(--neon-blue); display: inline-block; }
 
         .table-scroll {
-            max-height: 165px; /* Ketinggian untuk sekitar 3 baris */
+            max-height: 165px; 
             overflow-y: auto;
             border-radius: 8px;
         }
@@ -66,7 +66,6 @@
         th { color: #666; text-align: left; padding: 10px 8px; border-bottom: 1px solid #333; font-weight: 900; text-transform: uppercase; }
         td { padding: 12px 8px; border-bottom: 1px solid #111; vertical-align: middle; }
         
-        /* Warna Teks Putih untuk Waktu dan Metode agar Jelas */
         .text-detail { color: #ffffff; font-size: 9px; line-height: 1.4; display: block; }
         .text-nominal { color: var(--neon-gold); font-weight: 900; font-family: monospace; font-size: 12px; }
 
@@ -112,15 +111,15 @@
     <div class="overlay" id="overlay"></div>
     <div id="neon-popup">
         <div id="popup-msg" style="font-weight: bold; margin-bottom: 20px; font-size: 14px;"></div>
-        <button onclick="closePopup()" style="background: var(--neon-blue); border: none; padding: 10px 25px; border-radius: 8px; font-weight: 900; cursor: pointer; color: black;">OKE</button>
+        <button onclick="closePopup()" style="background: var(--neon-blue); border: none; padding: 10px 25px; border-radius: 8px; font-weight: 900; cursor: pointer; color: black;" data-i18n="btn-ok">OKE</button>
     </div>
 
     <div class="container">
         <div class="glass-card">
-            <h2 class="neon-title">FORM SETOR DANA</h2>
+            <h2 class="neon-title" data-i18n="nav-deposit">FORM SETOR DANA</h2>
             <p id="min-deposit-text" style="color: var(--neon-pink); font-size: 10px; text-align: center; margin-bottom: 20px; font-weight: bold;">⚠️ MINIMAL DEPOSIT: IDR 20,000</p>
             
-            <label id="label-nominal">NOMINAL DEPOSIT (IDR)</label>
+            <label id="label-nominal" data-i18n="label-nominal-depo">NOMINAL DEPOSIT (IDR)</label>
             <input type="number" id="input-nominal" placeholder="0">
 
             <div class="method-tabs">
@@ -130,7 +129,7 @@
 
             <div id="box-instruksi" class="instruksi-box">
                 <div id="konten-qris">
-                    <h4 style="font-size: 11px; margin-bottom: 10px;">SCAN QRIS DI BAWAH INI</h4>
+                    <h4 style="font-size: 11px; margin-bottom: 10px;" data-i18n="scan-qris">SCAN QRIS DI BAWAH INI</h4>
                     <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=ID1024357689073" style="width: 150px; border-radius: 10px; border: 2px solid white;">
                     <p style="font-size: 9px; margin-top: 10px; color: #aaa;">NMID: ID1024357689073<br>ARRASHY STORE / SAXOPONE</p>
                 </div>
@@ -146,27 +145,27 @@
                         <i class="fa-solid fa-circle-nodes" title="BNB" style="color:#F3BA2F"></i>
                     </div>
 
-                    <p style="font-size: 10px; color: #fff; background: #111; padding: 10px; border-radius: 8px; border: 1px dashed #444; margin: 10px 0;">
+                    <p style="font-size: 10px; color: #fff; background: #111; padding: 10px; border-radius: 8px; border: 1px dashed #444; margin: 10px 0;" data-i18n="crypto-desc">
                         Sesuaikan alamat wallet mu.<br>Konfirmasi alamat wallet yang sesuai kepada admin.
                     </p>
 
                     <a href="https://wa.me/6289510249551?text=Halo%20Admin,%20saya%20ingin%20deposit%20via%20USDT/Crypto" target="_blank" style="background:#25d366; color:white; text-decoration:none; display:inline-block; padding: 10px 15px; border-radius: 10px; font-size: 10px; font-weight: bold;">
-                        <i class="fa-brands fa-whatsapp"></i> HUBUNGI ADMIN
+                        <i class="fa-brands fa-whatsapp"></i> <span data-i18n="btn-admin">HUBUNGI ADMIN</span>
                     </a>
                 </div>
             </div>
 
-            <button onclick="prosesDeposit()" class="btn-primary">KONFIRMASI TRANSFER</button>
+            <button onclick="prosesDeposit()" class="btn-primary" data-i18n="btn-confirm-depo">KONFIRMASI TRANSFER</button>
 
             <div class="history-section">
-                <div class="history-title">RIWAYAT DEPOSIT</div>
+                <div class="history-title" data-i18n="label-history-depo">RIWAYAT DEPOSIT</div>
                 <div class="table-scroll">
                     <table>
                         <thead>
                             <tr>
-                                <th>DETAIL TRANSAKSI</th>
-                                <th>NOMINAL</th>
-                                <th>STATUS</th>
+                                <th data-i18n="th-detail">DETAIL TRANSAKSI</th>
+                                <th data-i18n="th-nominal">NOMINAL</th>
+                                <th data-i18n="th-status">STATUS</th>
                             </tr>
                         </thead>
                         <tbody id="list-riwayat">
@@ -176,7 +175,7 @@
             </div>
 
             <a href="game.html" class="btn-back">
-                <i class="fa-solid fa-arrow-left"></i> KEMBALI KE GAME
+                <i class="fa-solid fa-arrow-left"></i> <span data-i18n="btn-back-game">KEMBALI KE GAME</span>
             </a>
         </div>
     </div>
@@ -201,6 +200,7 @@
 
         function pilihMetode(tipe) {
             metodeTerpilih = tipe;
+            const lang = localStorage.getItem('appLang') || 'id';
             document.getElementById('tab-qris').classList.remove('active');
             document.getElementById('tab-crypto').classList.remove('active');
             
@@ -211,24 +211,31 @@
                 document.getElementById('tab-qris').classList.add('active');
                 document.getElementById('konten-qris').style.display = 'block';
                 document.getElementById('konten-crypto').style.display = 'none';
-                minText.innerText = "⚠️ MINIMAL DEPOSIT: IDR 20,000";
-                labelNominal.innerText = "NOMINAL DEPOSIT (IDR)";
+                minText.innerText = (lang === 'id') ? "⚠️ MINIMAL DEPOSIT: IDR 20,000" : "⚠️ MINIMUM DEPOSIT: IDR 20,000";
+                labelNominal.innerText = (lang === 'id') ? "NOMINAL DEPOSIT (IDR)" : "DEPOSIT AMOUNT (IDR)";
             } else {
                 document.getElementById('tab-crypto').classList.add('active');
                 document.getElementById('konten-qris').style.display = 'none';
                 document.getElementById('konten-crypto').style.display = 'block';
-                minText.innerText = "⚠️ MINIMAL DEPOSIT: $10";
-                labelNominal.innerText = "NOMINAL DEPOSIT ($)";
+                minText.innerText = (lang === 'id') ? "⚠️ MINIMAL DEPOSIT: $10" : "⚠️ MINIMUM DEPOSIT: $10";
+                labelNominal.innerText = (lang === 'id') ? "NOMINAL DEPOSIT ($)" : "DEPOSIT AMOUNT ($)";
             }
         }
 
         function prosesDeposit() {
             const nom = document.getElementById('input-nominal').value;
+            const lang = localStorage.getItem('appLang') || 'id';
             
             if (metodeTerpilih === "CRYPTO") {
-                if (!nom || nom < 10) return showPopup("MINIMAL DEPOSIT VIA CRYPTO ADALAH $10", true);
+                if (!nom || nom < 10) {
+                    const msg = (lang === 'id') ? "MINIMAL DEPOSIT VIA CRYPTO ADALAH $10" : "MINIMUM DEPOSIT VIA CRYPTO IS $10";
+                    return showPopup(msg, true);
+                }
             } else {
-                if(!nom || nom < 20000) return showPopup("MINIMAL DEPOSIT IDR 20.000", true);
+                if(!nom || nom < 20000) {
+                    const msg = (lang === 'id') ? "MINIMAL DEPOSIT IDR 20.000" : "MINIMUM DEPOSIT IDR 20,000";
+                    return showPopup(msg, true);
+                }
             }
 
             const skrg = new Date();
@@ -253,7 +260,8 @@
             riwayat.unshift(data);
             localStorage.setItem('riwayat_depo', JSON.stringify(riwayat));
 
-            showPopup("KONFIRMASI TERKIRIM! HARAP TUNGGU VALIDASI ADMIN.");
+            const successMsg = (lang === 'id') ? "KONFIRMASI TERKIRIM! HARAP TUNGGU VALIDASI ADMIN." : "CONFIRMATION SENT! PLEASE WAIT FOR ADMIN VALIDATION.";
+            showPopup(successMsg);
             document.getElementById('input-nominal').value = "";
             muatRiwayat();
         }
@@ -261,9 +269,11 @@
         function muatRiwayat() {
             const container = document.getElementById('list-riwayat');
             const riwayat = JSON.parse(localStorage.getItem('riwayat_depo')) || [];
+            const lang = localStorage.getItem('appLang') || 'id';
             
             if(riwayat.length === 0) {
-                container.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#444; padding: 20px;">Belum ada transaksi deposit.</td></tr>';
+                const emptyMsg = (lang === 'id') ? "Belum ada transaksi deposit." : "No deposit transactions yet.";
+                container.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#444; padding: 20px;">${emptyMsg}</td></tr>`;
                 return;
             }
 
@@ -285,7 +295,12 @@
             `).join('');
         }
 
-        window.onload = muatRiwayat;
+        // Jalankan saat halaman dibuka
+        window.addEventListener('load', () => {
+            if(typeof applyLanguage === 'function') applyLanguage();
+            muatRiwayat();
+            pilihMetode('QRIS'); // Reset teks minimal sesuai bahasa awal
+        });
     </script>
 </body>
 </html>
