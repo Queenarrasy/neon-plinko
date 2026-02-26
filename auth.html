@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>NEON PLINKO VIP - AUTH</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
@@ -82,7 +82,6 @@
             cursor: pointer; box-shadow: 0 0 15px var(--pink); text-transform: uppercase;
         }
         
-        /* Loading Overlay */
         #loading-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.8); display: none; flex-direction: column;
@@ -105,9 +104,9 @@
 
     <div id="neon-modal-overlay">
         <div class="neon-modal">
-            <h2 id="modal-title" data-i18n="modal-info">INFO</h2>
+            <h2 id="modal-title">INFO</h2>
             <p id="modal-msg">Pesan sistem.</p>
-            <button class="neon-modal-btn" onclick="closeNeonModal()" data-i18n="btn-understand">MENGERTI</button>
+            <button class="neon-modal-btn" onclick="closeNeonModal()">MENGERTI</button>
         </div>
     </div>
 
@@ -116,25 +115,25 @@
             <span class="t-pink">NEON</span> <span class="t-blue">PLINKO</span> <br> <span class="t-yellow">VIP</span>
         </div>
 
-        <h3 id="form-label" data-i18n="auth-title" style="color: var(--blue); margin-bottom: 25px; letter-spacing: 2px;">PENDAFTARAN</h3>
+        <h3 id="form-label" style="color: var(--blue); margin-bottom: 25px; letter-spacing: 2px;">PENDAFTARAN</h3>
 
         <form id="main-form">
             <div class="form-group">
-                <label data-i18n="label-user">USERNAME</label>
-                <input type="text" id="username" data-i18n-placeholder="placeholder-user" placeholder="Buat username unik" required>
+                <label>USERNAME</label>
+                <input type="text" id="username" placeholder="Buat username unik" required>
             </div>
 
             <div id="extra-fields">
                 <div class="form-group">
-                    <label data-i18n="label-phone">NOMOR HP</label>
-                    <input type="number" id="phone" data-i18n-placeholder="placeholder-phone" placeholder="Contoh: 08123456789">
+                    <label>NOMOR HP</label>
+                    <input type="number" id="phone" placeholder="Contoh: 08123456789">
                 </div>
                 <div class="form-group">
-                    <label data-i18n="label-fullname">NAMA LENGKAP</label>
-                    <input type="text" id="fullname" data-i18n-placeholder="placeholder-fullname" placeholder="Sesuai rekening bank">
+                    <label>NAMA LENGKAP</label>
+                    <input type="text" id="fullname" placeholder="Sesuai rekening bank">
                 </div>
                 <div class="form-group">
-                    <label data-i18n="label-bank">NAMA BANK / EWALLET</label>
+                    <label>NAMA BANK / EWALLET</label>
                     <select id="bank">
                         <option value="DANA">DANA</option>
                         <option value="OVO">OVO</option>
@@ -145,26 +144,26 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label data-i18n="label-rekening">NO REK / EWALLET</label>
-                    <input type="number" id="rekening" data-i18n-placeholder="placeholder-rek" placeholder="Masukkan nomor rekening/e-wallet">
+                    <label>NO REK / EWALLET</label>
+                    <input type="number" id="rekening" placeholder="Masukkan nomor rekening/e-wallet">
                 </div>
             </div>
 
             <div class="form-group">
-                <label data-i18n="tab-pass">PASSWORD</label>
+                <label>PASSWORD</label>
                 <div class="pass-wrapper">
-                    <input type="password" id="password" data-i18n-placeholder="placeholder-pass" placeholder="Minimal 6 karakter" required>
+                    <input type="password" id="password" placeholder="Minimal 6 karakter" required>
                     <i class="fa-solid fa-eye toggle-pass" onclick="togglePassword()"></i>
                 </div>
             </div>
 
             <div class="form-group" id="ref-group">
-                <label data-i18n="label-ref">KODE REFERRAL (OPSIONAL)</label>
-                <input type="text" id="referral_code" data-i18n-placeholder="placeholder-ref" placeholder="Masukkan kode jika ada" style="border-color: #222;">
-                <small class="note" data-i18n="ref-note" style="color:#666; font-size:10px;">* Kosongkan jika tidak ada</small>
+                <label>KODE REFERRAL (OPSIONAL)</label>
+                <input type="text" id="referral_code" placeholder="Masukkan kode jika ada" style="border-color: #222;">
+                <small class="note" style="color:#666; font-size:10px;">* Kosongkan jika tidak ada</small>
             </div>
 
-            <button type="button" class="btn-submit" onclick="processAuth()" id="btn-text" data-i18n="btn-reg">Daftar Sekarang</button>
+            <button type="button" class="btn-submit" onclick="processAuth()" id="btn-text">Daftar Sekarang</button>
         </form>
 
         <div class="switch-link" id="auth-switch" onclick="toggleMode()"></div>
@@ -175,26 +174,10 @@
         let isLogin = false;
         let redirectUrl = "";
 
-        // Tambahan: Ambil kode referral dari URL jika ada
-        window.addEventListener('DOMContentLoaded', () => {
-            const params = new URLSearchParams(window.location.search);
-            const refParam = params.get('ref');
-            if (refParam) {
-                const refInput = document.getElementById('referral_code');
-                if (refInput) {
-                    refInput.value = refParam;
-                    refInput.style.borderColor = 'var(--yellow)';
-                }
-            }
-        });
-
-        function showNeonModal(msgKey, isDirectText = false, titleKey = "modal-info", nextUrl = "") {
-            const lang = localStorage.getItem('appLang') || 'id';
-            let message = isDirectText ? msgKey : (translations[lang][msgKey] || msgKey);
-            let title = translations[lang][titleKey] || titleKey;
-
+        // UI Helpers
+        function showNeonModal(msg, title = "INFO", nextUrl = "") {
             document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-msg').innerText = message;
+            document.getElementById('modal-msg').innerText = msg;
             document.getElementById('neon-modal-overlay').style.display = 'flex';
             redirectUrl = nextUrl;
         }
@@ -212,48 +195,35 @@
             icon.classList.toggle('fa-eye-slash');
         }
 
-        function updateSwitchText() {
-            const lang = localStorage.getItem('appLang') || 'id';
-            const sw = document.getElementById('auth-switch');
-            if (isLogin) {
-                sw.innerHTML = (lang === 'id') ? "Belum punya akun? <b>Daftar Akun VIP</b>" : "No account? <b>Register VIP</b>";
-            } else {
-                sw.innerHTML = (lang === 'id') ? "Sudah punya akun? <b>Login di sini</b>" : "Already have an account? <b>Login here</b>";
-            }
-        }
-
         function toggleMode() {
             isLogin = !isLogin;
-            const lang = localStorage.getItem('appLang') || 'id';
             const extra = document.getElementById('extra-fields');
             const ref = document.getElementById('ref-group'); 
             const label = document.getElementById('form-label');
             const btn = document.getElementById('btn-text');
-            const userInp = document.getElementById('username');
+            const sw = document.getElementById('auth-switch');
 
             if (isLogin) {
                 extra.style.display = 'none';
                 ref.style.display = 'none'; 
-                label.innerText = (lang === 'id') ? "LOGIN MEMBER" : "MEMBER LOGIN";
-                btn.innerText = (lang === 'id') ? "Masuk Sekarang" : "Login Now";
-                userInp.placeholder = (lang === 'id') ? "Masukkan username anda" : "Enter your username";
+                label.innerText = "LOGIN MEMBER";
+                btn.innerText = "Masuk Sekarang";
+                sw.innerHTML = "Belum punya akun? <b>Daftar Akun VIP</b>";
             } else {
                 extra.style.display = 'block';
                 ref.style.display = 'block'; 
-                label.innerText = (lang === 'id') ? "PENDAFTARAN" : "REGISTRATION";
-                btn.innerText = (lang === 'id') ? "Daftar Sekarang" : "Register Now";
-                userInp.placeholder = (lang === 'id') ? "Buat username unik" : "Create unique username";
+                label.innerText = "PENDAFTARAN";
+                btn.innerText = "Daftar Sekarang";
+                sw.innerHTML = "Sudah punya akun? <b>Login di sini</b>";
             }
-            updateSwitchText();
         }
 
         async function processAuth() {
             const user = document.getElementById('username').value.trim();
             const pass = document.getElementById('password').value;
-            const lang = localStorage.getItem('appLang') || 'id';
 
             if (user === "" || pass.length < 6) {
-                showNeonModal("err-auth-fields");
+                showNeonModal("Username & Password (min 6 karakter) wajib diisi!", "ERROR");
                 return;
             }
 
@@ -261,7 +231,7 @@
 
             try {
                 if (isLogin) {
-                    // PROSES LOGIN MENGGUNAKAN FUNGSI DI GLOBAL.JS
+                    // --- PROSES LOGIN ---
                     const result = await fetchCloud({
                         action: "login",
                         username: user,
@@ -271,18 +241,18 @@
                     document.getElementById('loading-overlay').style.display = 'none';
 
                     if (result && result !== "FAILED") {
+                        // Simpan Sesi
                         localStorage.setItem('user_session', result.username); 
-                        localStorage.setItem('user_vip', result.username);
                         localStorage.setItem('saldo_permainan', result.saldo);
-                        localStorage.setItem('user_tier', result.tier);
-                        localStorage.setItem('winrate_setting', result.winrate);
+                        localStorage.setItem('user_tier', result.tier || "BRONZE");
+                        localStorage.setItem('winrate_setting', result.winrate || 0.5);
                         
-                        showNeonModal("success-login", false, "modal-success", "game.html");
+                        showNeonModal("Login Berhasil! Selamat Datang.", "BERHASIL", "game.html");
                     } else {
-                        showNeonModal("err-wrong-pass");
+                        showNeonModal("Username atau Password salah!", "GAGAL");
                     }
                 } else {
-                    // PROSES DAFTAR
+                    // --- PROSES DAFTAR ---
                     const phone = document.getElementById('phone').value.trim();
                     const full = document.getElementById('fullname').value.trim();
                     const rek = document.getElementById('rekening').value.trim();
@@ -291,10 +261,11 @@
 
                     if (!phone || !full || !rek) {
                         document.getElementById('loading-overlay').style.display = 'none';
-                        showNeonModal("err-incomplete");
+                        showNeonModal("Lengkapi semua data pendaftaran!", "DATA KURANG");
                         return;
                     }
 
+                    // Menyesuaikan variabel dengan Apps Script
                     const result = await fetchCloud({
                         action: "register",
                         username: user,
@@ -310,29 +281,28 @@
 
                     if (result === "SUCCESS") {
                         localStorage.setItem('user_session', user); 
-                        localStorage.setItem('user_vip', user);
                         localStorage.setItem('saldo_permainan', 0);
-                        localStorage.setItem('user_tier', "BRONZE");
-                        localStorage.setItem('winrate_setting', 0.5);
-                        
-                        showNeonModal("success-reg", false, "modal-success", "game.html");
+                        showNeonModal("Daftar Berhasil! Silakan masuk ke game.", "SUKSES", "game.html");
                     } else if (result === "EXISTS") {
-                        showNeonModal("err-user-exist");
+                        showNeonModal("Username sudah terdaftar, gunakan nama lain.", "USER ADA");
                     } else {
-                        showNeonModal("Gagal terhubung ke database. Pastikan URL Script benar.", true, "ERROR");
+                        showNeonModal("Pendaftaran gagal. Pastikan URL Script Benar.", "ERROR");
                     }
                 }
             } catch (error) {
                 document.getElementById('loading-overlay').style.display = 'none';
-                console.error("Auth Error:", error);
-                showNeonModal("Terjadi kesalahan jaringan atau server.", true, "ERROR");
+                showNeonModal("Gagal terhubung ke server cloud.", "TIMEOUT");
             }
         }
 
-        window.addEventListener('load', () => {
-            if(typeof applyLanguage === 'function') applyLanguage();
-            updateSwitchText();
-        });
+        window.onload = () => {
+            toggleMode(); // Set default view (biasanya login dulu atau daftar sesuai innerHTML)
+            // Deteksi parameter ref di URL
+            const urlParams = new URLSearchParams(window.location.search);
+            if(urlParams.get('ref')) {
+                document.getElementById('referral_code').value = urlParams.get('ref');
+            }
+        };
     </script>
 </body>
 </html>
