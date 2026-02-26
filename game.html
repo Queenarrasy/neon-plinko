@@ -37,7 +37,8 @@
 
         #game-container { position: relative; width: 100%; height: 320px; flex-shrink: 0; margin-top: 5px; overflow: hidden;}
         .peg { position: absolute; width: 6px; height: 6px; background: white; border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 8px #fff; }
-        .ball { position: absolute; width: 12px; height: 12px; background: var(--pink); border-radius: 50%; box-shadow: 0 0 15px var(--pink); z-index: 10; transform: translate(-50%, -50%); pointer-events: none; opacity: 0; transition: opacity 0.2s; will-change: left, top; }
+        /* UKURAN BOLA DIPERBESAR KE 15PX */
+        .ball { position: absolute; width: 15px; height: 15px; background: var(--pink); border-radius: 50%; box-shadow: 0 0 15px var(--pink); z-index: 10; transform: translate(-50%, -50%); pointer-events: none; opacity: 0; transition: opacity 0.2s; will-change: left, top; }
 
         .multipliers { display: flex; justify-content: center; gap: 3px; padding: 0; margin-top: 5px; z-index: 80; }
         .slot { flex: 0 0 38px; padding: 10px 0; border-radius: 6px; text-align: center; font-size: 9px; font-weight: 900; border: 1px solid rgba(255,255,255,0.2); }
@@ -56,7 +57,6 @@
         .toggle.active { border-color: var(--pink); color: var(--yellow); text-shadow: var(--yellow-neon); box-shadow: inset 0 0 10px var(--pink); }
         .btn-main { width: 100%; padding: 18px; border-radius: 50px; border: none; font-weight: 900; font-size: 18px; text-transform: uppercase; cursor: pointer; background: linear-gradient(90deg, var(--pink), var(--blue)); color: white; outline: none !important; -webkit-tap-highlight-color: transparent; box-shadow: 0 0 20px var(--pink); }
 
-        /* Popups */
         #score-board { position: absolute; left: 10px; top: 100px; width: 75px; display: flex; flex-direction: column; gap: 6px; z-index: 50; }
         .score-popup { background: rgba(0,0,0,0.85); border: 1px solid var(--blue); font-size: 9px; padding: 6px; border-radius: 6px; text-align: center; font-weight: 900; color: var(--yellow); text-shadow: var(--yellow-neon); animation: popupFade 3s forwards; }
         @keyframes popupFade { 0% { transform: scale(0.5) translateX(-20px); opacity: 0; } 10% { transform: scale(1.05) translateX(0); opacity: 1; } 100% { opacity: 0; transform: translateY(-10px); } }
@@ -138,7 +138,6 @@
         }
         function closeNeonModal() { document.getElementById('neon-overlay').style.display = 'none'; }
 
-        // Init Pegs
         for (let r = 2; r <= 8; r++) {
             for (let i = 0; i < r; i++) {
                 const peg = document.createElement('div');
@@ -198,79 +197,75 @@
 
             const ball = {
                 el: ballEl,
-                x: container.offsetWidth / 2 + (Math.random()*6-3),
-                y: -10, 
-                vx: (Math.random()-0.5)*1.5,
+                x: container.offsetWidth / 2 + (Math.random()*10-5),
+                y: -15, 
+                vx: (Math.random()-0.5)*2,
                 vy: 0,
-                radius: 6,
-                isFinished: false,
-                lastPeg: null
+                radius: 7.5, // Ukuran radius baru
+                isFinished: false
             };
             activeBalls.push(ball);
 
-            // KONFIGURASI FISIKA
-            let grav = isTurbo ? 0.85 : 0.28; 
-            let step = isTurbo ? 3 : 1;    
-            let bouncePeg = isTurbo ? 2.3 : 2.0; 
-            let friction = 0.99;
+            let grav = isTurbo ? 0.98 : 0.32; 
+            let step = isTurbo ? 4 : 1;    
+            let bouncePeg = isTurbo ? 2.5 : 2.1; 
 
             const move = setInterval(() => {
                 if(ball.isFinished) { clearInterval(move); return; }
 
                 for(let s=0; s<step; s++){
                     ball.vy += grav/step;
-                    ball.vx *= friction;
                     ball.x += ball.vx/step;
                     ball.y += ball.vy/step;
 
                     if(ball.y > 30) ball.el.style.opacity = 1;
 
-                    // TABRAKAN ANTAR BOLA (Collision Logic)
+                    // TABRAKAN ANTAR BOLA
                     activeBalls.forEach(other => {
                         if (other === ball || other.isFinished) return;
                         const dx = ball.x - other.x;
                         const dy = ball.y - other.y;
                         const dist = Math.sqrt(dx*dx + dy*dy);
-                        if (dist < 12) { // 12 adalah diameter bola
+                        if (dist < 15) { 
                             const angle = Math.atan2(dy, dx);
-                            const speed1 = Math.sqrt(ball.vx**2 + ball.vy**2);
-                            const speed2 = Math.sqrt(other.vx**2 + other.vy**2);
-                            ball.vx = Math.cos(angle) * (speed1 + 0.2);
-                            ball.vy = Math.sin(angle) * (speed1 + 0.2);
-                            other.vx = Math.cos(angle + Math.PI) * (speed2 + 0.2);
-                            other.vy = Math.sin(angle + Math.PI) * (speed2 + 0.2);
+                            const force = 0.5;
+                            ball.vx += Math.cos(angle) * force;
+                            ball.vy += Math.sin(angle) * force;
+                            other.vx -= Math.cos(angle) * force;
+                            other.vy -= Math.sin(angle) * force;
                         }
                     });
 
-                    // PANTULAN PAKU (Peg Collision)
+                    // PANTULAN PAKU (LOGIKA NYATA BERPENCAR)
                     pegLocations.forEach(p => {
                         const dx = ball.x - p.x, dy = ball.y - p.y;
                         const dist = Math.sqrt(dx*dx + dy*dy);
-                        if(dist < 9.5) { 
+                        if(dist < 11) { // Collision threshold disesuaikan ukuran bola
                             const angle = Math.atan2(dy, dx);
-                            ball.vx = Math.cos(angle) * bouncePeg + (Math.random()-0.5)*0.5;
-                            ball.vy = Math.sin(angle) * bouncePeg;
-                            ball.x = p.x + Math.cos(angle) * 9.6;
-                            ball.y = p.y + Math.sin(angle) * 9.6;
+                            const scatter = (Math.random() - 0.5) * 1.1; // Efek berpencar liar
+                            ball.vx = Math.cos(angle + scatter) * bouncePeg;
+                            ball.vy = Math.sin(angle + scatter) * bouncePeg;
+                            // Reset posisi agar tidak nempel paku
+                            ball.x = p.x + Math.cos(angle) * 11.2;
+                            ball.y = p.y + Math.sin(angle) * 11.2;
                         }
                     });
 
-                    // ANTI STUCK (Jika bola berhenti horizontal di tengah paku)
-                    if (Math.abs(ball.vx) < 0.05 && ball.y < 280) {
-                        ball.vx = (Math.random() - 0.5) * 1.5;
+                    // ANTI-STUCK (DORONGAN JIKA MACET)
+                    if (Math.abs(ball.vx) < 0.1 && ball.y < 300) {
+                        ball.vx += (Math.random() - 0.5) * 2;
                     }
 
                     // TABRAKAN DINDING
-                    if(ball.x < 12 || ball.x > container.offsetWidth-12) {
-                        ball.vx *= -0.6;
-                        ball.x = ball.x < 12 ? 12 : container.offsetWidth-12;
+                    if(ball.x < 15 || ball.x > container.offsetWidth-15) {
+                        ball.vx *= -0.7;
+                        ball.x = ball.x < 15 ? 15 : container.offsetWidth-15;
                     }
                 }
 
                 ball.el.style.left = ball.x + 'px';
                 ball.el.style.top = ball.y + 'px';
 
-                // HIT SLOT
                 if(ball.y > 335) {
                     ball.isFinished = true;
                     const centerX = container.offsetWidth / 2;
