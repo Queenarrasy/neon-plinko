@@ -37,7 +37,6 @@
 
         #game-container { position: relative; width: 100%; height: 320px; flex-shrink: 0; margin-top: 5px; overflow: hidden;}
         .peg { position: absolute; width: 6px; height: 6px; background: white; border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 8px #fff; }
-        /* UKURAN BOLA DIPERBESAR KE 15PX */
         .ball { position: absolute; width: 15px; height: 15px; background: var(--pink); border-radius: 50%; box-shadow: 0 0 15px var(--pink); z-index: 10; transform: translate(-50%, -50%); pointer-events: none; opacity: 0; transition: opacity 0.2s; will-change: left, top; }
 
         .multipliers { display: flex; justify-content: center; gap: 3px; padding: 0; margin-top: 5px; z-index: 80; }
@@ -132,12 +131,6 @@
         let activeBalls = [], pegLocations = [];
         const slots = [5, 2, 1.2, 0.2, 1.2, 2, 5];
 
-        function showNeonModal(msg) {
-            document.getElementById('modal-msg').innerText = msg;
-            document.getElementById('neon-overlay').style.display = 'flex';
-        }
-        function closeNeonModal() { document.getElementById('neon-overlay').style.display = 'none'; }
-
         for (let r = 2; r <= 8; r++) {
             for (let i = 0; i < r; i++) {
                 const peg = document.createElement('div');
@@ -197,18 +190,17 @@
 
             const ball = {
                 el: ballEl,
-                x: container.offsetWidth / 2 + (Math.random()*10-5),
+                x: container.offsetWidth / 2 + (Math.random()*16-8),
                 y: -15, 
-                vx: (Math.random()-0.5)*2,
+                vx: (Math.random()-0.5)*3,
                 vy: 0,
-                radius: 7.5, // Ukuran radius baru
                 isFinished: false
             };
             activeBalls.push(ball);
 
-            let grav = isTurbo ? 0.98 : 0.32; 
-            let step = isTurbo ? 4 : 1;    
-            let bouncePeg = isTurbo ? 2.5 : 2.1; 
+            let grav = isTurbo ? 1.05 : 0.35; 
+            let step = isTurbo ? 5 : 1;    
+            let bouncePeg = isTurbo ? 2.8 : 2.2; 
 
             const move = setInterval(() => {
                 if(ball.isFinished) { clearInterval(move); return; }
@@ -220,7 +212,7 @@
 
                     if(ball.y > 30) ball.el.style.opacity = 1;
 
-                    // TABRAKAN ANTAR BOLA
+                    // BALL COLLISION
                     activeBalls.forEach(other => {
                         if (other === ball || other.isFinished) return;
                         const dx = ball.x - other.x;
@@ -228,37 +220,38 @@
                         const dist = Math.sqrt(dx*dx + dy*dy);
                         if (dist < 15) { 
                             const angle = Math.atan2(dy, dx);
-                            const force = 0.5;
-                            ball.vx += Math.cos(angle) * force;
-                            ball.vy += Math.sin(angle) * force;
-                            other.vx -= Math.cos(angle) * force;
-                            other.vy -= Math.sin(angle) * force;
+                            const push = isTurbo ? 0.8 : 0.4;
+                            ball.vx += Math.cos(angle) * push;
+                            ball.vy += Math.sin(angle) * push;
                         }
                     });
 
-                    // PANTULAN PAKU (LOGIKA NYATA BERPENCAR)
+                    // PEG COLLISION (DENGAN AGGRESSIVE TURBO SCATTER)
                     pegLocations.forEach(p => {
                         const dx = ball.x - p.x, dy = ball.y - p.y;
                         const dist = Math.sqrt(dx*dx + dy*dy);
-                        if(dist < 11) { // Collision threshold disesuaikan ukuran bola
+                        if(dist < 11) { 
                             const angle = Math.atan2(dy, dx);
-                            const scatter = (Math.random() - 0.5) * 1.1; // Efek berpencar liar
+                            // Turbo dipaksa berpencar lebih liar (scatter)
+                            const scatter = isTurbo ? (Math.random() - 0.5) * 1.5 : (Math.random() - 0.5) * 0.5;
                             ball.vx = Math.cos(angle + scatter) * bouncePeg;
                             ball.vy = Math.sin(angle + scatter) * bouncePeg;
-                            // Reset posisi agar tidak nempel paku
-                            ball.x = p.x + Math.cos(angle) * 11.2;
-                            ball.y = p.y + Math.sin(angle) * 11.2;
+                            
+                            ball.x = p.x + Math.cos(angle) * 11.5;
+                            ball.y = p.y + Math.sin(angle) * 11.5;
                         }
                     });
 
-                    // ANTI-STUCK (DORONGAN JIKA MACET)
-                    if (Math.abs(ball.vx) < 0.1 && ball.y < 300) {
-                        ball.vx += (Math.random() - 0.5) * 2;
+                    // TOTAL ANTI-STUCK LOGIC
+                    if (ball.y < 300) {
+                        // Jika bola berhenti atau sangat lambat secara vertikal, beri dorongan jatuh
+                        if (Math.abs(ball.vy) < 0.2) ball.vy += 1; 
+                        // Jika macet secara horizontal
+                        if (Math.abs(ball.vx) < 0.05) ball.vx = (Math.random() - 0.5) * 3;
                     }
 
-                    // TABRAKAN DINDING
                     if(ball.x < 15 || ball.x > container.offsetWidth-15) {
-                        ball.vx *= -0.7;
+                        ball.vx *= -0.6;
                         ball.x = ball.x < 15 ? 15 : container.offsetWidth-15;
                     }
                 }
