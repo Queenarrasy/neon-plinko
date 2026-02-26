@@ -36,11 +36,46 @@
         #display-saldo { font-size: 18px; font-weight: 900; }
 
         #game-container { position: relative; width: 100%; height: 380px; flex-shrink: 0; margin-top: 5px; overflow: hidden; }
-        .peg { position: absolute; width: 6px; height: 6px; background: white; border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 8px #fff; z-index: 5; }
-        .ball { position: absolute; width: 14px; height: 14px; background: var(--pink); border-radius: 50%; box-shadow: 0 0 15px var(--pink); z-index: 10; transform: translate(-50%, -50%); pointer-events: none; will-change: left, top; }
+        
+        /* Peg/Paku Design */
+        .peg { 
+            position: absolute; 
+            width: 8px; 
+            height: 8px; 
+            background: #fff; 
+            border-radius: 50%; 
+            transform: translate(-50%, -50%); 
+            box-shadow: 0 0 10px #fff, 0 0 20px var(--blue); 
+            z-index: 5; 
+        }
+
+        .ball { 
+            position: absolute; 
+            width: 14px; 
+            height: 14px; 
+            background: radial-gradient(circle at 30% 30%, var(--pink), #900);
+            border-radius: 50%; 
+            box-shadow: 0 0 15px var(--pink); 
+            z-index: 10; 
+            transform: translate(-50%, -50%); 
+            pointer-events: none; 
+            will-change: left, top; 
+        }
 
         .multipliers { display: flex; justify-content: center; gap: 4px; padding: 0 5px; margin-top: 10px; z-index: 80; }
-        .slot { flex: 1; max-width: 45px; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 6px; font-size: 10px; font-weight: 900; border: 1px solid rgba(255,255,255,0.2); transition: transform 0.1s; }
+        .slot { 
+            flex: 1; 
+            max-width: 45px; 
+            height: 40px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            border-radius: 6px; 
+            font-size: 11px; 
+            font-weight: 900; 
+            border: 1px solid rgba(255,255,255,0.2); 
+            transition: transform 0.1s, background 0.2s; 
+        }
         .m-pink { background: var(--pink); box-shadow: var(--pink-neon); }
         .m-yellow { background: var(--yellow); color: black; box-shadow: var(--yellow-neon); }
         .m-blue { background: var(--blue); color: black; box-shadow: var(--blue-neon); }
@@ -111,10 +146,12 @@
 
     <script src="global.js"></script>
     <script>
-        let winChance = 0.35; 
-        // Daftar BET terbaru sesuai permintaan
+        // --- ADMIN CONTROL ---
+        let winChance = 0.35; // Probabilitas bola diarahkan ke sisi luar (multiplier besar)
+        
+        const container = document.getElementById('game-container');
         const bets = [400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 4000, 6000, 8000, 10000, 12000, 16000, 18000, 20000];
-        let betIdx = 3; // Mulai di 1,000 (index ke-3)
+        let betIdx = 3; 
         let isAuto = false;
         let autoInterval = null;
         let pegLocations = [];
@@ -123,20 +160,23 @@
         function initPegs() {
             container.innerHTML = '';
             pegLocations = [];
-            const rows = 9;
+            const rows = 9; 
+            const centerX = container.offsetWidth / 2;
+            
             for (let r = 2; r <= rows; r++) {
                 for (let i = 0; i < r; i++) {
                     const peg = document.createElement('div');
                     peg.className = 'peg';
-                    const xSpace = 44; 
-                    const ySpace = 36;
-                    const x = (i - (r - 1) / 2) * xSpace; 
+                    // Spasi horizontal dan vertikal agar sejajar dengan slot bawah
+                    const xSpace = 46; 
+                    const ySpace = 38;
+                    const x = centerX + (i - (r - 1) / 2) * xSpace; 
                     const y = r * ySpace; 
-                    const leftPos = container.offsetWidth / 2 + x;
-                    peg.style.left = leftPos + 'px';
+                    
+                    peg.style.left = x + 'px';
                     peg.style.top = y + 'px';
                     container.appendChild(peg);
-                    pegLocations.push({ x: leftPos, y: y });
+                    pegLocations.push({ x: x, y: y });
                 }
             }
         }
@@ -178,20 +218,21 @@
             ballEl.className = 'ball';
             container.appendChild(ballEl);
 
-            let startOffset = (Math.random() - 0.5) * 15;
+            // Admin Logic: Bias arah awal
+            let startOffset = (Math.random() - 0.5) * 10;
             if (Math.random() < winChance) startOffset = Math.random() > 0.5 ? 25 : -25;
 
             let ball = {
                 el: ballEl,
                 x: container.offsetWidth / 2 + startOffset,
-                y: 20,
-                vx: (Math.random() - 0.5) * 2.5,
+                y: 15,
+                vx: (Math.random() - 0.5) * 2,
                 vy: 0
             };
 
-            const gravity = 0.55; 
-            const friction = 0.99; 
-            const bounce = 0.45; 
+            const gravity = 0.6; 
+            const friction = 0.98; 
+            const bounce = 0.5; 
 
             const moveBall = setInterval(() => {
                 ball.vy += gravity;
@@ -199,47 +240,58 @@
                 ball.x += ball.vx;
                 ball.y += ball.vy;
 
+                // Peg Collision (Physics Realistik)
                 pegLocations.forEach(p => {
                     const dx = ball.x - p.x;
                     const dy = ball.y - p.y;
                     const dist = Math.sqrt(dx*dx + dy*dy);
-                    if (dist < 11) {
+                    if (dist < 11) { // 11 = radius bola + radius paku
                         const angle = Math.atan2(dy, dx);
                         const speed = Math.sqrt(ball.vx*ball.vx + ball.vy*ball.vy);
-                        ball.vx = Math.cos(angle) * speed * bounce + (Math.random()-0.5) * 2;
+                        
+                        // Pantulan berdasarkan sudut tabrakan
+                        ball.vx = Math.cos(angle) * speed * bounce + (Math.random()-0.5) * 2.5;
                         ball.vy = Math.sin(angle) * speed * bounce;
-                        ball.x = p.x + Math.cos(angle) * 11;
-                        ball.y = p.y + Math.sin(angle) * 11;
+                        
+                        // Geser bola agar tidak menempel di paku
+                        ball.x = p.x + Math.cos(angle) * 11.5;
+                        ball.y = p.y + Math.sin(angle) * 11.5;
                     }
                 });
 
-                if (ball.x < 15) { ball.x = 15; ball.vx *= -0.5; }
-                if (ball.x > container.offsetWidth - 15) { ball.x = container.offsetWidth - 15; ball.vx *= -0.5; }
+                // Wall Collision
+                if (ball.x < 10) { ball.x = 10; ball.vx *= -0.4; }
+                if (ball.x > container.offsetWidth - 10) { ball.x = container.offsetWidth - 10; ball.vx *= -0.4; }
 
                 ball.el.style.left = ball.x + 'px';
                 ball.el.style.top = ball.y + 'px';
 
-                if (ball.y > 375) {
+                // Hit Multiplier Area
+                if (ball.y > 378) {
                     clearInterval(moveBall);
                     
                     const containerRect = container.getBoundingClientRect();
                     const slotsEls = document.querySelectorAll('.slot');
-                    let finalSlot = -1; // Default -1 (Luas/Lose)
+                    let finalSlot = -1; 
 
-                    // Deteksi Tabrakan Kotak Perkalian secara ketat
+                    // Deteksi Tabrakan Kotak
                     slotsEls.forEach((s, index) => {
                         const sRect = s.getBoundingClientRect();
                         const ballGlobalX = ball.x + containerRect.left;
                         
-                        // Syarat: posisi bola harus berada di dalam rentang horizontal kotak
                         if (ballGlobalX >= sRect.left && ballGlobalX <= sRect.right) {
                             finalSlot = index;
+                            // Visual feedback ketika kena kotak
                             s.style.transform = "scale(1.15)";
-                            setTimeout(() => s.style.transform = "scale(1)", 150);
+                            s.style.filter = "brightness(1.5)";
+                            setTimeout(() => {
+                                s.style.transform = "scale(1)";
+                                s.style.filter = "brightness(1)";
+                            }, 200);
                         }
                     });
 
-                    // Jika masuk kotak (finalSlot >= 0)
+                    // Update Saldo HANYA jika masuk kotak
                     if (finalSlot !== -1) {
                         const win = Math.floor(bet * slots[finalSlot]);
                         if (typeof updateSaldo === 'function') updateSaldo(win);
@@ -255,8 +307,8 @@
                             setTimeout(() => p.remove(), 1000);
                         }
                     } else {
-                        // BOLA DI LUAR KOTAK (LOSE)
-                        console.log("Bola di luar kotak: LOSE");
+                        // Jika jatuh di area kosong (LOSE)
+                        console.log("Out of bounds: LOSE");
                     }
                     
                     ball.el.remove();
