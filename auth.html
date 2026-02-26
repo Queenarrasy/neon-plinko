@@ -81,9 +81,27 @@
             padding: 12px 0; width: 100%; border-radius: 50px; font-weight: 900;
             cursor: pointer; box-shadow: 0 0 15px var(--pink); text-transform: uppercase;
         }
+        
+        /* Loading Overlay */
+        #loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); display: none; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 2000000;
+        }
+        .spinner {
+            width: 50px; height: 50px; border: 5px solid rgba(0, 212, 255, 0.1);
+            border-top: 5px solid var(--blue); border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
+
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <p style="margin-top: 15px; color: var(--blue); font-weight: bold; letter-spacing: 2px;">PROCESSING...</p>
+    </div>
 
     <div id="neon-modal-overlay">
         <div class="neon-modal">
@@ -149,8 +167,7 @@
             <button type="button" class="btn-submit" onclick="processAuth()" id="btn-text" data-i18n="btn-reg">Daftar Sekarang</button>
         </form>
 
-        <div class="switch-link" id="auth-switch" onclick="toggleMode()">
-            </div>
+        <div class="switch-link" id="auth-switch" onclick="toggleMode()"></div>
     </div>
 
     <script src="global.js"></script>
@@ -158,11 +175,8 @@
         let isLogin = false;
         let redirectUrl = "";
 
-        // Fungsi Modal Neon dengan dukungan bahasa
         function showNeonModal(msgKey, isDirectText = false, titleKey = "modal-info", nextUrl = "") {
             const lang = localStorage.getItem('appLang') || 'id';
-            
-            // Mencoba mencari terjemahan di global.js, jika tidak ada gunakan fallback teks langsung
             let message = isDirectText ? msgKey : (translations[lang][msgKey] || msgKey);
             let title = translations[lang][titleKey] || titleKey;
 
@@ -185,7 +199,6 @@
             icon.classList.toggle('fa-eye-slash');
         }
 
-        // Sinkronisasi bahasa saat pindah mode Login/Daftar
         function updateSwitchText() {
             const lang = localStorage.getItem('appLang') || 'id';
             const sw = document.getElementById('auth-switch');
@@ -221,10 +234,10 @@
             updateSwitchText();
         }
 
-        function processAuth() {
+        // --- FUNGSI PROSES AUTH (SINKRONISASI CLOUD) ---
+        async function processAuth() {
             const user = document.getElementById('username').value.trim();
             const pass = document.getElementById('password').value;
-            const db = JSON.parse(localStorage.getItem('database_users') || "[]");
             const lang = localStorage.getItem('appLang') || 'id';
 
             if (user === "" || pass.length < 6) {
@@ -232,43 +245,71 @@
                 return;
             }
 
+            document.getElementById('loading-overlay').style.display = 'flex';
+
             if (isLogin) {
-                const found = db.find(u => u.username === user && u.password === pass);
-                if (found) {
-                    localStorage.setItem('user_session', found.username); 
-                    localStorage.setItem('user_vip', found.username);
+                // PROSES LOGIN KE CLOUD
+                const result = await fetchCloud({
+                    action: "login",
+                    username: user,
+                    password: pass
+                });
+
+                document.getElementById('loading-overlay').style.display = 'none';
+
+                if (result && result !== "FAILED") {
+                    localStorage.setItem('user_session', result.username); 
+                    localStorage.setItem('user_vip', result.username);
+                    localStorage.setItem('saldo_permainan', result.saldo);
+                    localStorage.setItem('user_tier', result.tier);
+                    localStorage.setItem('winrate_setting', result.winrate);
+                    
                     showNeonModal("success-login", false, "modal-success", "game.html");
                 } else {
                     showNeonModal("err-wrong-pass");
                 }
             } else {
+                // PROSES DAFTAR KE CLOUD
                 const phone = document.getElementById('phone').value.trim();
                 const full = document.getElementById('fullname').value.trim();
                 const rek = document.getElementById('rekening').value.trim();
                 const bank = document.getElementById('bank').value;
 
                 if (!phone || !full || !rek) {
+                    document.getElementById('loading-overlay').style.display = 'none';
                     showNeonModal("err-incomplete");
                     return;
                 }
 
-                if (db.some(u => u.username === user)) {
-                    showNeonModal("err-user-exist");
-                    return;
-                }
+                const result = await fetchCloud({
+                    action: "register",
+                    username: user,
+                    password: pass,
+                    phone: phone,
+                    fullname: full,
+                    bank: bank,
+                    rekening: rek
+                });
 
-                const newUser = { username: user, password: pass, phone, fullname: full, bank, rekening: rek };
-                db.push(newUser);
-                localStorage.setItem('database_users', JSON.stringify(db));
-                localStorage.setItem('user_session', user); 
-                localStorage.setItem('user_vip', user);
-                
-                showNeonModal("success-reg", false, "modal-success", "game.html");
+                document.getElementById('loading-overlay').style.display = 'none';
+
+                if (result === "SUCCESS") {
+                    localStorage.setItem('user_session', user); 
+                    localStorage.setItem('user_vip', user);
+                    localStorage.setItem('saldo_permainan', 0);
+                    localStorage.setItem('user_tier', "BRONZE");
+                    localStorage.setItem('winrate_setting', 0.5);
+                    
+                    showNeonModal("success-reg", false, "modal-success", "game.html");
+                } else if (result === "EXISTS") {
+                    showNeonModal("err-user-exist");
+                } else {
+                    showNeonModal("Gagal terhubung ke server. Coba lagi.", true, "ERROR");
+                }
             }
         }
 
         window.addEventListener('load', () => {
-            // Pastikan kunci bahasa tambahan sudah ada di global.js
             if(typeof applyLanguage === 'function') applyLanguage();
             updateSwitchText();
         });
