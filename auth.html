@@ -175,13 +175,16 @@
         let isLogin = false;
         let redirectUrl = "";
 
-        // Tambahan: Ambil kode referral dari URL jika ada (misal: register.html?ref=ADMIN123)
+        // Tambahan: Ambil kode referral dari URL jika ada
         window.addEventListener('DOMContentLoaded', () => {
             const params = new URLSearchParams(window.location.search);
             const refParam = params.get('ref');
             if (refParam) {
-                document.getElementById('referral_code').value = refParam;
-                document.getElementById('referral_code').style.borderColor = 'var(--yellow)';
+                const refInput = document.getElementById('referral_code');
+                if (refInput) {
+                    refInput.value = refParam;
+                    refInput.style.borderColor = 'var(--yellow)';
+                }
             }
         });
 
@@ -256,67 +259,73 @@
 
             document.getElementById('loading-overlay').style.display = 'flex';
 
-            if (isLogin) {
-                // SINKRON LOGIN KE GLOBAL.JS / CLOUD
-                const result = await fetchCloud({
-                    action: "login",
-                    username: user,
-                    password: pass
-                });
+            try {
+                if (isLogin) {
+                    // PROSES LOGIN MENGGUNAKAN FUNGSI DI GLOBAL.JS
+                    const result = await fetchCloud({
+                        action: "login",
+                        username: user,
+                        password: pass
+                    });
 
-                document.getElementById('loading-overlay').style.display = 'none';
-
-                if (result && result !== "FAILED") {
-                    localStorage.setItem('user_session', result.username); 
-                    localStorage.setItem('user_vip', result.username);
-                    localStorage.setItem('saldo_permainan', result.saldo);
-                    localStorage.setItem('user_tier', result.tier);
-                    localStorage.setItem('winrate_setting', result.winrate);
-                    
-                    showNeonModal("success-login", false, "modal-success", "game.html");
-                } else {
-                    showNeonModal("err-wrong-pass");
-                }
-            } else {
-                // SINKRON REGISTER KE GLOBAL.JS / CLOUD
-                const phone = document.getElementById('phone').value.trim();
-                const full = document.getElementById('fullname').value.trim();
-                const rek = document.getElementById('rekening').value.trim();
-                const bank = document.getElementById('bank').value;
-                const refCode = document.getElementById('referral_code').value.trim();
-
-                if (!phone || !full || !rek) {
                     document.getElementById('loading-overlay').style.display = 'none';
-                    showNeonModal("err-incomplete");
-                    return;
-                }
 
-                const result = await fetchCloud({
-                    action: "register",
-                    username: user,
-                    password: pass,
-                    phone: phone,
-                    fullname: full,
-                    bank: bank,
-                    rekening: rek,
-                    referral_from: refCode // Kirim kode referral ke Spreadsheet
-                });
-
-                document.getElementById('loading-overlay').style.display = 'none';
-
-                if (result === "SUCCESS") {
-                    localStorage.setItem('user_session', user); 
-                    localStorage.setItem('user_vip', user);
-                    localStorage.setItem('saldo_permainan', 0);
-                    localStorage.setItem('user_tier', "BRONZE");
-                    localStorage.setItem('winrate_setting', 0.5);
-                    
-                    showNeonModal("success-reg", false, "modal-success", "game.html");
-                } else if (result === "EXISTS") {
-                    showNeonModal("err-user-exist");
+                    if (result && result !== "FAILED") {
+                        localStorage.setItem('user_session', result.username); 
+                        localStorage.setItem('user_vip', result.username);
+                        localStorage.setItem('saldo_permainan', result.saldo);
+                        localStorage.setItem('user_tier', result.tier);
+                        localStorage.setItem('winrate_setting', result.winrate);
+                        
+                        showNeonModal("success-login", false, "modal-success", "game.html");
+                    } else {
+                        showNeonModal("err-wrong-pass");
+                    }
                 } else {
-                    showNeonModal("Gagal terhubung ke server. Coba lagi.", true, "ERROR");
+                    // PROSES DAFTAR
+                    const phone = document.getElementById('phone').value.trim();
+                    const full = document.getElementById('fullname').value.trim();
+                    const rek = document.getElementById('rekening').value.trim();
+                    const bank = document.getElementById('bank').value;
+                    const refCode = document.getElementById('referral_code').value.trim();
+
+                    if (!phone || !full || !rek) {
+                        document.getElementById('loading-overlay').style.display = 'none';
+                        showNeonModal("err-incomplete");
+                        return;
+                    }
+
+                    const result = await fetchCloud({
+                        action: "register",
+                        username: user,
+                        password: pass,
+                        phone: phone,
+                        fullname: full,
+                        bank: bank,
+                        rekening: rek,
+                        referral_from: refCode
+                    });
+
+                    document.getElementById('loading-overlay').style.display = 'none';
+
+                    if (result === "SUCCESS") {
+                        localStorage.setItem('user_session', user); 
+                        localStorage.setItem('user_vip', user);
+                        localStorage.setItem('saldo_permainan', 0);
+                        localStorage.setItem('user_tier', "BRONZE");
+                        localStorage.setItem('winrate_setting', 0.5);
+                        
+                        showNeonModal("success-reg", false, "modal-success", "game.html");
+                    } else if (result === "EXISTS") {
+                        showNeonModal("err-user-exist");
+                    } else {
+                        showNeonModal("Gagal terhubung ke database. Pastikan URL Script benar.", true, "ERROR");
+                    }
                 }
+            } catch (error) {
+                document.getElementById('loading-overlay').style.display = 'none';
+                console.error("Auth Error:", error);
+                showNeonModal("Terjadi kesalahan jaringan atau server.", true, "ERROR");
             }
         }
 
