@@ -1,5 +1,24 @@
 // GLOBAL SYSTEM - NEON PLINKO
-// Menangani Saldo, Win Rate, Database Referral, Bahasa, dan Keamanan
+// Menangani Saldo, Win Rate, Database Referral, Bahasa, Keamanan, dan Sinkronisasi Cloud
+
+// ============================================================
+// 0. KONFIGURASI DATABASE CLOUD (TAMBAHAN ADMIN)
+// ============================================================
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxV38jx0r-kiTeV_AQTYvT-q6Gn8MbqZmujvEbGWnF4p7HFyV8BWLUCAv_LuxmdVk30kg/exec";
+
+// Fungsi Universal untuk berkomunikasi dengan Google Sheets
+async function fetchCloud(data) {
+    try {
+        const response = await fetch(SCRIPT_URL, {
+            method: "POST",
+            body: JSON.stringify(data)
+        });
+        return await response.json();
+    } catch (e) {
+        console.error("Koneksi Database Gagal:", e);
+        return null;
+    }
+}
 
 // ============================================================
 // 1. SISTEM SALDO SINKRON
@@ -13,6 +32,16 @@ function updateSaldo(jumlah) {
     
     saldo += jumlah;
     localStorage.setItem('saldo_permainan', saldo);
+
+    // --- SINKRONISASI CLOUD KE ADMIN ---
+    const currentUsername = localStorage.getItem('user_session');
+    if (currentUsername && jumlah !== 0) {
+        fetchCloud({
+            action: "updateSaldo",
+            username: currentUsername,
+            newSaldo: saldo
+        });
+    }
     
     const display = document.getElementById('display-saldo');
     if (display) {
@@ -21,6 +50,7 @@ function updateSaldo(jumlah) {
     
     const tier = document.getElementById('tier-name');
     if (tier) {
+        // Tier otomatis berdasarkan saldo
         if (saldo >= 1000000) tier.innerText = "PLATINUM VIP";
         else if (saldo >= 500000) tier.innerText = "GOLD MEMBER";
         else tier.innerText = "BRONZE PLAYER";
@@ -194,7 +224,6 @@ function changeLanguage(lang) {
 function applyLanguage() {
     const lang = localStorage.getItem('appLang') || 'id';
     
-    // 1. Update Teks Berdasarkan Atribut data-i18n
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         if (translations[lang] && translations[lang][key]) {
@@ -206,7 +235,6 @@ function applyLanguage() {
         }
     });
 
-    // 2. Update Placeholder Input secara otomatis
     document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
         const key = el.getAttribute('data-i18n-placeholder');
         if (translations[lang] && translations[lang][key]) {
@@ -214,14 +242,12 @@ function applyLanguage() {
         }
     });
 
-    // 3. Update class active pada daftar bahasa
     const langItems = document.querySelectorAll('.lang-item');
     langItems.forEach(item => {
         item.classList.remove('active');
         if (item.id === 'lang-' + lang) item.classList.add('active');
     });
 
-    // 4. Sinkronisasi tombol play
     const playBtn = document.getElementById('play-btn');
     if (playBtn) {
         const isAutoActive = typeof isAuto !== 'undefined' && isAuto;
@@ -245,6 +271,18 @@ function updatePassword(newPass, confirmPass) {
     }
 
     localStorage.setItem('user_password', newPass);
+
+    // --- SINKRONISASI PASSWORD KE CLOUD ---
+    const user = localStorage.getItem('user_session');
+    if (user) {
+        fetchCloud({
+            action: "updateSaldo", 
+            username: user, 
+            newSaldo: parseInt(localStorage.getItem('saldo_permainan')), 
+            password: newPass 
+        });
+    }
+
     showNeonAlert(translations[lang]["msg-success-pass"], "SUCCESS");
     return true;
 }
@@ -252,7 +290,10 @@ function updatePassword(newPass, confirmPass) {
 // ============================================================
 // 4. SISTEM REFERRAL & WIN RATE
 // ============================================================
-function getWinRate() { return parseInt(localStorage.getItem('admin_win_rate')) || 30; }
+function getWinRate() { 
+    // Mengambil winrate yang diatur Admin (0.1 - 0.9) dari Cloud yang disimpan saat login
+    return parseFloat(localStorage.getItem('winrate_setting')) || 0.5; 
+}
 
 function registerReferral(usernameBaru, kodeRef) {
     if (!kodeRef) return;
@@ -303,7 +344,6 @@ document.body.appendChild(modalContainer);
 window.closeNeonAlert = function() { document.getElementById('neon-global-overlay').style.display = 'none'; };
 window.showNeonAlert = function(msg, title = "INFO") {
     const lang = localStorage.getItem('appLang') || 'id';
-    // Gunakan terjemahan untuk tombol jika ada
     const btnText = translations[lang]["btn-understand"] || "MENGERTI";
     
     document.getElementById('neon-title').innerText = title;
@@ -312,7 +352,6 @@ window.showNeonAlert = function(msg, title = "INFO") {
     document.getElementById('neon-global-overlay').style.display = 'flex';
 };
 
-// Mengubah alert browser default menjadi Modal Neon
 window.alert = function(message) { 
     const lang = localStorage.getItem('appLang') || 'id';
     showNeonAlert(message, translations[lang]["modal-info"] || "NOTIFIKASI"); 
@@ -320,6 +359,7 @@ window.alert = function(message) {
 
 // LOAD SEMUA SISTEM SAAT HALAMAN DIBUKA
 window.addEventListener('load', () => {
+    // Tampilkan saldo lokal dulu sambil menunggu update cloud jika perlu
     updateSaldo(0);
     applyLanguage();
 });
