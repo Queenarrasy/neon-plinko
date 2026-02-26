@@ -223,7 +223,7 @@
             const pass = document.getElementById('password').value;
 
             if (user === "" || pass.length < 6) {
-                showNeonModal("Username & Password (min 6 karakter) wajib diisi!", "ERROR");
+                showNeonModal("Username & Password (min 6) wajib diisi!", "ERROR");
                 return;
             }
 
@@ -231,73 +231,47 @@
 
             try {
                 if (isLogin) {
-                    // --- PROSES LOGIN ---
+                    // PROSES LOGIN
                     const result = await fetchCloud({
                         action: "login",
                         username: user,
                         password: pass
                     });
-
                     document.getElementById('loading-overlay').style.display = 'none';
-
                     if (result && result !== "FAILED") {
-                        // Simpan Sesi
-                        localStorage.setItem('user_session', result.username); 
-                        localStorage.setItem('saldo_permainan', result.saldo);
-                        localStorage.setItem('user_tier', result.tier || "BRONZE");
-                        localStorage.setItem('winrate_setting', result.winrate || 0.5);
-                        
-                        showNeonModal("Login Berhasil! Selamat Datang.", "BERHASIL", "game.html");
+                        localStorage.setItem('user_session', result.username);
+                        showNeonModal("Login Berhasil!", "SUKSES", "game.html");
                     } else {
                         showNeonModal("Username atau Password salah!", "GAGAL");
                     }
                 } else {
-                    // --- PROSES DAFTAR ---
-                    const phone = document.getElementById('phone').value.trim();
-                    const full = document.getElementById('fullname').value.trim();
-                    const rek = document.getElementById('rekening').value.trim();
-                    const bank = document.getElementById('bank').value;
-                    const refCode = document.getElementById('referral_code').value.trim();
-
-                    if (!phone || !full || !rek) {
-                        document.getElementById('loading-overlay').style.display = 'none';
-                        showNeonModal("Lengkapi semua data pendaftaran!", "DATA KURANG");
-                        return;
-                    }
-
-                    // Menyesuaikan variabel dengan Apps Script
+                    // PROSES DAFTAR
                     const result = await fetchCloud({
                         action: "register",
                         username: user,
                         password: pass,
-                        phone: phone,
-                        fullname: full,
-                        bank: bank,
-                        rekening: rek,
-                        referral_from: refCode
+                        phone: document.getElementById('phone').value,
+                        fullname: document.getElementById('fullname').value,
+                        bank: document.getElementById('bank').value,
+                        rekening: document.getElementById('rekening').value
                     });
-
                     document.getElementById('loading-overlay').style.display = 'none';
-
                     if (result === "SUCCESS") {
-                        localStorage.setItem('user_session', user); 
-                        localStorage.setItem('saldo_permainan', 0);
-                        showNeonModal("Daftar Berhasil! Silakan masuk ke game.", "SUKSES", "game.html");
+                        showNeonModal("Pendaftaran Berhasil!", "SUKSES", "game.html");
                     } else if (result === "EXISTS") {
-                        showNeonModal("Username sudah terdaftar, gunakan nama lain.", "USER ADA");
+                        showNeonModal("Username sudah terdaftar!", "GAGAL");
                     } else {
-                        showNeonModal("Pendaftaran gagal. Pastikan URL Script Benar.", "ERROR");
+                        showNeonModal("Gagal terhubung ke database. Cek URL Script!", "ERROR");
                     }
                 }
             } catch (error) {
                 document.getElementById('loading-overlay').style.display = 'none';
-                showNeonModal("Gagal terhubung ke server cloud.", "TIMEOUT");
+                showNeonModal("Kesalahan Jaringan!", "ERROR");
             }
         }
 
         window.onload = () => {
-            toggleMode(); // Set default view (biasanya login dulu atau daftar sesuai innerHTML)
-            // Deteksi parameter ref di URL
+            toggleMode(); 
             const urlParams = new URLSearchParams(window.location.search);
             if(urlParams.get('ref')) {
                 document.getElementById('referral_code').value = urlParams.get('ref');
