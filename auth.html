@@ -239,24 +239,46 @@
                     });
                     document.getElementById('loading-overlay').style.display = 'none';
                     if (result && result !== "FAILED") {
+                        // Simpan data login agar muncul di Profil/Withdraw
                         localStorage.setItem('user_session', result.username);
+                        localStorage.setItem('fullname', result.fullname || "");
+                        localStorage.setItem('bank_name', result.bank || "");
+                        localStorage.setItem('account_no', result.rekening || "");
+                        localStorage.setItem('phone', result.phone || "");
+                        localStorage.setItem('saldo_permainan', result.saldo || 0);
+                        
                         showNeonModal("Login Berhasil!", "SUKSES", "game.html");
                     } else {
                         showNeonModal("Username atau Password salah!", "GAGAL");
                     }
                 } else {
+                    // Ambil nilai input daftar
+                    const phoneVal = document.getElementById('phone').value;
+                    const fullVal = document.getElementById('fullname').value;
+                    const bankVal = document.getElementById('bank').value;
+                    const rekVal = document.getElementById('rekening').value;
+
                     // PROSES DAFTAR
                     const result = await fetchCloud({
                         action: "register",
                         username: user,
                         password: pass,
-                        phone: document.getElementById('phone').value,
-                        fullname: document.getElementById('fullname').value,
-                        bank: document.getElementById('bank').value,
-                        rekening: document.getElementById('rekening').value
+                        phone: phoneVal,
+                        fullname: fullVal,
+                        bank: bankVal,
+                        rekening: rekVal
                     });
                     document.getElementById('loading-overlay').style.display = 'none';
+                    
                     if (result === "SUCCESS") {
+                        // Simpan data pendaftaran ke localStorage agar profil tidak kosong
+                        localStorage.setItem('user_session', user);
+                        localStorage.setItem('fullname', fullVal);
+                        localStorage.setItem('bank_name', bankVal);
+                        localStorage.setItem('account_no', rekVal);
+                        localStorage.setItem('phone', phoneVal);
+                        localStorage.setItem('saldo_permainan', 0);
+
                         showNeonModal("Pendaftaran Berhasil!", "SUKSES", "game.html");
                     } else if (result === "EXISTS") {
                         showNeonModal("Username sudah terdaftar!", "GAGAL");
