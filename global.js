@@ -50,13 +50,41 @@ const translations = {
         "nav-reward": "REWARD",
         "btn-play": "MULAI MAIN",
         "btn-stop": "STOP AUTO",
-        // Update untuk halaman lain
         "auth-title": "HALAMAN LOGIN",
         "label-user": "Username",
         "label-wd-limit": "Minimal Withdraw: IDR 50.000",
         "label-depo-info": "Pilih Metode Pembayaran",
         "btn-claim": "KLAIM SEKARANG",
-        "msg-welcome": "Selamat Datang di Neon Plinko!"
+        "msg-welcome": "Selamat Datang di Neon Plinko!",
+        
+        // --- TAMBAHAN KUNCI WITHDRAW ---
+        "label-saldo-game": "Saldo Permainan",
+        "label-name-rek": "NAMA SESUAI REKENING:",
+        "label-target-rek": "TUJUAN REKENING:",
+        "btn-submit-wd": "AJUKAN PENARIKAN",
+        "label-history-wd": "RIWAYAT PENARIKAN",
+        "th-date": "TANGGAL / WAKTU",
+        "th-total": "TOTAL",
+        "th-status": "STATUS",
+        
+        // --- TAMBAHAN KUNCI REWARD ---
+        "btn-back": "KEMBALI KE GAME",
+        "label-your-code": "KODE REFERRAL ANDA",
+        "hint-copy": "Klik kode di atas untuk menyalin",
+        "label-daily": "DAILY CHECK-IN",
+        "btn-claim-daily": "KLAIM HADIAH HARIAN",
+        "daily-warning": "* Segera klaim jatah harian Anda. Jatah yang terlewatkan 1 hari akan otomatis hangus dan tidak dapat diakumulasi.",
+        "label-inbox": "KOTAK MASUK",
+        "referral-title": "PROGRAM REFERRAL VIP",
+        "referral-desc": "Setiap teman yang mendaftar dan melakukan deposit pertama, Anda berhak mendapatkan bonus saldo.",
+        "bonus-tag": "BONUS IDR 5.000 / TEMAN",
+        "total-invite": "Total Undangan",
+        "reward-available": "Reward Tersedia",
+        "sunday-only": "Klaim hanya tersedia hari Minggu",
+        "btn-claim-sunday": "KLAIM REWARD (MINGGU)",
+        "invite-history": "RIWAYAT UNDANGAN",
+        "modal-title-info": "INFO",
+        "btn-understand": "MENGERTI"
     },
     en: {
         "nav-settings": "SETTINGS",
@@ -76,13 +104,41 @@ const translations = {
         "nav-reward": "REWARD",
         "btn-play": "START PLAY",
         "btn-stop": "STOP AUTO",
-        // Update for other pages
         "auth-title": "LOGIN PAGE",
         "label-user": "Username",
         "label-wd-limit": "Min Withdraw: IDR 50,000",
         "label-depo-info": "Choose Payment Method",
         "btn-claim": "CLAIM NOW",
-        "msg-welcome": "Welcome to Neon Plinko!"
+        "msg-welcome": "Welcome to Neon Plinko!",
+        
+        // --- ADDITIONAL WITHDRAW KEYS ---
+        "label-saldo-game": "Game Balance",
+        "label-name-rek": "ACCOUNT HOLDER NAME:",
+        "label-target-rek": "DESTINATION ACCOUNT:",
+        "btn-submit-wd": "SUBMIT WITHDRAWAL",
+        "label-history-wd": "WITHDRAWAL HISTORY",
+        "th-date": "DATE / TIME",
+        "th-total": "TOTAL",
+        "th-status": "STATUS",
+        
+        // --- ADDITIONAL REWARD KEYS ---
+        "btn-back": "BACK TO GAME",
+        "label-your-code": "YOUR REFERRAL CODE",
+        "hint-copy": "Click code above to copy",
+        "label-daily": "DAILY CHECK-IN",
+        "btn-claim-daily": "CLAIM DAILY REWARD",
+        "daily-warning": "* Claim your daily quota immediately. Missed daily claims will expire and cannot be accumulated.",
+        "label-inbox": "INBOX",
+        "referral-title": "VIP REFERRAL PROGRAM",
+        "referral-desc": "For every friend who registers and makes their first deposit, you are entitled to a bonus balance.",
+        "bonus-tag": "BONUS IDR 5,000 / FRIEND",
+        "total-invite": "Total Invites",
+        "reward-available": "Available Reward",
+        "sunday-only": "Claims only available on Sunday",
+        "btn-claim-sunday": "CLAIM REWARD (SUNDAY)",
+        "invite-history": "INVITATION HISTORY",
+        "modal-title-info": "INFO",
+        "btn-understand": "UNDERSTAND"
     }
 };
 
