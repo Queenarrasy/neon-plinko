@@ -77,9 +77,27 @@
             border-radius: 20px; padding: 25px; z-index: 10000; text-align: center; box-shadow: 0 0 50px var(--neon-blue);
         }
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; }
+        
+        /* Loading Overlay Tambahan */
+        #loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); display: none; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 2000000;
+        }
+        .spinner {
+            width: 40px; height: 40px; border: 4px solid rgba(0, 212, 255, 0.1);
+            border-top: 4px solid var(--neon-blue); border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
+
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <p style="margin-top: 15px; color: var(--neon-blue); font-size: 10px; font-weight: bold; letter-spacing: 2px;">SENDING REQUEST...</p>
+    </div>
 
     <div class="overlay" id="overlay"></div>
     <div id="neon-popup">
@@ -157,7 +175,6 @@
     <script>
         let metodeTerpilih = "QRIS";
 
-        // Fungsi untuk menerjemahkan status dan pesan dinamis
         function getLang() { return localStorage.getItem('appLang') || 'id'; }
 
         function showPopup(msgId, isError = false, directText = false) {
@@ -170,7 +187,6 @@
             if(directText) {
                 text.innerText = msgId;
             } else {
-                // Mengambil dari kamus global jika ada, jika tidak pakai fallback hardcode
                 if(window.translations && window.translations[lang] && window.translations[lang][msgId]) {
                     text.innerText = window.translations[lang][msgId];
                 } else {
@@ -213,9 +229,16 @@
             }
         }
 
-        function prosesDeposit() {
+        // --- FUNGSI PROSES DEPOSIT (CLOUD INTEGRATION) ---
+        async function prosesDeposit() {
             const nom = document.getElementById('input-nominal').value;
             const lang = getLang();
+            const username = localStorage.getItem('user_session');
+
+            if (!username) {
+                window.location.href = 'auth.html';
+                return;
+            }
             
             if (metodeTerpilih === "CRYPTO") {
                 if (!nom || nom < 10) return showPopup("err-min-crypto", true);
@@ -223,24 +246,43 @@
                 if(!nom || nom < 20000) return showPopup("err-min-idr", true);
             }
 
+            // Tampilkan Loading
+            document.getElementById('loading-overlay').style.display = 'flex';
+
             const skrg = new Date();
             const waktuLengkap = `${String(skrg.getDate()).padStart(2, '0')}/${String(skrg.getMonth() + 1).padStart(2, '0')}/${skrg.getFullYear()} ${String(skrg.getHours()).padStart(2, '0')}:${String(skrg.getMinutes()).padStart(2, '0')}`;
 
-            const data = { 
-                id: "DEP" + Math.floor(1000 + Math.random() * 9000),
-                waktu: waktuLengkap, 
-                jumlah: parseFloat(nom), 
-                metode: metodeTerpilih, 
-                status: "PENDING" 
-            };
+            // 1. Kirim Data ke Cloud (Google Sheets tab Topup)
+            const result = await fetchCloud({
+                action: "deposit",
+                username: username,
+                amount: parseFloat(nom),
+                method: metodeTerpilih,
+                date: waktuLengkap
+            });
 
-            let riwayat = JSON.parse(localStorage.getItem('riwayat_depo')) || [];
-            riwayat.unshift(data);
-            localStorage.setItem('riwayat_depo', JSON.stringify(riwayat));
+            document.getElementById('loading-overlay').style.display = 'none';
 
-            showPopup("success-depo");
-            document.getElementById('input-nominal').value = "";
-            muatRiwayat();
+            if (result === "SUCCESS") {
+                // 2. Simpan ke Riwayat Lokal
+                const data = { 
+                    id: "DEP" + Math.floor(1000 + Math.random() * 9000),
+                    waktu: waktuLengkap, 
+                    jumlah: parseFloat(nom), 
+                    metode: metodeTerpilih, 
+                    status: "PENDING" 
+                };
+
+                let riwayat = JSON.parse(localStorage.getItem('riwayat_depo')) || [];
+                riwayat.unshift(data);
+                localStorage.setItem('riwayat_depo', JSON.stringify(riwayat));
+
+                showPopup("success-depo");
+                document.getElementById('input-nominal').value = "";
+                muatRiwayat();
+            } else {
+                showPopup((lang === 'id') ? "Gagal mengirim permintaan. Coba lagi." : "Failed to send request. Try again.", true, true);
+            }
         }
 
         function muatRiwayat() {
@@ -273,7 +315,6 @@
         }
 
         window.addEventListener('load', () => {
-            // Memastikan applyLanguage dari global.js terpanggil
             if(typeof applyLanguage === 'function') applyLanguage();
             pilihMetode('QRIS'); 
             muatRiwayat();
