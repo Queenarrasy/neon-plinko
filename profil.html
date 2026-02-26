@@ -6,73 +6,145 @@
     <title>PROFIL NEON VIP</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --pink: #ff0077; --blue: #00d4ff; --bg: #070816; }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; padding: 20px; }
+        :root { 
+            --pink: #ff0077; 
+            --blue: #00d4ff; 
+            --yellow: #fbff00; 
+            --bg: #070816; 
+        }
+        
+        body { 
+            background: var(--bg); 
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(255, 0, 119, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(0, 212, 255, 0.1) 0%, transparent 40%);
+            color: white; 
+            font-family: 'Segoe UI', sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            padding: 20px;
+            min-height: 100vh;
+        }
         
         .card { 
-            width: 100%; max-width: 400px; background: rgba(255, 255, 255, 0.02); 
-            border: 2px solid var(--pink); border-radius: 30px; padding: 30px 20px;
-            box-shadow: 0 0 20px rgba(255, 0, 119, 0.2); text-align: center;
+            width: 100%; max-width: 420px; background: rgba(255, 255, 255, 0.02); 
+            border: 2px solid var(--blue); border-radius: 35px; padding: 35px 25px;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.2); text-align: center;
+            backdrop-filter: blur(15px);
         }
 
-        /* TIER PROGRESS AREA */
-        .tier-header { margin-bottom: 25px; }
-        #tier-name { font-weight: 900; letter-spacing: 3px; font-size: 18px; display: block; margin-bottom: 10px; color: var(--yellow); }
+        /* TIER AREA */
+        .tier-header { margin-bottom: 30px; }
+        #tier-name { 
+            font-weight: 900; letter-spacing: 5px; font-size: 22px; 
+            display: block; margin-bottom: 12px; 
+            color: var(--yellow); text-shadow: 0 0 15px var(--yellow);
+            text-transform: uppercase;
+        }
         
         .progress-container { 
-            background: #000; height: 12px; border-radius: 10px; border: 1px solid #333; 
-            overflow: hidden; margin: 10px 0; position: relative;
+            background: #000; height: 14px; border-radius: 20px; border: 1px solid #333; 
+            overflow: hidden; margin: 12px 0; position: relative; box-shadow: inset 0 0 10px #000;
         }
-        .progress-bar { width: 0%; height: 100%; transition: 1s ease-in-out; }
-        .tier-info-text { font-size: 10px; color: #888; display: flex; justify-content: space-between; font-weight: bold; }
+        .progress-bar { 
+            width: 0%; height: 100%; transition: 1.5s cubic-bezier(0.17, 0.67, 0.83, 0.67); 
+            box-shadow: 0 0 20px var(--pink);
+        }
+        .tier-info-text { font-size: 11px; color: var(--blue); display: flex; justify-content: space-between; font-weight: 900; letter-spacing: 1px; }
 
         /* SALDO BOX */
         .balance-card { 
-            background: linear-gradient(145deg, #000, #111); border: 1px solid var(--blue);
-            border-radius: 20px; padding: 20px; margin-bottom: 30px; box-shadow: 0 0 15px rgba(0, 212, 255, 0.1);
+            background: rgba(0, 0, 0, 0.6); border: 2px solid var(--pink);
+            border-radius: 25px; padding: 25px; margin-bottom: 30px; 
+            box-shadow: 0 0 20px rgba(255, 0, 119, 0.3);
+            position: relative; overflow: hidden;
         }
-        .balance-card small { color: var(--blue); text-transform: uppercase; font-size: 10px; letter-spacing: 2px; }
-        .balance-card h1 { margin: 10px 0 0; font-size: 28px; text-shadow: 0 0 10px var(--blue); }
+        .balance-card::before {
+            content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: conic-gradient(transparent, var(--pink), transparent);
+            animation: rotate 4s linear infinite; opacity: 0.1;
+        }
+        @keyframes rotate { 100% { transform: rotate(360deg); } }
+
+        .balance-card small { color: #fff; text-transform: uppercase; font-size: 11px; letter-spacing: 3px; position: relative; }
+        .balance-card h1 { margin: 15px 0 0; font-size: 32px; color: var(--yellow); text-shadow: 0 0 15px var(--yellow); position: relative; }
 
         /* DATA LIST */
         .data-list { text-align: left; }
         .data-item { 
-            background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; 
-            margin-bottom: 10px; border-left: 4px solid var(--pink);
+            background: rgba(255,255,255,0.05); padding: 15px; border-radius: 18px; 
+            margin-bottom: 12px; border-right: 4px solid var(--blue);
+            transition: 0.3s;
         }
-        .label { font-size: 9px; color: var(--pink); font-weight: 900; text-transform: uppercase; }
-        .val { font-size: 14px; color: #eee; margin-top: 3px; }
+        .data-item:hover { background: rgba(255,255,255,0.08); transform: translateX(5px); }
+        .label { font-size: 10px; color: var(--blue); font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+        .val { font-size: 16px; color: #fff; margin-top: 5px; font-weight: 500; }
 
         .btn { 
-            width: 100%; padding: 15px; border-radius: 15px; border: none; font-weight: 900; 
+            width: 100%; padding: 18px; border-radius: 20px; border: none; font-weight: 900; 
             text-transform: uppercase; cursor: pointer; margin-top: 15px; transition: 0.3s;
+            font-size: 14px; letter-spacing: 2px;
         }
-        .btn-game { background: var(--blue); color: #000; box-shadow: 0 0 20px var(--blue); }
-        .btn-logout { background: transparent; border: 1px solid #ff4444; color: #ff4444; }
+        .btn-game { 
+            background: linear-gradient(90deg, var(--blue), #0088ff); color: #000; 
+            box-shadow: 0 0 20px var(--blue);
+        }
+        .btn-logout { background: transparent; border: 2px solid var(--pink); color: var(--pink); box-shadow: 0 0 10px var(--pink); }
+        .btn:hover { transform: scale(1.03); filter: brightness(1.2); }
+
+        /* NEON MODAL POPUP */
+        #neon-modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 10000;
+            backdrop-filter: blur(10px);
+        }
+        .neon-modal {
+            background: #050612; border: 2px solid var(--yellow); border-radius: 30px;
+            padding: 30px; text-align: center; width: 85%; max-width: 320px;
+            box-shadow: 0 0 40px var(--yellow);
+            animation: popIn 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .neon-modal h2 { color: var(--pink); text-shadow: 0 0 10px var(--pink); margin-bottom: 15px; text-transform: uppercase; }
+        .modal-btns { display: flex; gap: 10px; margin-top: 25px; }
+        .m-btn { flex: 1; padding: 12px; border-radius: 50px; border: none; font-weight: 900; cursor: pointer; text-transform: uppercase; }
+        .btn-confirm { background: var(--blue); color: #000; }
+        .btn-cancel { background: #333; color: #fff; }
     </style>
 </head>
 <body>
 
+    <div id="neon-modal-overlay">
+        <div class="neon-modal">
+            <h2 id="modal-title">KONFIRMASI</h2>
+            <p id="modal-msg">Apakah Anda yakin ingin keluar dari akun VIP?</p>
+            <div class="modal-btns">
+                <button class="m-btn btn-cancel" onclick="closeModal()">Batal</button>
+                <button class="m-btn btn-confirm" onclick="executeLogout()">Ya, Logout</button>
+            </div>
+        </div>
+    </div>
+
     <div class="card">
         <div class="tier-header">
-            <span id="tier-name">LOADING...</span>
+            <span id="tier-name">LOADING VIP...</span>
             <div class="progress-container">
                 <div id="tier-progress-bar" class="progress-bar"></div>
             </div>
             <div class="tier-info-text">
-                <span>PROGRESS KE NEXT TIER</span>
+                <span>XP PROGRESS</span>
                 <span id="tier-persen">0%</span>
             </div>
         </div>
 
         <div class="balance-card">
-            <small>Total Saldo Permainan</small>
+            <small>Saldo Utama VIP</small>
             <h1 id="display-saldo">IDR 0</h1>
         </div>
 
         <div class="data-list">
             <div class="data-item">
-                <div class="label">Username</div>
+                <div class="label">ID Member</div>
                 <div class="val" id="p-user">-</div>
             </div>
             <div class="data-item">
@@ -80,27 +152,42 @@
                 <div class="val" id="p-full">-</div>
             </div>
             <div class="data-item">
-                <div class="label">Bank / E-Wallet</div>
+                <div class="label">Metode Pembayaran</div>
                 <div class="val" id="p-bank">-</div>
             </div>
             <div class="data-item">
-                <div class="label">No. Rekening</div>
-                <div class="val" id="p-rek">-</div>
+                <div class="label">Nomor Rekening</div> <div class="val" id="p-rek">-</div>
             </div>
             <div class="data-item">
-                <div class="label">Status Akun</div>
+                <div class="label">Status Keanggotaan</div>
                 <div class="val" id="p-status">-</div>
             </div>
         </div>
 
-        <button class="btn btn-game" onclick="location.href='game.html'">Main Sekarang</button>
-        <button class="btn btn-logout" onclick="logout()">Logout Akun</button>
+        <button class="btn btn-game" onclick="location.href='game.html'">
+            <i class="fas fa-play-circle"></i> Mulai Bermain
+        </button>
+        <button class="btn btn-logout" onclick="showLogoutModal()">
+            <i class="fas fa-sign-out-alt"></i> Logout Akun
+        </button>
     </div>
 
-    <script src="global.js"></script>
     <script>
+        function showLogoutModal() {
+            document.getElementById('neon-modal-overlay').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('neon-modal-overlay').style.display = 'none';
+        }
+
+        function executeLogout() {
+            localStorage.clear();
+            location.href = 'auth.html';
+        }
+
         function load() {
-            // --- BAGIAN PENAMBAHAN DATA SESUAI PERMINTAAN ANDA ---
+            // Mengambil data dari localStorage yang disimpan saat Login/Daftar
             const sessionUser = localStorage.getItem('user_session');
             
             if (sessionUser) {
@@ -110,36 +197,23 @@
                 document.getElementById('p-rek').innerText = localStorage.getItem('account_no') || "-";
                 document.getElementById('p-status').innerText = localStorage.getItem('user_status') || "ACTIVE";
                 
-                // Update Saldo & Tier Display
                 const saldo = parseInt(localStorage.getItem('saldo_permainan')) || 0;
                 const tier = localStorage.getItem('user_tier') || "BRONZE";
                 
-                document.getElementById('display-saldo').innerText = "IDR " + saldo.toLocaleString();
-                document.getElementById('tier-name').innerText = tier;
+                document.getElementById('display-saldo').innerText = "IDR " + saldo.toLocaleString('id-ID');
+                document.getElementById('tier-name').innerText = tier + " MEMBER";
 
-                // Hitung Progress Bar Tier (Visual)
-                let persen = (saldo / 1000000) * 100; // Contoh target 1jt ke tier gold
+                // Visual Progress Tier
+                let persen = (saldo / 2000000) * 100; // Contoh target 2jt untuk naik tier
                 if (persen > 100) persen = 100;
+                if (persen < 5) persen = 5; // Minimal biar bar kelihatan
                 
                 const bar = document.getElementById('tier-progress-bar');
-                if (bar) {
-                    bar.style.width = persen + "%";
-                    bar.style.background = tier === "BRONZE" ? "var(--pink)" : "var(--blue)";
-                }
+                bar.style.width = persen + "%";
+                bar.style.background = `linear-gradient(90deg, var(--pink), var(--yellow))`;
                 document.getElementById('tier-persen').innerText = Math.floor(persen) + "%";
             } else {
-                // Jika tidak ada session, lempar balik ke login
                 location.href = 'auth.html';
-            }
-        }
-
-        function logout() {
-            if (confirm("Apakah Anda yakin ingin keluar?")) {
-                // Hapus session tapi jangan hapus pengaturan bahasa jika ada
-                const currentLang = localStorage.getItem('appLang');
-                localStorage.clear();
-                if(currentLang) localStorage.setItem('appLang', currentLang);
-                location.href='auth.html';
             }
         }
 
