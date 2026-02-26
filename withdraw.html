@@ -20,7 +20,6 @@
             position: relative;
         }
 
-        /* Saldo Display */
         .saldo-container {
             background: #000;
             border: 1px solid var(--blue);
@@ -32,7 +31,6 @@
         .saldo-label { font-size: 10px; color: var(--blue); font-weight: 900; text-transform: uppercase; }
         .saldo-value { font-size: 20px; color: #fff; font-weight: 900; text-shadow: 0 0 5px var(--blue); }
         
-        /* Box Info Rekening */
         .info-box { background: #000; padding: 15px; border-radius: 12px; text-align: left; margin-bottom: 20px; border-left: 4px solid var(--blue); }
         .info-item { margin-bottom: 8px; }
         .info-item:last-child { margin-bottom: 0; }
@@ -65,7 +63,6 @@
             text-transform: uppercase;
         }
 
-        /* RIWAYAT - Scrollable Table */
         .history-section { 
             margin-top: 30px; 
             background: rgba(0,0,0,0.4); 
@@ -189,7 +186,6 @@
 
     <script src="global.js"></script>
     <script>
-        // Ambil bahasa dari global.js atau default ID
         const getLang = () => localStorage.getItem('appLang') || 'id';
 
         function updateSaldoUI() {
@@ -221,10 +217,26 @@
 
         function closeNeonModal() { document.getElementById('neon-modal-overlay').style.display = 'none'; }
 
-        // Load data rekening
-        document.getElementById('wd-full-name').innerText = localStorage.getItem('full_name') || "User VIP";
-        document.getElementById('wd-bank').innerText = localStorage.getItem('bank_name') || "Bank";
-        document.getElementById('wd-rek').innerText = localStorage.getItem('acc_number') || "000000";
+        // FUNGSI UTAMA: KONEKSI DATA PENDAFTARAN
+        function loadAccountData() {
+            const sessionUser = localStorage.getItem('user_session'); // Mengambil user yang aktif
+            const userDB = JSON.parse(localStorage.getItem('database_users') || "[]");
+            
+            // Mencari data user di database berdasarkan username session
+            const userData = userDB.find(u => u.username === sessionUser);
+
+            if (userData) {
+                // Menampilkan data dari database pendaftaran
+                document.getElementById('wd-full-name').innerText = userData.fullname || "USER VIP";
+                document.getElementById('wd-bank').innerText = userData.bank || "BANK";
+                document.getElementById('wd-rek').innerText = userData.rekening || "000000";
+            } else {
+                // Fallback jika database tidak ditemukan
+                document.getElementById('wd-full-name').innerText = localStorage.getItem('full_name') || "User VIP";
+                document.getElementById('wd-bank').innerText = localStorage.getItem('bank_name') || "Bank";
+                document.getElementById('wd-rek').innerText = localStorage.getItem('acc_number') || "000000";
+            }
+        }
 
         function renderHistory() {
             const history = JSON.parse(localStorage.getItem('history_wd') || "[]");
@@ -235,7 +247,6 @@
             list.innerHTML = history.length === 0 ? `<tr><td colspan='3' style='text-align:center; color:#444; padding: 20px;'>${emptyMsg}</td></tr>` : "";
             
             history.slice().reverse().forEach(item => {
-                // Terjemahan status
                 let displayStatus = item.status;
                 if(lang === 'en') {
                     displayStatus = item.status === 'Proses' ? 'Processing' : 'Success';
@@ -313,10 +324,9 @@
         }
 
         window.onload = () => {
-            // Jalankan applyLanguage dari global.js jika tersedia
+            loadAccountData(); // Memuat data dari pendaftaran
             if (typeof applyLanguage === "function") applyLanguage();
             
-            // Atur placeholder input sesuai bahasa
             const lang = getLang();
             document.getElementById('wd-amount').placeholder = lang === 'id' 
                 ? "Jumlah Penarikan (Min: 50.000)" 
