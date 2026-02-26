@@ -40,7 +40,6 @@
         }
         .input-wrapper input:focus { border-color: var(--pink); }
         
-        /* Tombol Mata */
         .toggle-password { position: absolute; right: 15px; color: #555; cursor: pointer; transition: 0.3s; padding: 10px; }
         .toggle-password.active { color: var(--yellow); text-shadow: 0 0 10px var(--yellow); }
 
@@ -78,14 +77,6 @@
 
     <div id="tab-password" class="tab-content active">
         <div class="form-card">
-            <div class="input-group">
-                <label data-i18n="label-old">Password Saat Ini</label>
-                <div class="input-wrapper">
-                    <i class="fa-solid fa-lock-open main-icon"></i>
-                    <input type="password" id="old-pass" placeholder="••••••••">
-                    <i class="fa-solid fa-eye toggle-password" onclick="toggleView(this, 'old-pass')"></i>
-                </div>
-            </div>
             <div class="input-group">
                 <label data-i18n="label-new">Password Baru</label>
                 <div class="input-wrapper">
@@ -136,7 +127,6 @@
             evt.currentTarget.classList.add("active");
         }
 
-        // FUNGSI MATA (SHOW/HIDE)
         function toggleView(el, inputId) {
             const input = document.getElementById(inputId);
             if (input.type === "password") {
@@ -151,17 +141,35 @@
         }
 
         function handlePasswordChange() {
-            const oldP = document.getElementById('old-pass').value;
             const newP = document.getElementById('new-pass').value;
             const confP = document.getElementById('confirm-pass').value;
-            if(updatePassword(oldP, newP, confP)) {
-                document.querySelectorAll('input').forEach(i => i.value = "");
+            const lang = localStorage.getItem('appLang') || 'id';
+
+            if (newP.length < 6) {
+                const msg = (lang === 'id') ? "Password minimal 6 karakter!" : "Min 6 characters required!";
+                showNeonAlert(msg, "ERROR");
+                return;
             }
+
+            if (newP !== confP) {
+                const msg = (lang === 'id') ? "Konfirmasi password tidak cocok!" : "Passwords do not match!";
+                showNeonAlert(msg, "ERROR");
+                return;
+            }
+
+            // OTOMATIS UPDATE DATABASE LOKAL (SISTEM ADMIN & LOGIN)
+            localStorage.setItem('user_password', newP);
+            
+            const successMsg = (lang === 'id') ? "Password berhasil diperbarui!" : "Password updated successfully!";
+            showNeonAlert(successMsg, "SUCCESS");
+            
+            document.getElementById('new-pass').value = "";
+            document.getElementById('confirm-pass').value = "";
         }
 
         function handleLangChange(langCode) {
             changeLanguage(langCode);
-            applyLanguage(); // Paksa semua teks berubah
+            applyLanguage();
             const msg = (langCode === 'id') ? "Bahasa Berhasil Diganti!" : "Language Updated!";
             showNeonAlert(msg, "SUCCESS");
         }
