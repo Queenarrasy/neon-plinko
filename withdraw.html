@@ -63,7 +63,6 @@
             text-transform: uppercase;
         }
 
-        /* (Gaya CSS lainnya tetap sama sesuai kode awal Anda) */
         .history-section { margin-top: 30px; background: rgba(0,0,0,0.4); border-radius: 15px; padding: 15px; border: 1px solid #222;}
         .history-title { font-size: 12px; color: var(--blue); font-weight: 900; margin-bottom: 15px; text-align: left; display: flex; align-items: center; gap: 8px;}
         .table-scroll { max-height: 160px; overflow-y: auto; border-radius: 8px;}
@@ -148,20 +147,17 @@
 
     <script src="global.js"></script>
     <script>
-        // 1. Fungsi Load Data dari LocalStorage ke Tampilan Withdraw
         function loadWithdrawData() {
             const fullName = localStorage.getItem('fullname') || "-";
             const bankName = localStorage.getItem('bank_name') || "-";
             const accNumber = localStorage.getItem('account_no') || "-";
             const saldo = localStorage.getItem('saldo_permainan') || 0;
 
-            // Update Tampilan Teks
             document.getElementById('wd-full-name').innerText = fullName;
             document.getElementById('wd-bank-display').innerText = bankName;
             document.getElementById('wd-rek-display').innerText = accNumber;
             document.getElementById('wd-display-saldo').innerText = "IDR " + parseInt(saldo).toLocaleString('id-ID');
 
-            // Update Input Tersembunyi (untuk dikirim ke Sheet)
             document.getElementById('wd-bank').value = bankName;
             document.getElementById('wd-rekening').value = accNumber;
         }
@@ -200,7 +196,6 @@
             showNeonModal(`Tarik IDR ${amt.toLocaleString('id-ID')} ke rekening Anda?`, "KONFIRMASI", true, prosesWDCloud);
         }
 
-        // 2. Fungsi Kirim ke Google Sheets
         async function prosesWDCloud() {
             const amt = parseInt(document.getElementById('wd-amount').value);
             const user = localStorage.getItem('user_session');
@@ -209,7 +204,6 @@
             const full = document.getElementById('wd-full-name').innerText;
 
             document.getElementById('loading-overlay').style.display = 'flex';
-
             const skrg = new Date().toLocaleString('id-ID');
 
             try {
@@ -226,21 +220,15 @@
                 document.getElementById('loading-overlay').style.display = 'none';
 
                 if (result === "SUCCESS") {
-                    // Kurangi saldo lokal
                     const saldoBaru = (parseInt(localStorage.getItem('saldo_permainan')) || 0) - amt;
                     localStorage.setItem('saldo_permainan', saldoBaru);
 
-                    // Update Riwayat
-                    const history = JSON.parse(localStorage.getItem('history_wd') || "[]");
-                    history.push({ tanggal: skrg, total: amt, status: "Proses" });
-                    localStorage.setItem('history_wd', JSON.stringify(history));
-
-                    showNeonModal("Penarikan berhasil diajukan dan sedang diproses!", "SUKSES");
+                    showNeonModal("Penarikan berhasil diajukan!", "SUKSES");
                     document.getElementById('wd-amount').value = "";
                     loadWithdrawData();
-                    renderHistory();
+                    renderHistory(); // Sekarang mengambil data terbaru dari Cloud
                 } else {
-                    showNeonModal("Gagal mengirim permintaan. Coba lagi.", "ERROR");
+                    showNeonModal("Gagal mengirim permintaan.", "ERROR");
                 }
             } catch (e) {
                 document.getElementById('loading-overlay').style.display = 'none';
@@ -248,17 +236,47 @@
             }
         }
 
-        function renderHistory() {
-            const history = JSON.parse(localStorage.getItem('history_wd') || "[]");
+        // --- FUNGSI RIWAYAT TERBARU (SINKRON DENGAN SHEET) ---
+        async function renderHistory() {
             const list = document.getElementById('wd-history-list');
-            list.innerHTML = history.length === 0 ? "<tr><td colspan='3' style='text-align:center;'>Belum ada riwayat</td></tr>" : "";
-            history.slice().reverse().forEach(item => {
-                list.innerHTML += `<tr>
-                    <td>${item.tanggal}</td>
-                    <td style='color:var(--yellow)'>IDR ${item.total.toLocaleString()}</td>
-                    <td class='status-proses'>${item.status}</td>
-                </tr>`;
-            });
+            const user = localStorage.getItem('user_session');
+            
+            list.innerHTML = "<tr><td colspan='3' style='text-align:center; color:#666;'>Memuat riwayat...</td></tr>";
+
+            try {
+                const history = await fetchCloud({
+                    action: "getHistory",
+                    username: user
+                });
+
+                list.innerHTML = ""; 
+
+                if (!history || history.length === 0) {
+                    list.innerHTML = "<tr><td colspan='3' style='text-align:center; color:#444;'>Belum ada penarikan</td></tr>";
+                    return;
+                }
+
+                history.forEach(item => {
+                    let statusClass = "status-proses";
+                    let statusText = item.status;
+
+                    if (item.status === "SUCCESS") {
+                        statusClass = "status-berhasil";
+                        statusText = "BERHASIL";
+                    } else if (item.status === "GAGAL") {
+                        statusText = "DITOLAK";
+                    }
+
+                    const row = `<tr>
+                        <td style="font-size: 9px;">${item.tanggal}</td>
+                        <td style="color: #fbff00">IDR ${parseInt(item.total).toLocaleString('id-ID')}</td>
+                        <td class="${statusClass}">${statusText}</td>
+                    </tr>`;
+                    list.innerHTML += row;
+                });
+            } catch (e) {
+                list.innerHTML = "<tr><td colspan='3' style='text-align:center; color:red;'>Gagal sinkronisasi data</td></tr>";
+            }
         }
 
         window.onload = () => {
