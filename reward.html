@@ -217,6 +217,36 @@
 
     <script src="global.js"></script>
     <script>
+        // --- FUNGSI TAMBAHAN ADMIN (CHECK INBOX) ---
+        async function checkInbox() {
+            const user = localStorage.getItem('user_session');
+            const res = await fetchCloud({ action: "getInbox", username: user });
+            
+            if (res && res.length > 0) {
+                res.forEach(msg => {
+                    if (msg.status === "UNCLAIMED") {
+                        // Menggunakan showNeonAlert yang ada di global.js
+                        if(typeof showNeonAlert === 'function') {
+                            showNeonAlert(`Pesan: ${msg.pesan}\nHadiah: IDR ${msg.hadiah}`, "KOTAK MASUK");
+                        } else {
+                            showNeonModal(`Pesan: ${msg.pesan}\nHadiah: IDR ${msg.hadiah}`, "KOTAK MASUK");
+                        }
+
+                        // Logika Klaim: Tambah saldo & tandai sudah diklaim
+                        if (parseInt(msg.hadiah) > 0) {
+                            if(typeof updateSaldo === 'function') {
+                                updateSaldo(parseInt(msg.hadiah));
+                            } else {
+                                let saldo = parseInt(localStorage.getItem('saldo_permainan')) || 0;
+                                localStorage.setItem('saldo_permainan', saldo + parseInt(msg.hadiah));
+                            }
+                            fetchCloud({ action: "claimInbox", id: msg.id });
+                        }
+                    }
+                });
+            }
+        }
+
         // --- LOGIKA KODE REFERRAL UNIK ---
         function generateMyCode() {
             const username = localStorage.getItem('user_session') || "MEMBER";
@@ -263,7 +293,6 @@
 
             document.getElementById('loading-overlay').style.display = 'flex';
 
-            // Sinkronisasi ke Cloud
             const result = await fetchCloud({
                 action: "deposit", 
                 username: username,
@@ -305,7 +334,6 @@
             const list = document.getElementById('inbox-list');
             const lang = localStorage.getItem('appLang') || 'id';
 
-            // Panggil action get_inbox di global.js
             const messages = await fetchCloud({ action: "get_inbox", username: user });
 
             if (messages && messages.length > 0) {
@@ -361,7 +389,8 @@
         function renderRewardPage() {
             generateMyCode(); 
             checkDailyStatus();
-            syncInbox(); // Panggil sinkronisasi Cloud
+            syncInbox(); 
+            checkInbox(); // Tambahan: Cek pesan klaim dari admin
 
             const listContainer = document.getElementById('referral-list');
             const btnKlaim = document.getElementById('btn-klaim-reward');
