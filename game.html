@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NEON PLINKO VIP</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root { 
+            --pink: #ff0077; --blue: #00d4ff; --yellow: #fbff00; --bg: #070816; 
+            --pink-neon: 0 0 5px var(--pink), 0 0 10px var(--pink);
+            --blue-neon: 0 0 5px var(--blue), 0 0 10px var(--blue);
+            --yellow-neon: 0 0 5px var(--yellow), 0 0 10px var(--yellow);
+        }
+        
+        body { 
+            background: var(--bg); 
+            color: white; 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            margin: 0; 
+            overflow: hidden; 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column;
+        }
+
+        .neon-p { color: var(--pink); text-shadow: var(--pink-neon); }
+        .neon-b { color: var(--blue); text-shadow: var(--blue-neon); }
+        .neon-y { color: var(--yellow); text-shadow: var(--yellow-neon); }
+        
+        .header { display: flex; justify-content: center; align-items: center; padding: 15px 10px; position: relative; z-index: 100; background: var(--bg); }
+        
+        .prof-container { position: absolute; left: 20px; display: flex; flex-direction: column; align-items: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .prof-link { font-size: 28px; color: var(--pink); text-shadow: var(--pink-neon); }
+        .prof-text { font-size: 8px; font-weight: 900; margin-top: 2px; color: var(--blue); text-shadow: var(--blue-neon); }
+
+        .balance-box { background: #000; border: 2px solid var(--blue); border-radius: 20px; padding: 5px 20px; text-align: center; min-width: 140px; }
+        #display-saldo { font-size: 18px; font-weight: 900; }
+
+        #score-board {
+            position: absolute; left: 10px; top: 100px; width: 75px; 
+            display: flex; flex-direction: column; gap: 6px; z-index: 50;
+        }
+        .score-popup { 
+            background: rgba(0,0,0,0.85); border: 1px solid var(--blue); 
+            font-size: 9px; padding: 6px; border-radius: 6px; text-align: center;
+            font-weight: 900; color: var(--yellow); text-shadow: var(--yellow-neon);
+            animation: popupFade 3s forwards;
+        }
+        @keyframes popupFade { 
+            0% { transform: scale(0.5) translateX(-20px); opacity: 0; } 
+            10% { transform: scale(1.05) translateX(0); opacity: 1; }
+            100% { opacity: 0; transform: translateY(-10px); } 
+        }
+
+        #game-container { position: relative; width: 100%; height: 320px; flex-shrink: 0; margin-top: 5px; }
+        .peg { position: absolute; width: 6px; height: 6px; background: white; border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 8px #fff; }
+        .ball { position: absolute; width: 12px; height: 12px; background: var(--pink); border-radius: 50%; box-shadow: 0 0 15px var(--pink); z-index: 10; transform: translate(-50%, -50%); pointer-events: none; opacity: 0; transition: opacity 0.2s; }
+
+        .multipliers { display: flex; justify-content: center; gap: 3px; padding: 0; margin-top: 5px; z-index: 80; }
+        .slot { flex: 0 0 38px; padding: 10px 0; border-radius: 6px; text-align: center; font-size: 9px; font-weight: 900; border: 1px solid rgba(255,255,255,0.2); }
+        .m-pink { background: var(--pink); box-shadow: var(--pink-neon); }
+        .m-yellow { background: var(--yellow); color: black; box-shadow: var(--yellow-neon); }
+        .m-blue { background: var(--blue); color: black; box-shadow: var(--blue-neon); }
+
+        .nav-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; padding: 0 20px; margin-top: 20px; }
+        .btn-nav { background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 12px 5px; border-radius: 12px; text-align: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .btn-nav i { font-size: 24px; margin-bottom: 5px; display: block; }
+        .btn-nav span { font-size: 9px; font-weight: 900; }
+
+        .play-area { text-align: center; padding: 15px; flex-grow: 1; display: flex; flex-direction: column; }
+        .mode-toggles { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
+        .toggle { padding: 10px 15px; border-radius: 20px; font-size: 10px; font-weight: 900; cursor: pointer; border: 1px solid #333; background: #000; color: #555; outline: none !important; -webkit-tap-highlight-color: transparent; }
+        .toggle.active { border-color: var(--pink); color: var(--yellow); text-shadow: var(--yellow-neon); box-shadow: inset 0 0 10px var(--pink); }
+        
+        .bet-selector { display: flex; align-items: center; justify-content: center; gap: 20px; background: #000; border-radius: 50px; padding: 8px; margin-bottom: 20px; border: 1px solid #444; width: 85%; margin-left: auto; margin-right: auto; }
+        .bet-btn { background: none; border: none; color: var(--pink); font-size: 24px; font-weight: 900; cursor: pointer; outline: none !important; -webkit-tap-highlight-color: transparent; text-shadow: var(--pink-neon); }
+        
+        .btn-main { width: 100%; padding: 18px; border-radius: 50px; border: none; font-weight: 900; font-size: 18px; text-transform: uppercase; cursor: pointer; background: linear-gradient(90deg, var(--pink), var(--blue)); color: white; outline: none !important; -webkit-tap-highlight-color: transparent; box-shadow: 0 0 20px var(--pink); }
+        .btn-main.auto-active { background: var(--yellow); color: #000; box-shadow: 0 0 20px var(--yellow); }
+
+        .win-popup { position: absolute; font-weight: 900; color: var(--yellow); text-shadow: var(--yellow-neon); pointer-events: none; z-index: 1000; animation: floatUp 1s ease-out forwards; font-size: 22px; }
+        @keyframes floatUp { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(-70px); opacity: 0; } }
+
+        #neon-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 9999; }
+        .neon-modal { background: #0d0f26; border: 2px solid var(--pink); border-radius: 20px; padding: 25px; width: 80%; text-align: center; box-shadow: 0 0 30px var(--pink); }
+        .neon-btn { background: var(--blue); border: none; padding: 12px; width: 100%; border-radius: 50px; font-weight: 900; margin-top: 15px; color: #000; }
+    </style>
+</head>
+<body>
+
+    <div id="score-board"></div>
+
+    <div id="neon-overlay">
+        <div class="neon-modal">
+            <h2 id="modal-title" class="neon-p">INFO</h2>
+            <p id="modal-msg" class="neon-b"></p>
+            <button class="neon-btn" onclick="closeNeonModal()">OK</button>
+        </div>
+    </div>
+
+    <div class="header">
+        <div class="prof-container" onclick="location.href='profil.html'">
+            <i class="fa-solid fa-circle-user prof-link"></i>
+            <span class="prof-text">PROFIL</span>
+        </div>
+        <div class="balance-box">
+            <span id="tier-name" class="neon-y" style="font-size: 9px; font-weight: 900; display: block;">VIP PLAYER</span>
+            <span id="display-saldo" class="neon-b">IDR 0</span>
+        </div>
+    </div>
+
+    <div id="game-container"></div>
+
+    <div class="multipliers">
+        <div class="slot m-pink">5x</div>
+        <div class="slot m-yellow">2x</div>
+        <div class="slot m-blue">1.2x</div>
+        <div class="slot m-blue" style="background:#fff; box-shadow: 0 0 10px #fff;">0.2x</div>
+        <div class="slot m-blue">1.2x</div>
+        <div class="slot m-yellow">2x</div>
+        <div class="slot m-pink">5x</div>
+    </div>
+
+    <div class="nav-grid">
+        <div class="btn-nav" onclick="location.href='withdraw.html'">
+            <i class="fa-solid fa-wallet neon-p"></i>
+            <span class="neon-y">WITHDRAW</span>
+        </div>
+        <div class="btn-nav" onclick="location.href='deposit.html'">
+            <i class="fa-solid fa-building-columns neon-b"></i>
+            <span class="neon-p">DEPOSIT</span>
+        </div>
+        <div class="btn-nav" onclick="location.href='reward.html'">
+            <i class="fa-solid fa-gift neon-y"></i>
+            <span class="neon-b">REWARD</span>
+        </div>
+    </div>
+
+    <div class="play-area">
+        <div class="mode-toggles">
+            <div id="btn-normal" class="toggle active" onclick="setSpeed('normal')">NORMAL</div>
+            <div id="btn-turbo" class="toggle" onclick="setSpeed('turbo')">TURBO</div>
+            <div id="btn-auto" class="toggle" onclick="toggleAuto()">AUTO</div>
+        </div>
+        <div class="bet-selector">
+            <button class="bet-btn" onclick="changeBet(-1)">-</button>
+            <div id="current-bet" class="neon-y" style="font-size: 18px; font-weight: 900; color:var(--blue); text-shadow: var(--blue-neon);">1,000</div>
+            <button class="bet-btn" onclick="changeBet(1)">+</button>
+        </div>
+        <button class="btn-main" id="play-text" onclick="handlePlay()">MULAI MAIN</button>
+    </div>
+
+    <script src="global.js"></script>
+    <script>
+        let adminSetting = 1; 
+
+        function showNeonModal(msg) {
+            document.getElementById('modal-msg').innerText = msg;
+            document.getElementById('neon-overlay').style.display = 'flex';
+        }
+        function closeNeonModal() { document.getElementById('neon-overlay').style.display = 'none'; }
+
+        const bets = [400, 1000, 2000, 5000, 10000, 20000];
+        let betIdx = 1;
+        let isTurbo = false, isAuto = false, autoInterval = null;
+        let activeBalls = [], pegLocations = [];
+        const container = document.getElementById('game-container');
+        const slots = [5, 2, 1.2, 0.2, 1.2, 2, 5];
+
+        for (let r = 2; r <= 8; r++) {
+            for (let i = 0; i < r; i++) {
+                const peg = document.createElement('div');
+                peg.className = 'peg';
+                const x = (i - (r - 1) / 2) * 41; 
+                const y = r * 38; 
+                peg.style.left = `calc(50% + ${x}px)`;
+                peg.style.top = y + 'px';
+                container.appendChild(peg);
+                setTimeout(() => {
+                    const rect = peg.getBoundingClientRect();
+                    const cRect = container.getBoundingClientRect();
+                    pegLocations.push({ x: rect.left - cRect.left + 3, y: rect.top - cRect.top + 3 });
+                }, 500);
+            }
+        }
+
+        function changeBet(d) {
+            betIdx = Math.max(0, Math.min(bets.length-1, betIdx+d));
+            document.getElementById('current-bet').innerText = bets[betIdx].toLocaleString();
+        }
+
+        function setSpeed(m) {
+            isTurbo = (m === 'turbo');
+            document.getElementById('btn-normal').classList.toggle('active', !isTurbo);
+            document.getElementById('btn-turbo').classList.toggle('active', isTurbo);
+        }
+
+        function toggleAuto() {
+            isAuto = !isAuto;
+            const btn = document.getElementById('play-text');
+            document.getElementById('btn-auto').classList.toggle('active', isAuto);
+            if(isAuto) { btn.innerText = "STOP AUTO"; btn.classList.add('auto-active'); startAuto(); }
+            else { btn.innerText = "MULAI MAIN"; btn.classList.remove('auto-active'); stopAuto(); }
+        }
+        function startAuto() { dropBall(); autoInterval = setInterval(dropBall, isTurbo ? 250 : 800); }
+        function stopAuto() { clearInterval(autoInterval); }
+
+        function handlePlay() { if(isAuto) toggleAuto(); else dropBall(); }
+
+        function addScorePopup(amount) {
+            const board = document.getElementById('score-board');
+            if(board.children.length >= 5) board.removeChild(board.lastChild);
+            const item = document.createElement('div');
+            item.className = 'score-popup';
+            item.innerText = 'WIN ' + amount.toLocaleString();
+            board.prepend(item);
+            setTimeout(() => { if(item.parentNode) item.remove(); }, 3000);
+        }
+
+        function dropBall() {
+            const bet = bets[betIdx];
+            if (!updateSaldo(-bet)) { 
+                if(isAuto) toggleAuto(); 
+                showNeonModal("Saldo Tidak Cukup!"); 
+                return; 
+            }
+
+            const ballEl = document.createElement('div');
+            ballEl.className = 'ball';
+            container.appendChild(ballEl);
+
+            const ball = {
+                el: ballEl,
+                x: container.offsetWidth / 2 + (Math.random()*4-2),
+                y: -10, 
+                vx: (Math.random()-0.5)*1.2,
+                vy: 0,
+                radius: 6,
+                isFinished: false
+            };
+            activeBalls.push(ball);
+
+            // DIFERENSIASI NORMAL VS TURBO
+            let grav = isTurbo ? 0.95 : 0.35; // Turbo jatuh lebih berat
+            let step = isTurbo ? 4 : 1;    // Turbo hitung posisi lebih sering
+            let bounce = isTurbo ? 2.2 : 2.8; // Turbo pantulan lebih rendah (fokus turun)
+
+            const move = setInterval(() => {
+                if(ball.isFinished) { clearInterval(move); return; }
+
+                for(let s=0; s<step; s++){
+                    ball.vy += grav/step;
+                    ball.x += ball.vx/step;
+                    ball.y += ball.vy/step;
+
+                    if(ball.y > 30) ball.el.style.opacity = 1;
+
+                    // MAGNET ADMIN
+                    if (ball.y > 150 && ball.y < 310) {
+                        let centerContainer = container.offsetWidth / 2;
+                        if (adminSetting === 1) { // KALAH
+                            if (ball.x < centerContainer) ball.vx += isTurbo ? 0.15 : 0.08;
+                            if (ball.x > centerContainer) ball.vx -= isTurbo ? 0.15 : 0.08;
+                        } else if (adminSetting === 2) { // MENANG
+                            let targetPinggir = ball.x < centerContainer ? 40 : container.offsetWidth - 40;
+                            if (ball.x < targetPinggir) ball.vx += 0.12;
+                            if (ball.x > targetPinggir) ball.vx -= 0.12;
+                        }
+                    }
+
+                    pegLocations.forEach(p => {
+                        const dx = ball.x - p.x, dy = ball.y - p.y;
+                        const dist = Math.sqrt(dx*dx + dy*dy);
+                        if(dist < 9.5) { 
+                            const angle = Math.atan2(dy, dx);
+                            // Bounce dipengaruhi mode speed
+                            ball.vx = Math.cos(angle) * bounce + (Math.random()-0.5);
+                            ball.vy = Math.sin(angle) * bounce;
+                            ball.x = p.x + Math.cos(angle) * 9.6;
+                            ball.y = p.y + Math.sin(angle) * 9.6;
+                        }
+                    });
+
+                    if(ball.x < 15 || ball.x > container.offsetWidth-15) ball.vx *= -0.5;
+                }
+
+                ball.el.style.left = ball.x + 'px';
+                ball.el.style.top = ball.y + 'px';
+
+                if(ball.y > 340) {
+                    ball.isFinished = true;
+                    const idx = Math.min(6, Math.max(0, Math.round((ball.x - (container.offsetWidth/2))/41 + 3)));
+                    
+                    setTimeout(() => {
+                        const mult = slots[idx];
+                        const winAmount = Math.floor(bet * mult);
+                        updateSaldo(winAmount);
+                        if(winAmount > 0) {
+                            addScorePopup(winAmount);
+                            const p = document.createElement('div');
+                            p.className = 'win-popup';
+                            p.innerText = `+${winAmount.toLocaleString()}`;
+                            p.style.left = ball.x + 'px'; p.style.top = '280px';
+                            document.body.appendChild(p);
+                            setTimeout(() => p.remove(), 1000);
+                        }
+                        ball.el.remove();
+                        activeBalls = activeBalls.filter(b => b !== ball);
+                    }, 50);
+                }
+            }, 16);
+        }
+    </script>
+</body>
+</html>
