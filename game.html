@@ -112,9 +112,9 @@
     <script src="global.js"></script>
     <script>
         let winChance = 0.35; 
-        const container = document.getElementById('game-container');
-        const bets = [400, 1000, 2000, 5000, 10000, 20000];
-        let betIdx = 1;
+        // Daftar BET terbaru sesuai permintaan
+        const bets = [400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 4000, 6000, 8000, 10000, 12000, 16000, 18000, 20000];
+        let betIdx = 3; // Mulai di 1,000 (index ke-3)
         let isAuto = false;
         let autoInterval = null;
         let pegLocations = [];
@@ -123,7 +123,7 @@
         function initPegs() {
             container.innerHTML = '';
             pegLocations = [];
-            const rows = 9; // Ditambah agar piramida lebih sempurna
+            const rows = 9;
             for (let r = 2; r <= rows; r++) {
                 for (let i = 0; i < r; i++) {
                     const peg = document.createElement('div');
@@ -189,9 +189,9 @@
                 vy: 0
             };
 
-            const gravity = 0.55; // Lebih berat agar terasa nyata
-            const friction = 0.99; // Hambatan udara sedikit
-            const bounce = 0.45; // Pantulan paku
+            const gravity = 0.55; 
+            const friction = 0.99; 
+            const bounce = 0.45; 
 
             const moveBall = setInterval(() => {
                 ball.vy += gravity;
@@ -199,7 +199,6 @@
                 ball.x += ball.vx;
                 ball.y += ball.vy;
 
-                // Peg Collision
                 pegLocations.forEach(p => {
                     const dx = ball.x - p.x;
                     const dy = ball.y - p.y;
@@ -209,52 +208,57 @@
                         const speed = Math.sqrt(ball.vx*ball.vx + ball.vy*ball.vy);
                         ball.vx = Math.cos(angle) * speed * bounce + (Math.random()-0.5) * 2;
                         ball.vy = Math.sin(angle) * speed * bounce;
-                        // Anti-stuck
                         ball.x = p.x + Math.cos(angle) * 11;
                         ball.y = p.y + Math.sin(angle) * 11;
                     }
                 });
 
-                // Wall Collision
                 if (ball.x < 15) { ball.x = 15; ball.vx *= -0.5; }
                 if (ball.x > container.offsetWidth - 15) { ball.x = container.offsetWidth - 15; ball.vx *= -0.5; }
 
                 ball.el.style.left = ball.x + 'px';
                 ball.el.style.top = ball.y + 'px';
 
-                // Hit Bottom / Multipliers
                 if (ball.y > 375) {
                     clearInterval(moveBall);
                     
-                    // Deteksi Slot Akurat
-                    const rowRect = document.getElementById('multi-row').getBoundingClientRect();
                     const containerRect = container.getBoundingClientRect();
                     const slotsEls = document.querySelectorAll('.slot');
-                    let finalSlot = 3; // Default tengah (0.2x)
+                    let finalSlot = -1; // Default -1 (Luas/Lose)
 
+                    // Deteksi Tabrakan Kotak Perkalian secara ketat
                     slotsEls.forEach((s, index) => {
                         const sRect = s.getBoundingClientRect();
-                        if (ball.x + containerRect.left >= sRect.left && ball.x + containerRect.left <= sRect.right) {
+                        const ballGlobalX = ball.x + containerRect.left;
+                        
+                        // Syarat: posisi bola harus berada di dalam rentang horizontal kotak
+                        if (ballGlobalX >= sRect.left && ballGlobalX <= sRect.right) {
                             finalSlot = index;
-                            // Efek visual saat kena slot
                             s.style.transform = "scale(1.15)";
                             setTimeout(() => s.style.transform = "scale(1)", 150);
                         }
                     });
 
-                    const win = Math.floor(bet * slots[finalSlot]);
-                    if (typeof updateSaldo === 'function') updateSaldo(win);
-                    
-                    if (win > 0) {
-                        addScoreBoard(win);
-                        const p = document.createElement('div');
-                        p.className = 'win-popup';
-                        p.innerText = `+${win.toLocaleString()}`;
-                        p.style.left = ball.x + 'px'; 
-                        p.style.top = '320px';
-                        document.body.appendChild(p);
-                        setTimeout(() => p.remove(), 1000);
+                    // Jika masuk kotak (finalSlot >= 0)
+                    if (finalSlot !== -1) {
+                        const win = Math.floor(bet * slots[finalSlot]);
+                        if (typeof updateSaldo === 'function') updateSaldo(win);
+                        
+                        if (win > 0) {
+                            addScoreBoard(win);
+                            const p = document.createElement('div');
+                            p.className = 'win-popup';
+                            p.innerText = `+${win.toLocaleString()}`;
+                            p.style.left = ball.x + 'px'; 
+                            p.style.top = '320px';
+                            document.body.appendChild(p);
+                            setTimeout(() => p.remove(), 1000);
+                        }
+                    } else {
+                        // BOLA DI LUAR KOTAK (LOSE)
+                        console.log("Bola di luar kotak: LOSE");
                     }
+                    
                     ball.el.remove();
                 }
             }, 18);
