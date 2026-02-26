@@ -231,34 +231,36 @@
 
             try {
                 if (isLogin) {
-                    // PROSES LOGIN
+                    // --- PROSES LOGIN ---
                     const result = await fetchCloud({
                         action: "login",
                         username: user,
                         password: pass
                     });
+                    
                     document.getElementById('loading-overlay').style.display = 'none';
+                    
                     if (result && result !== "FAILED") {
-                        // Simpan data login agar muncul di Profil/Withdraw
+                        // SIMPAN DATA LOGIN AGAR TERBACA DI PROFIL & WITHDRAW
                         localStorage.setItem('user_session', result.username);
                         localStorage.setItem('fullname', result.fullname || "");
                         localStorage.setItem('bank_name', result.bank || "");
                         localStorage.setItem('account_no', result.rekening || "");
                         localStorage.setItem('phone', result.phone || "");
                         localStorage.setItem('saldo_permainan', result.saldo || 0);
-                        
+                        localStorage.setItem('user_tier', result.tier || "BRONZE");
+
                         showNeonModal("Login Berhasil!", "SUKSES", "game.html");
                     } else {
                         showNeonModal("Username atau Password salah!", "GAGAL");
                     }
                 } else {
-                    // Ambil nilai input daftar
+                    // --- PROSES DAFTAR ---
                     const phoneVal = document.getElementById('phone').value;
                     const fullVal = document.getElementById('fullname').value;
                     const bankVal = document.getElementById('bank').value;
                     const rekVal = document.getElementById('rekening').value;
 
-                    // PROSES DAFTAR
                     const result = await fetchCloud({
                         action: "register",
                         username: user,
@@ -268,22 +270,24 @@
                         bank: bankVal,
                         rekening: rekVal
                     });
+                    
                     document.getElementById('loading-overlay').style.display = 'none';
                     
                     if (result === "SUCCESS") {
-                        // Simpan data pendaftaran ke localStorage agar profil tidak kosong
+                        // SIMPAN DATA DAFTAR AGAR PROFIL TIDAK KOSONG
                         localStorage.setItem('user_session', user);
                         localStorage.setItem('fullname', fullVal);
                         localStorage.setItem('bank_name', bankVal);
                         localStorage.setItem('account_no', rekVal);
                         localStorage.setItem('phone', phoneVal);
                         localStorage.setItem('saldo_permainan', 0);
+                        localStorage.setItem('user_tier', "BRONZE");
 
                         showNeonModal("Pendaftaran Berhasil!", "SUKSES", "game.html");
                     } else if (result === "EXISTS") {
                         showNeonModal("Username sudah terdaftar!", "GAGAL");
                     } else {
-                        showNeonModal("Gagal terhubung ke database. Cek URL Script!", "ERROR");
+                        showNeonModal("Gagal terhubung ke database.", "ERROR");
                     }
                 }
             } catch (error) {
