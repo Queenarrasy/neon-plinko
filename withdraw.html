@@ -137,43 +137,43 @@
             <h2 id="modal-title" style="color: var(--pink);">INFO</h2>
             <p id="modal-msg">Pesan sistem di sini.</p>
             <div style="display: flex; gap: 10px;" id="modal-footer">
-                <button class="neon-modal-btn" onclick="closeNeonModal()">MENGERTI</button>
+                <button class="neon-modal-btn" onclick="closeNeonModal()" id="btn-modal-close">MENGERTI</button>
             </div>
         </div>
     </div>
 
     <div class="card">
-        <h2 style="color: var(--pink); margin-top: 0;"><i class="fa-solid fa-money-bill-transfer"></i> WITHDRAW</h2>
+        <h2 style="color: var(--pink); margin-top: 0;"><i class="fa-solid fa-money-bill-transfer"></i> <span data-i18n="nav-withdraw">WITHDRAW</span></h2>
         
         <div class="saldo-container">
-            <div class="saldo-label">Saldo Permainan</div>
+            <div class="saldo-label" data-i18n="label-saldo-game">Saldo Permainan</div>
             <div class="saldo-value" id="wd-display-saldo">IDR 0</div>
         </div>
 
         <div class="info-box">
             <div class="info-item">
-                <small style="color: #666; font-weight: 900; font-size: 8px;">NAMA SESUAI REKENING:</small><br>
+                <small style="color: #666; font-weight: 900; font-size: 8px;" data-i18n="label-name-rek">NAMA SESUAI REKENING:</small><br>
                 <b id="wd-full-name" style="color: #fff; text-transform: uppercase; font-size: 13px;">-</b>
             </div>
             <div class="info-item">
-                <small style="color: #666; font-weight: 900; font-size: 8px;">TUJUAN REKENING:</small><br>
+                <small style="color: #666; font-weight: 900; font-size: 8px;" data-i18n="label-target-rek">TUJUAN REKENING:</small><br>
                 <b id="wd-bank" style="color: var(--blue); text-transform: uppercase;">-</b> 
                 <span id="wd-rek" style="color: #fff; letter-spacing: 1px; font-family: monospace; margin-left: 5px;">-</span>
             </div>
         </div>
 
         <input type="number" id="wd-amount" placeholder="Jumlah Penarikan (Min: 50.000)">
-        <button class="btn-wd" onclick="konfirmasiWD()">AJUKAN PENARIKAN</button>
+        <button class="btn-wd" onclick="konfirmasiWD()" data-i18n="btn-submit-wd">AJUKAN PENARIKAN</button>
         
         <div class="history-section">
-            <div class="history-title">RIWAYAT PENARIKAN</div>
+            <div class="history-title" data-i18n="label-history-wd">RIWAYAT PENARIKAN</div>
             <div class="table-scroll">
                 <table>
                     <thead>
                         <tr>
-                            <th>TANGGAL / WAKTU</th>
-                            <th>TOTAL</th>
-                            <th>STATUS</th>
+                            <th data-i18n="th-date">TANGGAL / WAKTU</th>
+                            <th data-i18n="th-total">TOTAL</th>
+                            <th data-i18n="th-status">STATUS</th>
                         </tr>
                     </thead>
                     <tbody id="wd-history-list">
@@ -183,36 +183,45 @@
         </div>
 
         <a href="game.html" class="btn-back">
-            <i class="fa-solid fa-arrow-left"></i> KEMBALI KE PERMAINAN
+            <i class="fa-solid fa-arrow-left"></i> <span data-i18n="btn-back-game">KEMBALI KE PERMAINAN</span>
         </a>
     </div>
 
     <script src="global.js"></script>
     <script>
+        // Ambil bahasa dari global.js atau default ID
+        const getLang = () => localStorage.getItem('appLang') || 'id';
+
         function updateSaldoUI() {
             const saldo = parseInt(localStorage.getItem('saldo_permainan')) || 0;
             document.getElementById('wd-display-saldo').innerText = "IDR " + saldo.toLocaleString('id-ID');
         }
 
         function showNeonModal(msg, title = "INFO", isConfirm = false, onConfirm = null) {
+            const lang = getLang();
             document.getElementById('modal-title').innerText = title;
             document.getElementById('modal-msg').innerText = msg;
             const footer = document.getElementById('modal-footer');
             
+            const txtBatal = lang === 'id' ? 'BATAL' : 'CANCEL';
+            const txtYa = lang === 'id' ? 'YA, TARIK' : 'YES, WITHDRAW';
+            const txtOk = lang === 'id' ? 'MENGERTI' : 'I UNDERSTAND';
+
             if (isConfirm) {
                 footer.innerHTML = `
-                    <button class="neon-modal-btn cancel" onclick="closeNeonModal()">BATAL</button>
-                    <button class="neon-modal-btn" id="confirm-ok">YA, TARIK</button>
+                    <button class="neon-modal-btn cancel" onclick="closeNeonModal()">${txtBatal}</button>
+                    <button class="neon-modal-btn" id="confirm-ok">${txtYa}</button>
                 `;
                 document.getElementById('confirm-ok').onclick = () => { closeNeonModal(); if(onConfirm) onConfirm(); };
             } else {
-                footer.innerHTML = `<button class="neon-modal-btn" onclick="closeNeonModal()">MENGERTI</button>`;
+                footer.innerHTML = `<button class="neon-modal-btn" onclick="closeNeonModal()">${txtOk}</button>`;
             }
             document.getElementById('neon-modal-overlay').style.display = 'flex';
         }
 
         function closeNeonModal() { document.getElementById('neon-modal-overlay').style.display = 'none'; }
 
+        // Load data rekening
         document.getElementById('wd-full-name').innerText = localStorage.getItem('full_name') || "User VIP";
         document.getElementById('wd-bank').innerText = localStorage.getItem('bank_name') || "Bank";
         document.getElementById('wd-rek').innerText = localStorage.getItem('acc_number') || "000000";
@@ -220,51 +229,66 @@
         function renderHistory() {
             const history = JSON.parse(localStorage.getItem('history_wd') || "[]");
             const list = document.getElementById('wd-history-list');
-            list.innerHTML = history.length === 0 ? "<tr><td colspan='3' style='text-align:center; color:#444; padding: 20px;'>Belum ada penarikan</td></tr>" : "";
+            const lang = getLang();
+            const emptyMsg = lang === 'id' ? "Belum ada penarikan" : "No withdrawals yet";
+
+            list.innerHTML = history.length === 0 ? `<tr><td colspan='3' style='text-align:center; color:#444; padding: 20px;'>${emptyMsg}</td></tr>` : "";
             
             history.slice().reverse().forEach(item => {
+                // Terjemahan status
+                let displayStatus = item.status;
+                if(lang === 'en') {
+                    displayStatus = item.status === 'Proses' ? 'Processing' : 'Success';
+                }
+
                 const statusClass = item.status === 'Berhasil' ? 'status-berhasil' : 'status-proses';
                 const row = `<tr>
                     <td style="font-size: 9px; line-height: 1.2;">${item.tanggal}</td>
                     <td style="color: #fbff00">IDR ${parseInt(item.total).toLocaleString('id-ID')}</td>
-                    <td class="${statusClass}">${item.status}</td>
+                    <td class="${statusClass}">${displayStatus}</td>
                 </tr>`;
                 list.innerHTML += row;
             });
         }
 
         function konfirmasiWD() {
+            const lang = getLang();
             const amtInput = document.getElementById('wd-amount');
             const amt = parseInt(amtInput.value);
             const saldoSaatIni = parseInt(localStorage.getItem('saldo_permainan')) || 0;
 
             if (isNaN(amt) || amt < 50000) {
-                showNeonModal("Minimal penarikan adalah IDR 50.000", "DATA TIDAK VALID");
+                const msg = lang === 'id' ? "Minimal penarikan adalah IDR 50.000" : "Minimum withdrawal is IDR 50,000";
+                const title = lang === 'id' ? "DATA TIDAK VALID" : "INVALID DATA";
+                showNeonModal(msg, title);
                 return;
             }
 
             if (amt > saldoSaatIni) {
-                showNeonModal("Saldo Permainan tidak mencukupi!", "SALDO KURANG");
+                const msg = lang === 'id' ? "Saldo Permainan tidak mencukupi!" : "Insufficient game balance!";
+                const title = lang === 'id' ? "SALDO KURANG" : "INSUFFICIENT BALANCE";
+                showNeonModal(msg, title);
                 return;
             }
 
-            showNeonModal(
-                `Tarik saldo IDR ${amt.toLocaleString('id-ID')} ke rekening Anda?`, 
-                "KONFIRMASI WD", 
-                true, 
-                prosesWD
-            );
+            const confirmMsg = lang === 'id' 
+                ? `Tarik saldo IDR ${amt.toLocaleString('id-ID')} ke rekening Anda?` 
+                : `Withdraw IDR ${amt.toLocaleString('id-ID')} to your account?`;
+            
+            const confirmTitle = lang === 'id' ? "KONFIRMASI WD" : "WITHDRAW CONFIRMATION";
+
+            showNeonModal(confirmMsg, confirmTitle, true, prosesWD);
         }
 
         function prosesWD() {
             const amtInput = document.getElementById('wd-amount');
             const amt = parseInt(amtInput.value);
             const saldoSaatIni = parseInt(localStorage.getItem('saldo_permainan')) || 0;
+            const lang = getLang();
 
             const saldoBaru = saldoSaatIni - amt;
             localStorage.setItem('saldo_permainan', saldoBaru);
 
-            // LOGIKA WAKTU LENGKAP: DD/MM/YYYY HH:MM:SS
             const skrg = new Date();
             const d = String(skrg.getDate()).padStart(2, '0');
             const m = String(skrg.getMonth() + 1).padStart(2, '0');
@@ -272,14 +296,16 @@
             const jam = String(skrg.getHours()).padStart(2, '0');
             const min = String(skrg.getMinutes()).padStart(2, '0');
             const sec = String(skrg.getSeconds()).padStart(2, '0');
-            
             const tglString = `${d}/${m}/${y} ${jam}:${min}:${sec}`;
             
             const history = JSON.parse(localStorage.getItem('history_wd') || "[]");
             history.push({ tanggal: tglString, total: amt, status: "Proses" });
             localStorage.setItem('history_wd', JSON.stringify(history));
 
-            showNeonModal(`Berhasil! Penarikan sedang diproses.`, "SUKSES");
+            const successMsg = lang === 'id' ? "Berhasil! Penarikan sedang diproses." : "Success! Withdrawal is being processed.";
+            const successTitle = lang === 'id' ? "SUKSES" : "SUCCESS";
+            
+            showNeonModal(successMsg, successTitle);
             
             amtInput.value = "";
             updateSaldoUI();
@@ -287,6 +313,15 @@
         }
 
         window.onload = () => {
+            // Jalankan applyLanguage dari global.js jika tersedia
+            if (typeof applyLanguage === "function") applyLanguage();
+            
+            // Atur placeholder input sesuai bahasa
+            const lang = getLang();
+            document.getElementById('wd-amount').placeholder = lang === 'id' 
+                ? "Jumlah Penarikan (Min: 50.000)" 
+                : "Withdrawal Amount (Min: 50,000)";
+
             updateSaldoUI();
             renderHistory();
         };
