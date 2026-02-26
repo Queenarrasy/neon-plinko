@@ -96,11 +96,26 @@
     <script src="global.js"></script>
     <script>
         function load() {
-            // Load Data Profil
-            document.getElementById('p-user').innerText = localStorage.getItem('user_vip') || "-";
-            document.getElementById('p-full').innerText = localStorage.getItem('full_name') || "-";
-            document.getElementById('p-bank').innerText = localStorage.getItem('bank_name') || "-";
-            document.getElementById('p-rek').innerText = localStorage.getItem('acc_number') || "-";
+            // Ambil session username yang sedang login
+            const sessionUser = localStorage.getItem('user_session');
+            const userDB = JSON.parse(localStorage.getItem('database_users') || "[]");
+            
+            // Cari data lengkap user di database
+            const userData = userDB.find(u => u.username === sessionUser);
+
+            if (userData) {
+                // Tampilkan data dari database pendaftaran
+                document.getElementById('p-user').innerText = userData.username || "-";
+                document.getElementById('p-full').innerText = userData.fullname || "-";
+                document.getElementById('p-bank').innerText = userData.bank || "-";
+                document.getElementById('p-rek').innerText = userData.rekening || "-";
+            } else {
+                // Fallback jika data database tidak ditemukan (untuk akun admin/manual)
+                document.getElementById('p-user').innerText = sessionUser || "-";
+                document.getElementById('p-full').innerText = localStorage.getItem('full_name') || "-";
+                document.getElementById('p-bank').innerText = localStorage.getItem('bank_name') || "-";
+                document.getElementById('p-rek').innerText = localStorage.getItem('acc_number') || "-";
+            }
 
             // Update Saldo & Tier via Global System
             if (typeof updateSaldo === 'function') {
@@ -141,10 +156,13 @@
             const msg = lang === 'id' ? "Apakah Anda yakin ingin keluar?" : "Are you sure you want to logout?";
             
             if (confirm(msg)) {
-                // Simpan bahasa sebelum hapus semua data agar saat login ulang bahasa tetap sama
                 const currentLang = localStorage.getItem('appLang');
+                const userDB = localStorage.getItem('database_users'); // Simpan DB agar tidak terhapus
+                
                 localStorage.clear();
+                
                 localStorage.setItem('appLang', currentLang);
+                localStorage.setItem('database_users', userDB); // Kembalikan DB
                 location.href='auth.html';
             }
         }
