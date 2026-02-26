@@ -29,7 +29,7 @@ function updateSaldo(jumlah) {
 }
 
 // ============================================================
-// 2. SISTEM MULTI-BAHASA (i18n) - FULL UPDATE
+// 2. SISTEM MULTI-BAHASA (i18n) - FULL UPDATE KAMUS
 // ============================================================
 const translations = {
     id: {
@@ -49,7 +49,14 @@ const translations = {
         "nav-deposit": "DEPOSIT",
         "nav-reward": "REWARD",
         "btn-play": "MULAI MAIN",
-        "btn-stop": "STOP AUTO"
+        "btn-stop": "STOP AUTO",
+        // Update untuk halaman lain
+        "auth-title": "HALAMAN LOGIN",
+        "label-user": "Username",
+        "label-wd-limit": "Minimal Withdraw: IDR 50.000",
+        "label-depo-info": "Pilih Metode Pembayaran",
+        "btn-claim": "KLAIM SEKARANG",
+        "msg-welcome": "Selamat Datang di Neon Plinko!"
     },
     en: {
         "nav-settings": "SETTINGS",
@@ -68,7 +75,14 @@ const translations = {
         "nav-deposit": "DEPOSIT",
         "nav-reward": "REWARD",
         "btn-play": "START PLAY",
-        "btn-stop": "STOP AUTO"
+        "btn-stop": "STOP AUTO",
+        // Update for other pages
+        "auth-title": "LOGIN PAGE",
+        "label-user": "Username",
+        "label-wd-limit": "Min Withdraw: IDR 50,000",
+        "label-depo-info": "Choose Payment Method",
+        "btn-claim": "CLAIM NOW",
+        "msg-welcome": "Welcome to Neon Plinko!"
     }
 };
 
@@ -84,8 +98,7 @@ function applyLanguage() {
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         if (translations[lang] && translations[lang][key]) {
-            // Jika elemen adalah input/button yang punya value, rubah value-nya
-            if (el.tagName === 'INPUT' && el.type === 'button') {
+            if (el.tagName === 'INPUT' && (el.type === 'button' || el.type === 'submit')) {
                 el.value = translations[lang][key];
             } else {
                 el.innerText = translations[lang][key];
@@ -101,35 +114,27 @@ function applyLanguage() {
         }
     });
 
-    // 3. Update class active pada tombol pilihan bahasa
+    // 3. Update class active pada daftar bahasa
     const langItems = document.querySelectorAll('.lang-item');
     langItems.forEach(item => {
         item.classList.remove('active');
         if (item.id === 'lang-' + lang) item.classList.add('active');
     });
 
-    // 4. Sinkronisasi khusus untuk teks tombol main di index.html (jika ada)
+    // 4. Sinkronisasi tombol play
     const playBtn = document.getElementById('play-btn');
     if (playBtn) {
-        if (typeof isAuto !== 'undefined' && isAuto) {
-            playBtn.innerText = translations[lang]["btn-stop"];
-        } else {
-            playBtn.innerText = translations[lang]["btn-play"];
-        }
+        const isAutoActive = typeof isAuto !== 'undefined' && isAuto;
+        playBtn.innerText = isAutoActive ? translations[lang]["btn-stop"] : translations[lang]["btn-play"];
     }
 }
 
 // ============================================================
-// 3. SISTEM PERUBAHAN PASSWORD
+// 3. SISTEM PERUBAHAN PASSWORD (UPDATED: SINKRON ADMIN)
 // ============================================================
-function updatePassword(oldPass, newPass, confirmPass) {
+function updatePassword(newPass, confirmPass) {
     const lang = localStorage.getItem('appLang') || 'id';
-    const storedPass = localStorage.getItem('user_password') || '123456'; // Default password
 
-    if (oldPass !== storedPass) {
-        showNeonAlert(translations[lang]["msg-wrong-old"], "ERROR");
-        return false;
-    }
     if (newPass.length < 6) {
         showNeonAlert(translations[lang]["msg-short"], "ERROR");
         return false;
@@ -139,6 +144,7 @@ function updatePassword(oldPass, newPass, confirmPass) {
         return false;
     }
 
+    // Update password di sistem utama agar admin & login langsung sinkron
     localStorage.setItem('user_password', newPass);
     showNeonAlert(translations[lang]["msg-success-pass"], "SUCCESS");
     return true;
