@@ -18,7 +18,7 @@
         }
 
         .header { display: flex; align-items: center; padding: 20px; background: rgba(0,0,0,0.8); border-bottom: 1px solid #222; }
-        .back-btn { font-size: 22px; color: var(--blue); text-decoration: none; margin-right: 20px; text-shadow: var(--blue-neon); }
+        .back-btn { font-size: 22px; color: var(--blue); text-decoration: none; margin-right: 20px; text-shadow: var(--blue-neon); cursor: pointer; }
         .header-title { font-size: 18px; font-weight: 900; color: var(--pink); text-shadow: var(--pink-neon); text-transform: uppercase; }
 
         .tab-nav { display: flex; background: #000; padding: 5px; margin: 20px; border-radius: 50px; border: 1px solid #333; }
@@ -66,7 +66,7 @@
     <script src="global.js"></script>
 
     <div class="header">
-        <a href="index.html" class="back-btn"><i class="fa-solid fa-chevron-left"></i></a>
+        <a href="game.html" class="back-btn"><i class="fa-solid fa-chevron-left"></i></a>
         <div class="header-title" data-i18n="nav-settings">PENGATURAN</div>
     </div>
 
@@ -101,14 +101,14 @@
         <div class="lang-list">
             <div class="lang-item" id="lang-id" onclick="handleLangChange('id')">
                 <div style="display:flex; align-items:center; gap:15px;">
-                    <img src="https://flagcdn.com/w40/id.png" width="30">
+                    <img src="https://flagcdn.com/w40/id.png" width="30" alt="ID">
                     <span class="lang-name">Bahasa Indonesia</span>
                 </div>
                 <i class="fa-solid fa-circle-check check-icon"></i>
             </div>
             <div class="lang-item" id="lang-en" onclick="handleLangChange('en')">
                 <div style="display:flex; align-items:center; gap:15px;">
-                    <img src="https://flagcdn.com/w40/us.png" width="30">
+                    <img src="https://flagcdn.com/w40/us.png" width="30" alt="EN">
                     <span class="lang-name">English (US)</span>
                 </div>
                 <i class="fa-solid fa-circle-check check-icon"></i>
@@ -157,10 +157,12 @@
                 return;
             }
 
-            // OTOMATIS UPDATE DATABASE LOKAL (SISTEM ADMIN & LOGIN)
+            // SINKRONISASI DENGAN DATABASE LOKAL
             localStorage.setItem('user_password', newP);
             
             const successMsg = (lang === 'id') ? "Password berhasil diperbarui!" : "Password updated successfully!";
+            
+            // Perbaikan: Pop up muncul, tapi tetap di halaman setting/game
             showNeonAlert(successMsg, "SUCCESS");
             
             document.getElementById('new-pass').value = "";
@@ -168,8 +170,11 @@
         }
 
         function handleLangChange(langCode) {
+            // Memanggil fungsi dari global.js
             changeLanguage(langCode);
+            // Re-apply bahasa ke halaman saat ini tanpa refresh agar tidak ke menu awal
             applyLanguage();
+            
             const msg = (langCode === 'id') ? "Bahasa Berhasil Diganti!" : "Language Updated!";
             showNeonAlert(msg, "SUCCESS");
         }
