@@ -161,7 +161,7 @@
             <div class="form-group" id="ref-group">
                 <label data-i18n="label-ref">KODE REFERRAL (OPSIONAL)</label>
                 <input type="text" id="referral_code" data-i18n-placeholder="placeholder-ref" placeholder="Masukkan kode jika ada" style="border-color: #222;">
-                <small class="note" data-i18n="ref-note">* Kosongkan jika tidak ada</small>
+                <small class="note" data-i18n="ref-note" style="color:#666; font-size:10px;">* Kosongkan jika tidak ada</small>
             </div>
 
             <button type="button" class="btn-submit" onclick="processAuth()" id="btn-text" data-i18n="btn-reg">Daftar Sekarang</button>
@@ -174,6 +174,16 @@
     <script>
         let isLogin = false;
         let redirectUrl = "";
+
+        // Tambahan: Ambil kode referral dari URL jika ada (misal: register.html?ref=ADMIN123)
+        window.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const refParam = params.get('ref');
+            if (refParam) {
+                document.getElementById('referral_code').value = refParam;
+                document.getElementById('referral_code').style.borderColor = 'var(--yellow)';
+            }
+        });
 
         function showNeonModal(msgKey, isDirectText = false, titleKey = "modal-info", nextUrl = "") {
             const lang = localStorage.getItem('appLang') || 'id';
@@ -234,7 +244,6 @@
             updateSwitchText();
         }
 
-        // --- FUNGSI PROSES AUTH (SINKRONISASI CLOUD) ---
         async function processAuth() {
             const user = document.getElementById('username').value.trim();
             const pass = document.getElementById('password').value;
@@ -248,7 +257,7 @@
             document.getElementById('loading-overlay').style.display = 'flex';
 
             if (isLogin) {
-                // PROSES LOGIN KE CLOUD
+                // SINKRON LOGIN KE GLOBAL.JS / CLOUD
                 const result = await fetchCloud({
                     action: "login",
                     username: user,
@@ -269,11 +278,12 @@
                     showNeonModal("err-wrong-pass");
                 }
             } else {
-                // PROSES DAFTAR KE CLOUD
+                // SINKRON REGISTER KE GLOBAL.JS / CLOUD
                 const phone = document.getElementById('phone').value.trim();
                 const full = document.getElementById('fullname').value.trim();
                 const rek = document.getElementById('rekening').value.trim();
                 const bank = document.getElementById('bank').value;
+                const refCode = document.getElementById('referral_code').value.trim();
 
                 if (!phone || !full || !rek) {
                     document.getElementById('loading-overlay').style.display = 'none';
@@ -288,7 +298,8 @@
                     phone: phone,
                     fullname: full,
                     bank: bank,
-                    rekening: rek
+                    rekening: rek,
+                    referral_from: refCode // Kirim kode referral ke Spreadsheet
                 });
 
                 document.getElementById('loading-overlay').style.display = 'none';
