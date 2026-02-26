@@ -29,7 +29,7 @@ function updateSaldo(jumlah) {
 }
 
 // ============================================================
-// 2. SISTEM MULTI-BAHASA (i18n)
+// 2. SISTEM MULTI-BAHASA (i18n) - FULL UPDATE
 // ============================================================
 const translations = {
     id: {
@@ -43,7 +43,13 @@ const translations = {
         "msg-success-pass": "Password berhasil diperbarui!",
         "msg-wrong-old": "Password lama salah!",
         "msg-no-match": "Konfirmasi password tidak cocok!",
-        "msg-short": "Password minimal 6 karakter!"
+        "msg-short": "Password minimal 6 karakter!",
+        "menu-profile": "PROFIL",
+        "nav-withdraw": "WITHDRAW",
+        "nav-deposit": "DEPOSIT",
+        "nav-reward": "REWARD",
+        "btn-play": "MULAI MAIN",
+        "btn-stop": "STOP AUTO"
     },
     en: {
         "nav-settings": "SETTINGS",
@@ -56,7 +62,13 @@ const translations = {
         "msg-success-pass": "Password updated successfully!",
         "msg-wrong-old": "Wrong current password!",
         "msg-no-match": "Password confirmation mismatch!",
-        "msg-short": "Password must be at least 6 characters!"
+        "msg-short": "Password must be at least 6 characters!",
+        "menu-profile": "PROFILE",
+        "nav-withdraw": "WITHDRAW",
+        "nav-deposit": "DEPOSIT",
+        "nav-reward": "REWARD",
+        "btn-play": "START PLAY",
+        "btn-stop": "STOP AUTO"
     }
 };
 
@@ -68,20 +80,43 @@ function changeLanguage(lang) {
 function applyLanguage() {
     const lang = localStorage.getItem('appLang') || 'id';
     
-    // Cari semua elemen yang punya atribut data-i18n
+    // 1. Update Teks Berdasarkan Atribut data-i18n
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
-        if (translations[lang][key]) {
-            el.innerText = translations[lang][key];
+        if (translations[lang] && translations[lang][key]) {
+            // Jika elemen adalah input/button yang punya value, rubah value-nya
+            if (el.tagName === 'INPUT' && el.type === 'button') {
+                el.value = translations[lang][key];
+            } else {
+                el.innerText = translations[lang][key];
+            }
         }
     });
 
-    // Update class active pada daftar bahasa jika ada di halaman tersebut
+    // 2. Update Placeholder Input secara otomatis
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (translations[lang] && translations[lang][key]) {
+            el.placeholder = translations[lang][key];
+        }
+    });
+
+    // 3. Update class active pada tombol pilihan bahasa
     const langItems = document.querySelectorAll('.lang-item');
     langItems.forEach(item => {
         item.classList.remove('active');
         if (item.id === 'lang-' + lang) item.classList.add('active');
     });
+
+    // 4. Sinkronisasi khusus untuk teks tombol main di index.html (jika ada)
+    const playBtn = document.getElementById('play-btn');
+    if (playBtn) {
+        if (typeof isAuto !== 'undefined' && isAuto) {
+            playBtn.innerText = translations[lang]["btn-stop"];
+        } else {
+            playBtn.innerText = translations[lang]["btn-play"];
+        }
+    }
 }
 
 // ============================================================
