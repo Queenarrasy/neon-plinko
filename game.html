@@ -109,8 +109,7 @@
 
     <div class="play-area">
         <div class="mode-toggles">
-            <div id="btn-normal" class="toggle active" onclick="setSpeed('normal')">NORMAL</div>
-            <div id="btn-turbo" class="toggle" onclick="setSpeed('turbo')">TURBO</div>
+            <div id="btn-normal" class="toggle active">NORMAL</div>
             <div id="btn-auto" class="toggle" onclick="toggleAuto()">AUTO</div>
         </div>
         <div class="bet-selector" style="display: flex; align-items: center; justify-content: center; gap: 20px; background: #000; border-radius: 50px; padding: 8px; margin-bottom: 20px; border: 1px solid #444; width: 85%; margin: 0 auto 20px auto;">
@@ -138,7 +137,7 @@
                 const x = (i - (r - 1) / 2) * 42; 
                 const y = r * 38; 
                 peg.style.left = `calc(50% + ${x}px)`;
-                peg.style.top = y + 'px';
+                peg.style.top = r * 38 + 'px';
                 container.appendChild(peg);
                 setTimeout(() => {
                     const rect = peg.getBoundingClientRect();
@@ -153,12 +152,6 @@
             document.getElementById('current-bet').innerText = bets[betIdx].toLocaleString();
         }
 
-        function setSpeed(m) {
-            isTurbo = (m === 'turbo');
-            document.getElementById('btn-normal').classList.toggle('active', !isTurbo);
-            document.getElementById('btn-turbo').classList.toggle('active', isTurbo);
-        }
-
         function toggleAuto() {
             isAuto = !isAuto;
             const btn = document.getElementById('play-text');
@@ -166,7 +159,7 @@
             if(isAuto) { btn.innerText = "STOP AUTO"; startAuto(); }
             else { btn.innerText = "MULAI MAIN"; stopAuto(); }
         }
-        function startAuto() { dropBall(); autoInterval = setInterval(dropBall, isTurbo ? 250 : 900); }
+        function startAuto() { dropBall(); autoInterval = setInterval(dropBall, 900); }
         function stopAuto() { clearInterval(autoInterval); }
         function handlePlay() { if(isAuto) toggleAuto(); else dropBall(); }
 
@@ -198,9 +191,9 @@
             };
             activeBalls.push(ball);
 
-            let grav = isTurbo ? 1.05 : 0.35; 
-            let step = isTurbo ? 5 : 1;    
-            let bouncePeg = isTurbo ? 2.8 : 2.2; 
+            let grav = 0.35; 
+            let step = 1;    
+            let bouncePeg = 2.2; 
 
             const move = setInterval(() => {
                 if(ball.isFinished) { clearInterval(move); return; }
@@ -212,7 +205,6 @@
 
                     if(ball.y > 30) ball.el.style.opacity = 1;
 
-                    // BALL COLLISION
                     activeBalls.forEach(other => {
                         if (other === ball || other.isFinished) return;
                         const dx = ball.x - other.x;
@@ -220,20 +212,17 @@
                         const dist = Math.sqrt(dx*dx + dy*dy);
                         if (dist < 15) { 
                             const angle = Math.atan2(dy, dx);
-                            const push = isTurbo ? 0.8 : 0.4;
-                            ball.vx += Math.cos(angle) * push;
-                            ball.vy += Math.sin(angle) * push;
+                            ball.vx += Math.cos(angle) * 0.4;
+                            ball.vy += Math.sin(angle) * 0.4;
                         }
                     });
 
-                    // PEG COLLISION (DENGAN AGGRESSIVE TURBO SCATTER)
                     pegLocations.forEach(p => {
                         const dx = ball.x - p.x, dy = ball.y - p.y;
                         const dist = Math.sqrt(dx*dx + dy*dy);
                         if(dist < 11) { 
                             const angle = Math.atan2(dy, dx);
-                            // Turbo dipaksa berpencar lebih liar (scatter)
-                            const scatter = isTurbo ? (Math.random() - 0.5) * 1.5 : (Math.random() - 0.5) * 0.5;
+                            const scatter = (Math.random() - 0.5) * 0.5;
                             ball.vx = Math.cos(angle + scatter) * bouncePeg;
                             ball.vy = Math.sin(angle + scatter) * bouncePeg;
                             
@@ -242,11 +231,8 @@
                         }
                     });
 
-                    // TOTAL ANTI-STUCK LOGIC
                     if (ball.y < 300) {
-                        // Jika bola berhenti atau sangat lambat secara vertikal, beri dorongan jatuh
                         if (Math.abs(ball.vy) < 0.2) ball.vy += 1; 
-                        // Jika macet secara horizontal
                         if (Math.abs(ball.vx) < 0.05) ball.vx = (Math.random() - 0.5) * 3;
                     }
 
