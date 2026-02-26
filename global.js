@@ -401,8 +401,56 @@ window.alert = function(message) {
     showNeonAlert(message, translations[lang]["modal-info"] || "NOTIFIKASI"); 
 };
 
+// ============================================================
+// 7. SISTEM MONITORING ADMIN (STATUS ONLINE & INBOX)
+// ============================================================
+
+// Fungsi untuk update status pemain (Online/Offline) ke Dashboard Admin
+async function updateOnlineStatus(status) {
+    const currentUsername = localStorage.getItem('user_session');
+    if (currentUsername) {
+        await fetchCloud({
+            action: "updateStatus",
+            username: currentUsername,
+            status: status
+        });
+    }
+}
+
+// Fungsi pemain untuk cek pesan masuk dan klaim hadiah dari Admin
+async function syncInbox() {
+    const currentUsername = localStorage.getItem('user_session');
+    if (!currentUsername) return;
+
+    const res = await fetchCloud({ action: "getInbox", username: currentUsername });
+    if (res && res.length > 0) {
+        res.forEach(msg => {
+            if (msg.status === "UNCLAIMED") {
+                // Tampilkan pesan hadiah
+                showNeonAlert(`ANDA MENDAPAT PESAN:\n"${msg.pesan}"\nHadiah: IDR ${msg.hadiah}`, "KOTAK MASUK");
+                
+                // Jika ada hadiah saldo, tambahkan ke saldo pemain
+                if (parseInt(msg.hadiah) > 0) {
+                    updateSaldo(parseInt(msg.hadiah));
+                    // Tandai pesan sudah diklaim di database agar tidak double claim
+                    fetchCloud({ action: "claimInbox", id: msg.id });
+                }
+            }
+        });
+    }
+}
+
 // LOAD SEMUA SISTEM SAAT HALAMAN DIBUKA
 window.addEventListener('load', () => {
     updateSaldo(0);
     applyLanguage();
+    
+    // Aktifkan pemantauan Admin
+    updateOnlineStatus("Online");
+    syncInbox(); // Cek hadiah saldo saat masuk
+});
+
+// Update status Offline saat tab ditutup/pindah halaman
+window.addEventListener('beforeunload', () => {
+    updateOnlineStatus("Offline");
 });
