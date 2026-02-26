@@ -61,7 +61,6 @@
         .switch-link { margin-top: 20px; font-size: 13px; color: #888; cursor: pointer; }
         .switch-link b { color: var(--yellow); text-decoration: underline; }
 
-        /* --- STYLES MODAL NEON TERBARU (Z-INDEX MAX) --- */
         #neon-modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.95); backdrop-filter: blur(10px);
@@ -99,25 +98,25 @@
             <span class="t-pink">NEON</span> <span class="t-blue">PLINKO</span> <br> <span class="t-yellow">VIP</span>
         </div>
 
-        <h3 id="form-label" style="color: var(--blue); margin-bottom: 25px; letter-spacing: 2px;">PENDAFTARAN</h3>
+        <h3 id="form-label" data-i18n="auth-title" style="color: var(--blue); margin-bottom: 25px; letter-spacing: 2px;">PENDAFTARAN</h3>
 
         <form id="main-form">
             <div class="form-group">
-                <label>USERNAME</label>
+                <label data-i18n="label-user">USERNAME</label>
                 <input type="text" id="username" placeholder="Buat username unik" required>
             </div>
 
             <div id="extra-fields">
                 <div class="form-group">
-                    <label>NOMOR HP</label>
+                    <label data-i18n="label-phone">NOMOR HP</label>
                     <input type="number" id="phone" placeholder="Contoh: 08123456789">
                 </div>
                 <div class="form-group">
-                    <label>NAMA LENGKAP</label>
+                    <label data-i18n="label-fullname">NAMA LENGKAP</label>
                     <input type="text" id="fullname" placeholder="Sesuai rekening bank">
                 </div>
                 <div class="form-group">
-                    <label>NAMA BANK / EWALLET</label>
+                    <label data-i18n="label-bank">NAMA BANK / EWALLET</label>
                     <select id="bank">
                         <option value="DANA">DANA</option>
                         <option value="OVO">OVO</option>
@@ -128,13 +127,13 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>NO REK / EWALLET</label>
+                    <label data-i18n="label-rekening">NO REK / EWALLET</label>
                     <input type="number" id="rekening" placeholder="Masukkan nomor rekening/e-wallet">
                 </div>
             </div>
 
             <div class="form-group">
-                <label>PASSWORD</label>
+                <label data-i18n="tab-pass">PASSWORD</label>
                 <div class="pass-wrapper">
                     <input type="password" id="password" placeholder="Minimal 6 karakter" required>
                     <i class="fa-solid fa-eye toggle-pass" onclick="togglePassword()"></i>
@@ -142,12 +141,12 @@
             </div>
 
             <div class="form-group" id="ref-group">
-                <label>KODE REFERRAL (OPSIONAL)</label>
+                <label data-i18n="label-ref">KODE REFERRAL (OPSIONAL)</label>
                 <input type="text" id="referral_code" placeholder="Masukkan kode jika ada" style="border-color: #222;">
                 <small class="note">* Kosongkan jika tidak ada</small>
             </div>
 
-            <button type="button" class="btn-submit" onclick="processAuth()" id="btn-text">Daftar Sekarang</button>
+            <button type="button" class="btn-submit" onclick="processAuth()" id="btn-text" data-i18n="btn-reg">Daftar Sekarang</button>
         </form>
 
         <div class="switch-link" id="auth-switch" onclick="toggleMode()">
@@ -157,8 +156,6 @@
 
     <script src="global.js"></script>
     <script>
-        // --- FORCE THEME OVERRIDE ---
-        // Ini akan mengganti semua alert putih bawaan browser menjadi tema Neon
         window.alert = function(message) {
             showNeonModal(message, "NOTIFIKASI");
         };
@@ -186,8 +183,10 @@
             icon.classList.toggle('fa-eye-slash');
         }
 
+        // Fungsi toggleMode yang sudah mendukung Multi-Bahasa
         function toggleMode() {
             isLogin = !isLogin;
+            const lang = localStorage.getItem('appLang') || 'id';
             const extra = document.getElementById('extra-fields');
             const ref = document.getElementById('ref-group'); 
             const label = document.getElementById('form-label');
@@ -198,17 +197,20 @@
             if (isLogin) {
                 extra.style.display = 'none';
                 ref.style.display = 'none'; 
-                label.innerText = "LOGIN MEMBER";
-                btn.innerText = "Masuk Sekarang";
-                sw.innerHTML = "Belum punya akun? <b>Daftar Akun VIP</b>";
-                userInp.placeholder = "masukkan username anda";
+                
+                // Update teks berdasarkan bahasa
+                label.innerText = (lang === 'id') ? "LOGIN MEMBER" : "MEMBER LOGIN";
+                btn.innerText = (lang === 'id') ? "Masuk Sekarang" : "Login Now";
+                sw.innerHTML = (lang === 'id') ? "Belum punya akun? <b>Daftar Akun VIP</b>" : "No account? <b>Register VIP</b>";
+                userInp.placeholder = (lang === 'id') ? "masukkan username anda" : "enter your username";
             } else {
                 extra.style.display = 'block';
                 ref.style.display = 'block'; 
-                label.innerText = "PENDAFTARAN";
-                btn.innerText = "Daftar Sekarang";
-                sw.innerHTML = "Sudah punya akun? <b>Login di sini</b>";
-                userInp.placeholder = "Buat username unik";
+                
+                label.innerText = (lang === 'id') ? "PENDAFTARAN" : "REGISTRATION";
+                btn.innerText = (lang === 'id') ? "Daftar Sekarang" : "Register Now";
+                sw.innerHTML = (lang === 'id') ? "Sudah punya akun? <b>Login di sini</b>" : "Already have an account? <b>Login here</b>";
+                userInp.placeholder = (lang === 'id') ? "Buat username unik" : "Create unique username";
             }
         }
 
@@ -216,9 +218,11 @@
             const user = document.getElementById('username').value.trim();
             const pass = document.getElementById('password').value;
             const db = JSON.parse(localStorage.getItem('database_users') || "[]");
+            const lang = localStorage.getItem('appLang') || 'id';
 
             if (user === "" || pass.length < 6) {
-                showNeonModal("Username wajib diisi & Password minimal 6 karakter!", "DATA TIDAK VALID");
+                const msg = (lang === 'id') ? "Username wajib diisi & Password minimal 6 karakter!" : "Username required & Password min 6 characters!";
+                showNeonModal(msg, "ERROR");
                 return;
             }
 
@@ -227,9 +231,11 @@
                 if (found) {
                     localStorage.setItem('user_session', found.username); 
                     localStorage.setItem('user_vip', found.username);
-                    showNeonModal("Login Berhasil! Selamat Datang Kembali.", "SUKSES", "game.html");
+                    const msg = (lang === 'id') ? "Login Berhasil! Selamat Datang Kembali." : "Login Success! Welcome Back.";
+                    showNeonModal(msg, "SUCCESS", "game.html");
                 } else {
-                    showNeonModal("Username atau Password salah!", "LOGIN GAGAL");
+                    const msg = (lang === 'id') ? "Username atau Password salah!" : "Wrong Username or Password!";
+                    showNeonModal(msg, "FAILED");
                 }
             } else {
                 const phone = document.getElementById('phone').value.trim();
@@ -238,12 +244,14 @@
                 const bank = document.getElementById('bank').value;
 
                 if (!phone || !full || !rek) {
-                    showNeonModal("Harap lengkapi semua data pendaftaran!", "DATA KURANG");
+                    const msg = (lang === 'id') ? "Harap lengkapi semua data pendaftaran!" : "Please complete all registration data!";
+                    showNeonModal(msg, "INCOMPLETE");
                     return;
                 }
 
                 if (db.some(u => u.username === user)) {
-                    showNeonModal("Username sudah digunakan!", "USER TERDAFTAR");
+                    const msg = (lang === 'id') ? "Username sudah digunakan!" : "Username already taken!";
+                    showNeonModal(msg, "EXISTED");
                     return;
                 }
 
@@ -253,9 +261,19 @@
                 localStorage.setItem('user_session', user); 
                 localStorage.setItem('user_vip', user);
                 
-                showNeonModal("Pendaftaran Berhasil! Nikmati permainan.", "SUKSES DAFTAR", "game.html");
+                const msg = (lang === 'id') ? "Pendaftaran Berhasil! Nikmati permainan." : "Registration Success! Enjoy the game.";
+                showNeonModal(msg, "SUCCESS", "game.html");
             }
         }
+
+        // Panggil fungsi bahasa bawaan global.js saat halaman dimuat
+        window.addEventListener('load', () => {
+            if(typeof applyLanguage === 'function') applyLanguage();
+            // Trigger toggleMode sekali untuk memastikan teks switch awal sesuai bahasa
+            const lang = localStorage.getItem('appLang') || 'id';
+            const sw = document.getElementById('auth-switch');
+            sw.innerHTML = (lang === 'id') ? "Sudah punya akun? <b>Login di sini</b>" : "Already have an account? <b>Login here</b>";
+        });
     </script>
 </body>
 </html>
