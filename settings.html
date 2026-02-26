@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SETTINGS - NEON PLINKO VIP</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root { 
+            --pink: #ff0077; --blue: #00d4ff; --yellow: #fbff00; --bg: #070816; 
+            --pink-neon: 0 0 10px var(--pink);
+            --blue-neon: 0 0 10px var(--blue);
+        }
+
+        body { 
+            background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; 
+            margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden;
+        }
+
+        /* Header */
+        .header { 
+            display: flex; align-items: center; padding: 20px; 
+            background: rgba(0,0,0,0.8); border-bottom: 1px solid #222;
+        }
+        .back-btn { font-size: 22px; color: var(--blue); text-decoration: none; margin-right: 20px; text-shadow: var(--blue-neon); }
+        .header-title { font-size: 18px; font-weight: 900; color: var(--pink); text-shadow: var(--pink-neon); text-transform: uppercase; }
+
+        /* Tab Navigation */
+        .tab-nav { display: flex; background: #000; padding: 5px; margin: 20px; border-radius: 50px; border: 1px solid #333; }
+        .tab-btn { 
+            flex: 1; padding: 12px; border: none; background: none; color: #666; 
+            font-weight: 900; font-size: 12px; cursor: pointer; border-radius: 50px; transition: 0.3s;
+        }
+        .tab-btn.active { background: var(--pink); color: white; box-shadow: var(--pink-neon); }
+
+        /* Content Area */
+        .tab-content { display: none; padding: 0 20px; animation: fadeIn 0.4s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Form Password */
+        .form-card { background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 25px 20px; border-radius: 20px; }
+        .input-group { position: relative; margin-bottom: 20px; }
+        .input-group label { display: block; font-size: 10px; font-weight: 900; color: #888; margin-bottom: 8px; text-transform: uppercase; }
+        .input-group i { position: absolute; left: 15px; bottom: 15px; color: var(--blue); text-shadow: var(--blue-neon); }
+        .input-group input { 
+            width: 100%; background: #000; border: 1px solid #444; padding: 14px 15px 14px 45px; 
+            border-radius: 12px; color: white; box-sizing: border-box; outline: none; transition: 0.3s;
+        }
+        .input-group input:focus { border-color: var(--pink); box-shadow: inset 0 0 5px var(--pink); }
+
+        /* Language List */
+        .lang-item { 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 18px; background: rgba(255,255,255,0.03); border: 1px solid #333;
+            border-radius: 15px; margin-bottom: 12px; cursor: pointer; transition: 0.2s;
+        }
+        .lang-item.active { border-color: var(--yellow); background: rgba(251, 255, 0, 0.05); }
+        .lang-info { display: flex; align-items: center; gap: 15px; }
+        .lang-flag { width: 30px; height: 20px; border-radius: 3px; object-fit: cover; }
+        .lang-name { font-weight: 700; font-size: 14px; }
+        .check-icon { color: var(--yellow); display: none; text-shadow: 0 0 10px var(--yellow); }
+        .lang-item.active .check-icon { display: block; }
+
+        .btn-update { 
+            width: 100%; padding: 18px; border-radius: 50px; border: none; font-weight: 900; 
+            background: linear-gradient(90deg, var(--pink), var(--blue)); color: white; cursor: pointer; 
+            text-transform: uppercase; margin-top: 10px; box-shadow: 0 5px 15px rgba(255, 0, 119, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <script src="global.js"></script>
+
+    <div class="header">
+        <a href="profil.html" class="back-btn"><i class="fa-solid fa-chevron-left"></i></a>
+        <div class="header-title" data-i18n="nav-settings">PENGATURAN</div>
+    </div>
+
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="openTab(event, 'tab-password')" data-i18n="tab-pass">PASSWORD</button>
+        <button class="tab-btn" onclick="openTab(event, 'tab-language')" data-i18n="tab-lang">BAHASA</button>
+    </div>
+
+    <div id="tab-password" class="tab-content active">
+        <div class="form-card">
+            <div class="input-group">
+                <label data-i18n="label-old">Password Saat Ini</label>
+                <i class="fa-solid fa-lock-open"></i>
+                <input type="password" id="old-pass" placeholder="••••••••">
+            </div>
+            <div class="input-group">
+                <label data-i18n="label-new">Password Baru</label>
+                <i class="fa-solid fa-key"></i>
+                <input type="password" id="new-pass" data-i18n-placeholder="ph-new">
+            </div>
+            <div class="input-group">
+                <label data-i18n="label-confirm">Konfirmasi Password Baru</label>
+                <i class="fa-solid fa-shield-check"></i>
+                <input type="password" id="confirm-pass" data-i18n-placeholder="ph-confirm">
+            </div>
+            <button class="btn-update" onclick="handlePasswordChange()" data-i18n="btn-update">UPDATE PASSWORD</button>
+        </div>
+    </div>
+
+    <div id="tab-language" class="tab-content">
+        <div class="lang-list">
+            <div class="lang-item" id="lang-id" onclick="handleLangChange('id')">
+                <div class="lang-info">
+                    <img src="https://flagcdn.com/w40/id.png" class="lang-flag">
+                    <span class="lang-name">Bahasa Indonesia</span>
+                </div>
+                <i class="fa-solid fa-circle-check check-icon"></i>
+            </div>
+
+            <div class="lang-item" id="lang-en" onclick="handleLangChange('en')">
+                <div class="lang-info">
+                    <img src="https://flagcdn.com/w40/us.png" class="lang-flag">
+                    <span class="lang-name">English (US)</span>
+                </div>
+                <i class="fa-solid fa-circle-check check-icon"></i>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fungsi untuk berpindah TAB
+        function openTab(evt, tabName) {
+            let i, tabContent, tabBtn;
+            tabContent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabContent.length; i++) {
+                tabContent[i].classList.remove("active");
+            }
+            tabBtn = document.getElementsByClassName("tab-btn");
+            for (i = 0; i < tabBtn.length; i++) {
+                tabBtn[i].classList.remove("active");
+            }
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+
+        // Fungsi Tombol Ganti Password (Memanggil fungsi di global.js)
+        function handlePasswordChange() {
+            const oldP = document.getElementById('old-pass').value;
+            const newP = document.getElementById('new-pass').value;
+            const confP = document.getElementById('confirm-pass').value;
+
+            // Memanggil fungsi updatePassword yang sudah kita buat di global.js
+            const success = updatePassword(oldP, newP, confP);
+
+            if(success) {
+                // Kosongkan input jika berhasil
+                document.getElementById('old-pass').value = "";
+                document.getElementById('new-pass').value = "";
+                document.getElementById('confirm-pass').value = "";
+            }
+        }
+
+        // Fungsi Ganti Bahasa (Memanggil fungsi di global.js)
+        function handleLangChange(langCode) {
+            changeLanguage(langCode);
+            // Memberikan notifikasi kecil bahwa bahasa telah diganti
+            const msg = (langCode === 'id') ? "Bahasa diganti ke Indonesia" : "Language changed to English";
+            showNeonAlert(msg, "SUCCESS");
+        }
+
+        // Inisialisasi saat halaman dimuat
+        window.onload = function() {
+            applyLanguage(); // Pastikan teks langsung berubah sesuai memori
+        };
+    </script>
+</body>
+</html>
