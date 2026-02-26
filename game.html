@@ -126,9 +126,15 @@
         const container = document.getElementById('game-container');
         const bets = [400, 1000, 2000, 5000, 10000, 20000];
         let betIdx = 1;
-        let isTurbo = false, isAuto = false, autoInterval = null;
+        let isAuto = false, autoInterval = null;
         let activeBalls = [], pegLocations = [];
         const slots = [5, 2, 1.2, 0.2, 1.2, 2, 5];
+
+        function showNeonModal(msg) {
+            document.getElementById('modal-msg').innerText = msg;
+            document.getElementById('neon-overlay').style.display = 'flex';
+        }
+        function closeNeonModal() { document.getElementById('neon-overlay').style.display = 'none'; }
 
         for (let r = 2; r <= 8; r++) {
             for (let i = 0; i < r; i++) {
@@ -137,7 +143,7 @@
                 const x = (i - (r - 1) / 2) * 42; 
                 const y = r * 38; 
                 peg.style.left = `calc(50% + ${x}px)`;
-                peg.style.top = r * 38 + 'px';
+                peg.style.top = y + 'px';
                 container.appendChild(peg);
                 setTimeout(() => {
                     const rect = peg.getBoundingClientRect();
@@ -185,61 +191,61 @@
                 el: ballEl,
                 x: container.offsetWidth / 2 + (Math.random()*16-8),
                 y: -15, 
-                vx: (Math.random()-0.5)*3,
+                vx: (Math.random()-0.5)*4, // VX awal lebih lebar agar terpencar
                 vy: 0,
                 isFinished: false
             };
             activeBalls.push(ball);
 
-            let grav = 0.35; 
-            let step = 1;    
-            let bouncePeg = 2.2; 
+            let grav = 0.45; 
+            let bouncePeg = 2.4; 
 
             const move = setInterval(() => {
                 if(ball.isFinished) { clearInterval(move); return; }
 
-                for(let s=0; s<step; s++){
-                    ball.vy += grav/step;
-                    ball.x += ball.vx/step;
-                    ball.y += ball.vy/step;
+                ball.vy += grav;
+                ball.x += ball.vx;
+                ball.y += ball.vy;
 
-                    if(ball.y > 30) ball.el.style.opacity = 1;
+                if(ball.y > 30) ball.el.style.opacity = 1;
 
-                    activeBalls.forEach(other => {
-                        if (other === ball || other.isFinished) return;
-                        const dx = ball.x - other.x;
-                        const dy = ball.y - other.y;
-                        const dist = Math.sqrt(dx*dx + dy*dy);
-                        if (dist < 15) { 
-                            const angle = Math.atan2(dy, dx);
-                            ball.vx += Math.cos(angle) * 0.4;
-                            ball.vy += Math.sin(angle) * 0.4;
-                        }
-                    });
-
-                    pegLocations.forEach(p => {
-                        const dx = ball.x - p.x, dy = ball.y - p.y;
-                        const dist = Math.sqrt(dx*dx + dy*dy);
-                        if(dist < 11) { 
-                            const angle = Math.atan2(dy, dx);
-                            const scatter = (Math.random() - 0.5) * 0.5;
-                            ball.vx = Math.cos(angle + scatter) * bouncePeg;
-                            ball.vy = Math.sin(angle + scatter) * bouncePeg;
-                            
-                            ball.x = p.x + Math.cos(angle) * 11.5;
-                            ball.y = p.y + Math.sin(angle) * 11.5;
-                        }
-                    });
-
-                    if (ball.y < 300) {
-                        if (Math.abs(ball.vy) < 0.2) ball.vy += 1; 
-                        if (Math.abs(ball.vx) < 0.05) ball.vx = (Math.random() - 0.5) * 3;
+                // Ball collision
+                activeBalls.forEach(other => {
+                    if (other === ball || other.isFinished) return;
+                    const dx = ball.x - other.x;
+                    const dy = ball.y - other.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    if (dist < 15) { 
+                        const angle = Math.atan2(dy, dx);
+                        ball.vx += Math.cos(angle) * 0.5;
+                        ball.vy += Math.sin(angle) * 0.5;
                     }
+                });
 
-                    if(ball.x < 15 || ball.x > container.offsetWidth-15) {
-                        ball.vx *= -0.6;
-                        ball.x = ball.x < 15 ? 15 : container.offsetWidth-15;
+                // Peg collision
+                pegLocations.forEach(p => {
+                    const dx = ball.x - p.x, dy = ball.y - p.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    if(dist < 11) { 
+                        const angle = Math.atan2(dy, dx);
+                        // Scatter agresif: memberikan random angle tambahan saat memantul
+                        const scatter = (Math.random() - 0.5) * 1.2;
+                        ball.vx = Math.cos(angle + scatter) * bouncePeg;
+                        ball.vy = Math.sin(angle + scatter) * bouncePeg;
+                        ball.x = p.x + Math.cos(angle) * 11.2;
+                        ball.y = p.y + Math.sin(angle) * 11.2;
                     }
+                });
+
+                // Anti-Stuck Logic (Paku magnetik tidak mungkin menahan bola)
+                if (ball.y < 310) {
+                    if (Math.abs(ball.vy) < 0.25) ball.vy += 1.2; // Dorong kebawah jika melayang
+                    if (Math.abs(ball.vx) < 0.05) ball.vx = (Math.random() - 0.5) * 4; // Dorong kesamping jika stuck
+                }
+
+                if(ball.x < 15 || ball.x > container.offsetWidth-15) {
+                    ball.vx *= -0.7;
+                    ball.x = ball.x < 15 ? 15 : container.offsetWidth-15;
                 }
 
                 ball.el.style.left = ball.x + 'px';
