@@ -241,7 +241,7 @@
                     document.getElementById('loading-overlay').style.display = 'none';
                     
                     if (result && result !== "FAILED") {
-                        // SIMPAN DATA LOGIN AGAR TERBACA DI PROFIL & WITHDRAW
+                        // SIMPAN SEMUA DATA KE LOCALSTORAGE
                         localStorage.setItem('user_session', result.username);
                         localStorage.setItem('fullname', result.fullname || "");
                         localStorage.setItem('bank_name', result.bank || "");
@@ -249,6 +249,7 @@
                         localStorage.setItem('phone', result.phone || "");
                         localStorage.setItem('saldo_permainan', result.saldo || 0);
                         localStorage.setItem('user_tier', result.tier || "BRONZE");
+                        localStorage.setItem('user_status', result.status || "ACTIVE");
 
                         showNeonModal("Login Berhasil!", "SUKSES", "game.html");
                     } else {
@@ -282,6 +283,7 @@
                         localStorage.setItem('phone', phoneVal);
                         localStorage.setItem('saldo_permainan', 0);
                         localStorage.setItem('user_tier', "BRONZE");
+                        localStorage.setItem('user_status', "ACTIVE");
 
                         showNeonModal("Pendaftaran Berhasil!", "SUKSES", "game.html");
                     } else if (result === "EXISTS") {
