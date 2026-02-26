@@ -29,9 +29,17 @@
         .neon-y { color: var(--yellow); text-shadow: var(--yellow-neon); }
         
         .header { display: flex; justify-content: center; align-items: center; padding: 15px 10px; position: relative; z-index: 100; background: var(--bg); }
+        
+        /* Navigasi Kiri (Profil) */
         .prof-container { position: absolute; left: 20px; display: flex; flex-direction: column; align-items: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
         .prof-link { font-size: 28px; color: var(--pink); text-shadow: var(--pink-neon); }
         .prof-text { font-size: 8px; font-weight: 900; margin-top: 2px; color: var(--blue); text-shadow: var(--blue-neon); }
+
+        /* Navigasi Kanan (Setting) */
+        .settings-container { position: absolute; right: 20px; display: flex; flex-direction: column; align-items: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .settings-link { font-size: 26px; color: var(--blue); text-shadow: var(--blue-neon); }
+        .settings-text { font-size: 8px; font-weight: 900; margin-top: 2px; color: var(--pink); text-shadow: var(--pink-neon); }
+
         .balance-box { background: #000; border: 2px solid var(--blue); border-radius: 20px; padding: 5px 20px; text-align: center; min-width: 140px; }
         #display-saldo { font-size: 18px; font-weight: 900; }
 
@@ -109,8 +117,20 @@
     <div id="neon-overlay"><div class="neon-modal"><h2 id="modal-title" class="neon-p">INFO</h2><p id="modal-msg" class="neon-b"></p><button class="neon-btn" onclick="closeNeonModal()">OK</button></div></div>
 
     <div class="header">
-        <div class="prof-container" onclick="location.href='profil.html'"><i class="fa-solid fa-circle-user prof-link"></i><span class="prof-text">PROFIL</span></div>
-        <div class="balance-box"><span id="tier-name" class="neon-y" style="font-size: 9px; font-weight: 900; display: block;">VIP PLAYER</span><span id="display-saldo" class="neon-b">IDR 0</span></div>
+        <div class="prof-container" onclick="location.href='profil.html'">
+            <i class="fa-solid fa-circle-user prof-link"></i>
+            <span class="prof-text" data-i18n="menu-profile">PROFIL</span>
+        </div>
+
+        <div class="balance-box">
+            <span id="tier-name" class="neon-y" style="font-size: 9px; font-weight: 900; display: block;">VIP PLAYER</span>
+            <span id="display-saldo" class="neon-b">IDR 0</span>
+        </div>
+
+        <div class="settings-container" onclick="location.href='settings.html'">
+            <i class="fa-solid fa-gear settings-link"></i>
+            <span class="settings-text" data-i18n="nav-settings">SETTING</span>
+        </div>
     </div>
 
     <div id="game-container"></div>
@@ -167,7 +187,6 @@
                 for (let i = 0; i < r; i++) {
                     const peg = document.createElement('div');
                     peg.className = 'peg';
-                    // Spasi horizontal dan vertikal agar sejajar dengan slot bawah
                     const xSpace = 46; 
                     const ySpace = 38;
                     const x = centerX + (i - (r - 1) / 2) * xSpace; 
@@ -218,7 +237,6 @@
             ballEl.className = 'ball';
             container.appendChild(ballEl);
 
-            // Admin Logic: Bias arah awal
             let startOffset = (Math.random() - 0.5) * 10;
             if (Math.random() < winChance) startOffset = Math.random() > 0.5 ? 25 : -25;
 
@@ -240,48 +258,37 @@
                 ball.x += ball.vx;
                 ball.y += ball.vy;
 
-                // Peg Collision (Physics Realistik)
                 pegLocations.forEach(p => {
                     const dx = ball.x - p.x;
                     const dy = ball.y - p.y;
                     const dist = Math.sqrt(dx*dx + dy*dy);
-                    if (dist < 11) { // 11 = radius bola + radius paku
+                    if (dist < 11) {
                         const angle = Math.atan2(dy, dx);
                         const speed = Math.sqrt(ball.vx*ball.vx + ball.vy*ball.vy);
-                        
-                        // Pantulan berdasarkan sudut tabrakan
                         ball.vx = Math.cos(angle) * speed * bounce + (Math.random()-0.5) * 2.5;
                         ball.vy = Math.sin(angle) * speed * bounce;
-                        
-                        // Geser bola agar tidak menempel di paku
                         ball.x = p.x + Math.cos(angle) * 11.5;
                         ball.y = p.y + Math.sin(angle) * 11.5;
                     }
                 });
 
-                // Wall Collision
                 if (ball.x < 10) { ball.x = 10; ball.vx *= -0.4; }
                 if (ball.x > container.offsetWidth - 10) { ball.x = container.offsetWidth - 10; ball.vx *= -0.4; }
 
                 ball.el.style.left = ball.x + 'px';
                 ball.el.style.top = ball.y + 'px';
 
-                // Hit Multiplier Area
                 if (ball.y > 378) {
                     clearInterval(moveBall);
-                    
                     const containerRect = container.getBoundingClientRect();
                     const slotsEls = document.querySelectorAll('.slot');
                     let finalSlot = -1; 
 
-                    // Deteksi Tabrakan Kotak
                     slotsEls.forEach((s, index) => {
                         const sRect = s.getBoundingClientRect();
                         const ballGlobalX = ball.x + containerRect.left;
-                        
                         if (ballGlobalX >= sRect.left && ballGlobalX <= sRect.right) {
                             finalSlot = index;
-                            // Visual feedback ketika kena kotak
                             s.style.transform = "scale(1.15)";
                             s.style.filter = "brightness(1.5)";
                             setTimeout(() => {
@@ -291,11 +298,9 @@
                         }
                     });
 
-                    // Update Saldo HANYA jika masuk kotak
                     if (finalSlot !== -1) {
                         const win = Math.floor(bet * slots[finalSlot]);
                         if (typeof updateSaldo === 'function') updateSaldo(win);
-                        
                         if (win > 0) {
                             addScoreBoard(win);
                             const p = document.createElement('div');
@@ -306,11 +311,7 @@
                             document.body.appendChild(p);
                             setTimeout(() => p.remove(), 1000);
                         }
-                    } else {
-                        // Jika jatuh di area kosong (LOSE)
-                        console.log("Out of bounds: LOSE");
                     }
-                    
                     ball.el.remove();
                 }
             }, 18);
