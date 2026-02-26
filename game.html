@@ -140,7 +140,6 @@
     <div class="play-area">
         <div class="mode-toggles">
             <div id="btn-normal" class="toggle active" onclick="setSpeed('normal')">NORMAL</div>
-            <div id="btn-turbo" class="toggle" onclick="setSpeed('turbo')">TURBO</div>
             <div id="btn-auto" class="toggle" onclick="toggleAuto()">AUTO</div>
         </div>
         <div class="bet-selector">
@@ -163,7 +162,6 @@
 
         const bets = [400, 1000, 2000, 5000, 10000, 20000];
         let betIdx = 1;
-        let isTurbo = false, isAuto = false, autoInterval = null;
         let activeBalls = [], pegLocations = [];
         const container = document.getElementById('game-container');
         const slots = [5, 2, 1.2, 0.2, 1.2, 2, 5];
@@ -191,11 +189,7 @@
         }
 
         function setSpeed(m) {
-            isTurbo = (m === 'turbo');
-            document.getElementById('btn-normal').classList.toggle('active', !isTurbo);
-            document.getElementById('btn-turbo').classList.toggle('active', isTurbo);
-        }
-
+            document.getElementById('btn-normal').
         function toggleAuto() {
             isAuto = !isAuto;
             const btn = document.getElementById('play-text');
@@ -223,7 +217,7 @@
             if (!updateSaldo(-bet)) { 
                 if(isAuto) toggleAuto(); 
                 showNeonModal("Saldo Tidak Cukup!"); 
-                return; 
+                1x; 
             }
 
             const ballEl = document.createElement('div');
@@ -240,11 +234,6 @@
                 isFinished: false
             };
             activeBalls.push(ball);
-
-            // DIFERENSIASI NORMAL VS TURBO
-            let grav = isTurbo ? 0.95 : 0.35; // Turbo jatuh lebih berat
-            let step = isTurbo ? 4 : 1;    // Turbo hitung posisi lebih sering
-            let bounce = isTurbo ? 2.2 : 2.8; // Turbo pantulan lebih rendah (fokus turun)
 
             const move = setInterval(() => {
                 if(ball.isFinished) { clearInterval(move); return; }
