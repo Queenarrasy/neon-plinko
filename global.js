@@ -21,7 +21,52 @@ async function fetchCloud(data) {
 }
 
 // ============================================================
-// 1. SISTEM SALDO SINKRON
+// 1. SISTEM AUTH (REGISTER & LOGIN) - NEW ADDITION
+// ============================================================
+async function cloudRegister(userData) {
+    const lang = localStorage.getItem('appLang') || 'id';
+    // Menambahkan action register untuk Apps Script
+    const payload = { action: "register", ...userData };
+    const res = await fetchCloud(payload);
+    
+    if (res === "SUCCESS") {
+        showNeonAlert(translations[lang]["success-reg"], "SUCCESS");
+        return "SUCCESS";
+    } else if (res === "EXISTS") {
+        showNeonAlert(translations[lang]["err-user-exist"], "ERROR");
+        return "EXISTS";
+    } else {
+        showNeonAlert("Server Error", "ERROR");
+        return "ERROR";
+    }
+}
+
+async function cloudLogin(username, password) {
+    const lang = localStorage.getItem('appLang') || 'id';
+    const res = await fetchCloud({
+        action: "login",
+        username: username,
+        password: password
+    });
+
+    if (res && res !== "FAILED") {
+        // Simpan data dari Cloud ke LocalStorage
+        localStorage.setItem('user_session', res.username);
+        localStorage.setItem('saldo_permainan', res.saldo);
+        localStorage.setItem('winrate_setting', res.winrate);
+        localStorage.setItem('user_tier', res.tier);
+        
+        showNeonAlert(translations[lang]["success-login"], "SUCCESS");
+        setTimeout(() => { window.location.href = "game.html"; }, 1500);
+        return "SUCCESS";
+    } else {
+        showNeonAlert(translations[lang]["err-wrong-pass"], "ERROR");
+        return "FAILED";
+    }
+}
+
+// ============================================================
+// 2. SISTEM SALDO SINKRON
 // ============================================================
 function updateSaldo(jumlah) {
     let saldo = parseInt(localStorage.getItem('saldo_permainan')) || 0;
@@ -59,7 +104,7 @@ function updateSaldo(jumlah) {
 }
 
 // ============================================================
-// 2. SISTEM MULTI-BAHASA (i18n) - KAMUS LENGKAP
+// 3. SISTEM MULTI-BAHASA (i18n) - KAMUS LENGKAP
 // ============================================================
 const translations = {
     id: {
@@ -256,7 +301,7 @@ function applyLanguage() {
 }
 
 // ============================================================
-// 3. SISTEM PERUBAHAN PASSWORD (SINKRON)
+// 4. SISTEM PERUBAHAN PASSWORD (SINKRON)
 // ============================================================
 function updatePassword(newPass, confirmPass) {
     const lang = localStorage.getItem('appLang') || 'id';
@@ -288,10 +333,9 @@ function updatePassword(newPass, confirmPass) {
 }
 
 // ============================================================
-// 4. SISTEM REFERRAL & WIN RATE
+// 5. SISTEM REFERRAL & WIN RATE
 // ============================================================
 function getWinRate() { 
-    // Mengambil winrate yang diatur Admin (0.1 - 0.9) dari Cloud yang disimpan saat login
     return parseFloat(localStorage.getItem('winrate_setting')) || 0.5; 
 }
 
@@ -306,7 +350,7 @@ function registerReferral(usernameBaru, kodeRef) {
 }
 
 // ============================================================
-// 5. AUTO-INJECT CSS & HTML MODAL
+// 6. AUTO-INJECT CSS & HTML MODAL
 // ============================================================
 const styleNeon = document.createElement('style');
 styleNeon.innerHTML = `
@@ -359,7 +403,6 @@ window.alert = function(message) {
 
 // LOAD SEMUA SISTEM SAAT HALAMAN DIBUKA
 window.addEventListener('load', () => {
-    // Tampilkan saldo lokal dulu sambil menunggu update cloud jika perlu
     updateSaldo(0);
     applyLanguage();
 });
