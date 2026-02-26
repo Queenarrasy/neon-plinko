@@ -141,64 +141,64 @@
 
     <div id="neon-modal-overlay">
         <div class="neon-modal">
-            <h2 id="modal-title">INFO</h2>
+            <h2 id="modal-title" data-i18n="modal-title-info">INFO</h2>
             <p id="modal-msg">Pesan sistem di sini.</p>
-            <button class="neon-modal-btn" onclick="closeNeonModal()">MENGERTI</button>
+            <button class="neon-modal-btn" onclick="closeNeonModal()" data-i18n="btn-understand">MENGERTI</button>
         </div>
     </div>
 
-    <a href="game.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> KEMBALI KE GAME</a>
+    <a href="game.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> <span data-i18n="btn-back">KEMBALI KE GAME</span></a>
 
     <div class="referral-code-container">
-        <small style="color: var(--blue); font-weight: 900;">KODE REFERRAL ANDA</small>
+        <small style="color: var(--blue); font-weight: 900;" data-i18n="label-your-code">KODE REFERRAL ANDA</small>
         <div class="code-box" id="my-referral-code" onclick="copyReferralCode()">
             MEMUAT...
         </div>
-        <div class="copy-hint">Klik kode di atas untuk menyalin</div>
+        <div class="copy-hint" data-i18n="hint-copy">Klik kode di atas untuk menyalin</div>
     </div>
 
     <div class="daily-reward-card">
-        <small style="color: var(--yellow); font-weight: 900;">DAILY CHECK-IN</small>
+        <small style="color: var(--yellow); font-weight: 900;" data-i18n="label-daily">DAILY CHECK-IN</small>
         <div style="font-size: 18px; font-weight: 900; margin: 5px 0;">IDR 1.000</div>
-        <button id="btn-daily" class="btn-daily" onclick="claimDailyReward()">KLAIM HADIAH HARIAN</button>
-        <div class="daily-warning">
+        <button id="btn-daily" class="btn-daily" onclick="claimDailyReward()" data-i18n="btn-claim-daily">KLAIM HADIAH HARIAN</button>
+        <div class="daily-warning" data-i18n="daily-warning">
             * Segera klaim jatah harian Anda. Jatah yang terlewatkan 1 hari akan otomatis hangus dan tidak dapat diakumulasi.
         </div>
     </div>
 
     <div class="admin-inbox">
-        <div class="inbox-title"><i class="fa-solid fa-envelope"></i> KOTAK MASUK</div>
+        <div class="inbox-title"><i class="fa-solid fa-envelope"></i> <span data-i18n="label-inbox">KOTAK MASUK</span></div>
         <div id="inbox-list">
             </div>
     </div>
 
     <div class="reward-header">
-        <h2>PROGRAM REFERRAL VIP</h2>
-        <p>Setiap teman yang mendaftar dan melakukan deposit pertama, Anda berhak mendapatkan bonus saldo.</p>
-        <div class="bonus-tag">BONUS IDR 5.000 / TEMAN</div>
+        <h2 data-i18n="referral-title">PROGRAM REFERRAL VIP</h2>
+        <p data-i18n="referral-desc">Setiap teman yang mendaftar dan melakukan deposit pertama, Anda berhak mendapatkan bonus saldo.</p>
+        <div class="bonus-tag" data-i18n="bonus-tag">BONUS IDR 5.000 / TEMAN</div>
     </div>
 
     <div class="stat-grid">
         <div class="stat-card">
-            <small>Total Undangan</small>
+            <small data-i18n="total-invite">Total Undangan</small>
             <div id="total-invite">0</div>
         </div>
         <div class="stat-card">
-            <small>Reward Tersedia</small>
+            <small data-i18n="reward-available">Reward Tersedia</small>
             <div id="total-reward" style="color: var(--yellow);">IDR 0</div>
         </div>
     </div>
 
     <div id="day-warning" class="day-info" style="color: var(--pink);">
-        <i class="fa-solid fa-lock"></i> Klaim hanya tersedia hari Minggu
+        <i class="fa-solid fa-lock"></i> <span data-i18n="sunday-only">Klaim hanya tersedia hari Minggu</span>
     </div>
     
-    <button id="btn-klaim-reward" class="btn-claim btn-locked">
+    <button id="btn-klaim-reward" class="btn-claim btn-locked" data-i18n="btn-claim-sunday">
         KLAIM REWARD (MINGGU)
     </button>
 
     <div class="history-section">
-        <h3><i class="fa-solid fa-users"></i> RIWAYAT UNDANGAN</h3>
+        <h3><i class="fa-solid fa-users"></i> <span data-i18n="invite-history">RIWAYAT UNDANGAN</span></h3>
         <div id="referral-list">
             </div>
     </div>
@@ -211,7 +211,6 @@
             let myCode = localStorage.getItem('unique_referral_code');
             
             if (!myCode) {
-                // Buat kode: 3 huruf username + 4 angka acak
                 const cleanUser = username.substring(0, 3).toUpperCase().replace(/\s/g, 'X');
                 const randomNum = Math.floor(1000 + Math.random() * 9000);
                 myCode = cleanUser + randomNum;
@@ -222,11 +221,14 @@
 
         function copyReferralCode() {
             const code = document.getElementById('my-referral-code').innerText;
+            const lang = localStorage.getItem('appLang') || 'id';
+            const msg = lang === 'id' ? `Kode Referral ${code} berhasil disalin!` : `Referral Code ${code} copied successfully!`;
+            const title = lang === 'id' ? "BERHASIL" : "SUCCESS";
+
             navigator.clipboard.writeText(code).then(() => {
-                showNeonModal("Kode Referral " + code + " berhasil disalin!", "BERHASIL");
+                showNeonModal(msg, title);
             }).catch(() => {
-                // Fallback jika navigator.clipboard tidak didukung
-                alert("Kode Referral: " + code);
+                alert("Referral: " + code);
             });
         }
 
@@ -246,18 +248,23 @@
             const lastClaim = localStorage.getItem('last_daily_claim');
             const today = new Date().toDateString();
             const btn = document.getElementById('btn-daily');
+            const lang = localStorage.getItem('appLang') || 'id';
 
             if (lastClaim === today) {
                 btn.disabled = true;
-                btn.innerText = "SUDAH DIKLAIM HARI INI";
+                btn.innerText = lang === 'id' ? "SUDAH DIKLAIM HARI INI" : "ALREADY CLAIMED TODAY";
             }
         }
 
         function claimDailyReward() {
             const today = new Date().toDateString();
+            const lang = localStorage.getItem('appLang') || 'id';
+            const msg = lang === 'id' ? "Selamat! Hadiah check-in IDR 1.000 telah ditambahkan ke saldo Anda." : "Congratulations! IDR 1,000 check-in reward has been added to your balance.";
+            const title = lang === 'id' ? "KLAIM BERHASIL" : "CLAIM SUCCESS";
+
             if (updateSaldo(1000)) { 
                 localStorage.setItem('last_daily_claim', today);
-                showNeonModal("Selamat! Hadiah check-in IDR 1.000 telah ditambahkan ke saldo Anda.", "KLAIM BERHASIL");
+                showNeonModal(msg, title);
                 setTimeout(() => { location.reload(); }, 2000);
             }
         }
@@ -266,22 +273,26 @@
         function renderInbox() {
             const inboxList = document.getElementById('inbox-list');
             const messages = JSON.parse(localStorage.getItem('admin_messages')) || [];
+            const lang = localStorage.getItem('appLang') || 'id';
             
             if (messages.length === 0) {
-                inboxList.innerHTML = '<div style="font-size:11px; color:#555; text-align:center; padding:10px;">Tidak ada pesan atau hadiah baru.</div>';
+                const noMsg = lang === 'id' ? "Tidak ada pesan atau hadiah baru." : "No new messages or rewards.";
+                inboxList.innerHTML = `<div style="font-size:11px; color:#555; text-align:center; padding:10px;">${noMsg}</div>`;
                 return;
             }
 
             inboxList.innerHTML = "";
             messages.forEach((msg, index) => {
+                const btnText = lang === 'id' ? `AMBIL IDR ${msg.amount.toLocaleString()}` : `TAKE IDR ${msg.amount.toLocaleString()}`;
+                const giftTitle = lang === 'id' ? "HADIAH SALDO" : "BALANCE GIFT";
                 inboxList.innerHTML += `
                     <div class="msg-card">
                         <div class="msg-text">
-                            <i class="fa-solid fa-gift" style="color:var(--yellow)"></i> <b>HADIAH SALDO</b><br>
+                            <i class="fa-solid fa-gift" style="color:var(--yellow)"></i> <b>${giftTitle}</b><br>
                             ${msg.text}
                         </div>
                         <button class="btn-claim-gift" onclick="claimAdminGift(${index}, ${msg.amount})">
-                            AMBIL IDR ${msg.amount.toLocaleString()}
+                            ${btnText}
                         </button>
                     </div>
                 `;
@@ -289,24 +300,29 @@
         }
 
         function claimAdminGift(index, amount) {
+            const lang = localStorage.getItem('appLang') || 'id';
+            const msgSuccess = lang === 'id' ? "Berhasil mengklaim hadiah admin sebesar IDR " + amount.toLocaleString() : "Successfully claimed admin gift of IDR " + amount.toLocaleString();
+            const title = lang === 'id' ? "HADIAH DITERIMA" : "GIFT RECEIVED";
+
             if (updateSaldo(amount)) {
                 let messages = JSON.parse(localStorage.getItem('admin_messages'));
                 messages.splice(index, 1); 
                 localStorage.setItem('admin_messages', JSON.stringify(messages));
-                showNeonModal("Berhasil mengklaim hadiah admin sebesar IDR " + amount.toLocaleString(), "HADIAH DITERIMA");
+                showNeonModal(msgSuccess, title);
                 setTimeout(() => { location.reload(); }, 2000);
             }
         }
 
         // --- LOGIKA REFERRAL ---
         function renderRewardPage() {
-            generateMyCode(); // Panggil generator kode
+            generateMyCode(); 
             checkDailyStatus();
             renderInbox();
 
             const listContainer = document.getElementById('referral-list');
             const btnKlaim = document.getElementById('btn-klaim-reward');
             const dayWarning = document.getElementById('day-warning');
+            const lang = localStorage.getItem('appLang') || 'id';
             
             const databaseRef = JSON.parse(localStorage.getItem('referral_database')) || [];
             const d = new Date();
@@ -315,14 +331,17 @@
             if (isSunday) {
                 btnKlaim.classList.remove('btn-locked');
                 btnKlaim.classList.add('btn-active');
-                btnKlaim.innerText = "KLAIM REWARD SEKARANG";
+                btnKlaim.innerText = lang === 'id' ? "KLAIM REWARD SEKARANG" : "CLAIM REWARD NOW";
                 btnKlaim.onclick = function() { kirimDataKeAdmin(databaseRef); };
-                dayWarning.innerHTML = '<i class="fa-solid fa-unlock"></i> HARI MINGGU: Gerbang klaim terbuka!';
+                
+                const unlockText = lang === 'id' ? "HARI MINGGU: Gerbang klaim terbuka!" : "SUNDAY: Claim gate is open!";
+                dayWarning.innerHTML = `<i class="fa-solid fa-unlock"></i> ${unlockText}`;
                 dayWarning.style.color = "#00ff88";
             }
 
             if (databaseRef.length === 0) {
-                listContainer.innerHTML = '<div id="empty-state">Belum ada teman yang menggunakan kode Anda.</div>';
+                const emptyMsg = lang === 'id' ? "Belum ada teman yang menggunakan kode Anda." : "No friends have used your code yet.";
+                listContainer.innerHTML = `<div id="empty-state">${emptyMsg}</div>`;
                 return;
             }
 
@@ -333,6 +352,8 @@
                 const isAktif = user.hasDeposited === true;
                 if (isAktif) totalAktif++;
 
+                const statusText = isAktif ? (lang === 'id' ? 'AKTIF' : 'ACTIVE') : (lang === 'id' ? 'BELUM AKTIF' : 'INACTIVE');
+
                 listContainer.innerHTML += `
                     <div class="referral-item">
                         <div class="user-info">
@@ -340,7 +361,7 @@
                             <small>Join: ${user.date}</small>
                         </div>
                         <span class="status-badge ${isAktif ? 'status-aktif' : 'status-belum'}">
-                            ${isAktif ? 'AKTIF' : 'BELUM AKTIF'}
+                            ${statusText}
                         </span>
                     </div>
                 `;
@@ -351,12 +372,15 @@
         }
 
         function kirimDataKeAdmin(data) {
+            const lang = localStorage.getItem('appLang') || 'id';
             const userSekarang = localStorage.getItem('user_session') || "MEMBER_VIP";
             const myCode = localStorage.getItem('unique_referral_code') || "NONE";
             const aktifOnly = data.filter(u => u.hasDeposited === true);
             
             if (aktifOnly.length === 0) {
-                showNeonModal("Anda belum memiliki undangan yang berstatus AKTIF (sudah deposit).", "KLAIM DITOLAK");
+                const rejectMsg = lang === 'id' ? "Anda belum memiliki undangan yang berstatus AKTIF (sudah deposit)." : "You don't have any ACTIVE invited users (already deposited) yet.";
+                const rejectTitle = lang === 'id' ? "KLAIM DITOLAK" : "CLAIM REJECTED";
+                showNeonModal(rejectMsg, rejectTitle);
                 return;
             }
 
@@ -367,7 +391,10 @@
             window.open(linkWA, '_blank');
         }
 
-        window.onload = renderRewardPage;
+        window.onload = () => {
+            if(typeof applyLanguage === 'function') applyLanguage();
+            renderRewardPage();
+        };
     </script>
 </body>
 </html>
