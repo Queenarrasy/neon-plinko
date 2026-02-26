@@ -181,7 +181,9 @@
 
         function dropBall() {
             const bet = bets[betIdx];
-            if (!updateSaldo(-bet)) { if(isAuto) toggleAuto(); showNeonModal("Saldo Tidak Cukup!"); return; }
+            if (typeof updateSaldo === "function") {
+                if (!updateSaldo(-bet)) { if(isAuto) toggleAuto(); showNeonModal("Saldo Tidak Cukup!"); return; }
+            }
 
             const ballEl = document.createElement('div');
             ballEl.className = 'ball';
@@ -191,7 +193,7 @@
                 el: ballEl,
                 x: container.offsetWidth / 2 + (Math.random()*16-8),
                 y: -15, 
-                vx: (Math.random()-0.5)*4, // VX awal lebih lebar agar terpencar
+                vx: (Math.random()-0.5)*4,
                 vy: 0,
                 isFinished: false
             };
@@ -209,7 +211,6 @@
 
                 if(ball.y > 30) ball.el.style.opacity = 1;
 
-                // Ball collision
                 activeBalls.forEach(other => {
                     if (other === ball || other.isFinished) return;
                     const dx = ball.x - other.x;
@@ -222,13 +223,11 @@
                     }
                 });
 
-                // Peg collision
                 pegLocations.forEach(p => {
                     const dx = ball.x - p.x, dy = ball.y - p.y;
                     const dist = Math.sqrt(dx*dx + dy*dy);
                     if(dist < 11) { 
                         const angle = Math.atan2(dy, dx);
-                        // Scatter agresif: memberikan random angle tambahan saat memantul
                         const scatter = (Math.random() - 0.5) * 1.2;
                         ball.vx = Math.cos(angle + scatter) * bouncePeg;
                         ball.vy = Math.sin(angle + scatter) * bouncePeg;
@@ -237,10 +236,9 @@
                     }
                 });
 
-                // Anti-Stuck Logic (Paku magnetik tidak mungkin menahan bola)
                 if (ball.y < 310) {
-                    if (Math.abs(ball.vy) < 0.25) ball.vy += 1.2; // Dorong kebawah jika melayang
-                    if (Math.abs(ball.vx) < 0.05) ball.vx = (Math.random() - 0.5) * 4; // Dorong kesamping jika stuck
+                    if (Math.abs(ball.vy) < 0.25) ball.vy += 1.2;
+                    if (Math.abs(ball.vx) < 0.05) ball.vx = (Math.random() - 0.5) * 4;
                 }
 
                 if(ball.x < 15 || ball.x > container.offsetWidth-15) {
@@ -258,7 +256,7 @@
                     
                     setTimeout(() => {
                         const winAmount = Math.floor(bet * slots[idx]);
-                        updateSaldo(winAmount);
+                        if (typeof updateSaldo === "function") updateSaldo(winAmount);
                         if(winAmount > 0) {
                             addScorePopup(winAmount);
                             const p = document.createElement('div');
