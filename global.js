@@ -29,7 +29,7 @@ function updateSaldo(jumlah) {
 }
 
 // ============================================================
-// 2. SISTEM MULTI-BAHASA (i18n) - FULL UPDATE KAMUS
+// 2. SISTEM MULTI-BAHASA (i18n) - KAMUS LENGKAP
 // ============================================================
 const translations = {
     id: {
@@ -50,14 +50,39 @@ const translations = {
         "nav-reward": "REWARD",
         "btn-play": "MULAI MAIN",
         "btn-stop": "STOP AUTO",
-        "auth-title": "HALAMAN LOGIN",
-        "label-user": "Username",
-        "label-wd-limit": "Minimal Withdraw: IDR 50.000",
-        "label-depo-info": "Pilih Metode Pembayaran",
-        "btn-claim": "KLAIM SEKARANG",
         "msg-welcome": "Selamat Datang di Neon Plinko!",
         
-        // --- TAMBAHAN KUNCI WITHDRAW ---
+        // --- AUTH & PENDAFTARAN ---
+        "auth-title": "PENDAFTARAN",
+        "label-user": "USERNAME",
+        "label-phone": "NOMOR HP",
+        "label-fullname": "NAMA LENGKAP",
+        "label-bank": "NAMA BANK / EWALLET",
+        "label-rekening": "NO REK / EWALLET",
+        "label-ref": "KODE REFERRAL (OPSIONAL)",
+        "ref-note": "* Kosongkan jika tidak ada",
+        "placeholder-user": "Buat username unik",
+        "placeholder-phone": "Contoh: 08123456789",
+        "placeholder-fullname": "Sesuai rekening bank",
+        "placeholder-rek": "Masukkan nomor rekening/e-wallet",
+        "placeholder-pass": "Minimal 6 karakter",
+        "placeholder-ref": "Masukkan kode jika ada",
+        "btn-reg": "Daftar Sekarang",
+        
+        // --- POP-UP & MODAL ---
+        "modal-info": "INFORMASI",
+        "modal-success": "BERHASIL",
+        "btn-understand": "MENGERTI",
+        "err-auth-fields": "Username wajib diisi & Password minimal 6 karakter!",
+        "err-wrong-pass": "Username atau Password salah!",
+        "err-incomplete": "Harap lengkapi semua data pendaftaran!",
+        "err-user-exist": "Username sudah digunakan!",
+        "success-login": "Login Berhasil! Selamat Datang Kembali.",
+        "success-reg": "Pendaftaran Berhasil! Selamat bergabung.",
+        
+        // --- WITHDRAW ---
+        "label-wd-limit": "Minimal Withdraw: IDR 50.000",
+        "label-depo-info": "Pilih Metode Pembayaran",
         "label-saldo-game": "Saldo Permainan",
         "label-name-rek": "NAMA SESUAI REKENING:",
         "label-target-rek": "TUJUAN REKENING:",
@@ -67,7 +92,7 @@ const translations = {
         "th-total": "TOTAL",
         "th-status": "STATUS",
         
-        // --- TAMBAHAN KUNCI REWARD ---
+        // --- REWARD ---
         "btn-back": "KEMBALI KE GAME",
         "label-your-code": "KODE REFERRAL ANDA",
         "hint-copy": "Klik kode di atas untuk menyalin",
@@ -82,9 +107,7 @@ const translations = {
         "reward-available": "Reward Tersedia",
         "sunday-only": "Klaim hanya tersedia hari Minggu",
         "btn-claim-sunday": "KLAIM REWARD (MINGGU)",
-        "invite-history": "RIWAYAT UNDANGAN",
-        "modal-title-info": "INFO",
-        "btn-understand": "MENGERTI"
+        "invite-history": "RIWAYAT UNDANGAN"
     },
     en: {
         "nav-settings": "SETTINGS",
@@ -104,14 +127,37 @@ const translations = {
         "nav-reward": "REWARD",
         "btn-play": "START PLAY",
         "btn-stop": "STOP AUTO",
-        "auth-title": "LOGIN PAGE",
-        "label-user": "Username",
-        "label-wd-limit": "Min Withdraw: IDR 50,000",
-        "label-depo-info": "Choose Payment Method",
-        "btn-claim": "CLAIM NOW",
         "msg-welcome": "Welcome to Neon Plinko!",
+
+        // --- AUTH & REGISTRATION ---
+        "auth-title": "REGISTRATION",
+        "label-user": "USERNAME",
+        "label-phone": "PHONE NUMBER",
+        "label-fullname": "FULL NAME",
+        "label-bank": "BANK / EWALLET NAME",
+        "label-rekening": "ACCOUNT NUMBER",
+        "label-ref": "REFERRAL CODE (OPTIONAL)",
+        "ref-note": "* Leave empty if none",
+        "placeholder-user": "Create unique username",
+        "placeholder-phone": "Example: 08123456789",
+        "placeholder-fullname": "Match your bank account",
+        "placeholder-rek": "Enter account/e-wallet number",
+        "placeholder-pass": "Minimum 6 characters",
+        "placeholder-ref": "Enter code if available",
+        "btn-reg": "Register Now",
+
+        // --- POP-UP & MODAL ---
+        "modal-info": "INFORMATION",
+        "modal-success": "SUCCESS",
+        "btn-understand": "GOT IT",
+        "err-auth-fields": "Username required & Password min 6 characters!",
+        "err-wrong-pass": "Invalid Username or Password!",
+        "err-incomplete": "Please complete all registration data!",
+        "err-user-exist": "Username is already taken!",
+        "success-login": "Login Success! Welcome back.",
+        "success-reg": "Registration Success! Welcome to the club.",
         
-        // --- ADDITIONAL WITHDRAW KEYS ---
+        // --- WITHDRAW ---
         "label-saldo-game": "Game Balance",
         "label-name-rek": "ACCOUNT HOLDER NAME:",
         "label-target-rek": "DESTINATION ACCOUNT:",
@@ -121,7 +167,7 @@ const translations = {
         "th-total": "TOTAL",
         "th-status": "STATUS",
         
-        // --- ADDITIONAL REWARD KEYS ---
+        // --- REWARD ---
         "btn-back": "BACK TO GAME",
         "label-your-code": "YOUR REFERRAL CODE",
         "hint-copy": "Click code above to copy",
@@ -136,9 +182,7 @@ const translations = {
         "reward-available": "Available Reward",
         "sunday-only": "Claims only available on Sunday",
         "btn-claim-sunday": "CLAIM REWARD (SUNDAY)",
-        "invite-history": "INVITATION HISTORY",
-        "modal-title-info": "INFO",
-        "btn-understand": "UNDERSTAND"
+        "invite-history": "INVITATION HISTORY"
     }
 };
 
@@ -186,7 +230,7 @@ function applyLanguage() {
 }
 
 // ============================================================
-// 3. SISTEM PERUBAHAN PASSWORD (UPDATED: SINKRON ADMIN)
+// 3. SISTEM PERUBAHAN PASSWORD (SINKRON)
 // ============================================================
 function updatePassword(newPass, confirmPass) {
     const lang = localStorage.getItem('appLang') || 'id';
@@ -200,14 +244,13 @@ function updatePassword(newPass, confirmPass) {
         return false;
     }
 
-    // Update password di sistem utama agar admin & login langsung sinkron
     localStorage.setItem('user_password', newPass);
     showNeonAlert(translations[lang]["msg-success-pass"], "SUCCESS");
     return true;
 }
 
 // ============================================================
-// 4. SISTEM REFERRAL & WIN RATE (KODE ASLI ANDA)
+// 4. SISTEM REFERRAL & WIN RATE
 // ============================================================
 function getWinRate() { return parseInt(localStorage.getItem('admin_win_rate')) || 30; }
 
@@ -222,7 +265,7 @@ function registerReferral(usernameBaru, kodeRef) {
 }
 
 // ============================================================
-// 5. AUTO-INJECT CSS & HTML MODAL (KODE ASLI ANDA)
+// 5. AUTO-INJECT CSS & HTML MODAL
 // ============================================================
 const styleNeon = document.createElement('style');
 styleNeon.innerHTML = `
@@ -259,11 +302,21 @@ document.body.appendChild(modalContainer);
 
 window.closeNeonAlert = function() { document.getElementById('neon-global-overlay').style.display = 'none'; };
 window.showNeonAlert = function(msg, title = "INFO") {
+    const lang = localStorage.getItem('appLang') || 'id';
+    // Gunakan terjemahan untuk tombol jika ada
+    const btnText = translations[lang]["btn-understand"] || "MENGERTI";
+    
     document.getElementById('neon-title').innerText = title;
     document.getElementById('neon-msg').innerText = msg;
+    document.querySelector('.neon-global-btn').innerText = btnText;
     document.getElementById('neon-global-overlay').style.display = 'flex';
 };
-window.alert = function(message) { showNeonAlert(message, "NOTIFIKASI"); };
+
+// Mengubah alert browser default menjadi Modal Neon
+window.alert = function(message) { 
+    const lang = localStorage.getItem('appLang') || 'id';
+    showNeonAlert(message, translations[lang]["modal-info"] || "NOTIFIKASI"); 
+};
 
 // LOAD SEMUA SISTEM SAAT HALAMAN DIBUKA
 window.addEventListener('load', () => {
