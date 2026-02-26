@@ -60,39 +60,95 @@
                 <div id="tier-progress-bar" class="progress-bar"></div>
             </div>
             <div class="tier-info-text">
-                <span>PROGRESS KE NEXT TIER</span>
+                <span data-i18n="tier-progress">PROGRESS KE NEXT TIER</span>
                 <span id="tier-persen">0%</span>
             </div>
         </div>
 
         <div class="balance-card">
-            <small>Total Saldo Permainan</small>
+            <small data-i18n="label-saldo-game">Total Saldo Permainan</small>
             <h1 id="display-saldo">IDR 0</h1>
         </div>
 
         <div class="data-list">
-            <div class="data-item"><div class="label">Username</div><div class="val" id="p-user">-</div></div>
-            <div class="data-item"><div class="label">Nama Lengkap</div><div class="val" id="p-full">-</div></div>
-            <div class="data-item"><div class="label">Bank/E-Wallet</div><div class="val" id="p-bank">-</div></div>
-            <div class="data-item"><div class="label">No. Rekening</div><div class="val" id="p-rek">-</div></div>
+            <div class="data-item">
+                <div class="label" data-i18n="label-user">Username</div>
+                <div class="val" id="p-user">-</div>
+            </div>
+            <div class="data-item">
+                <div class="label" data-i18n="label-fullname">Nama Lengkap</div>
+                <div class="val" id="p-full">-</div>
+            </div>
+            <div class="data-item">
+                <div class="label" data-i18n="label-bank">Bank/E-Wallet</div>
+                <div class="val" id="p-bank">-</div>
+            </div>
+            <div class="data-item">
+                <div class="label" data-i18n="label-acc">No. Rekening</div>
+                <div class="val" id="p-rek">-</div>
+            </div>
         </div>
 
-        <button class="btn btn-game" onclick="location.href='game.html'">Main Sekarang</button>
-        <button class="btn btn-logout" onclick="logout()">Logout Akun</button>
+        <button class="btn btn-game" onclick="location.href='game.html'" data-i18n="btn-play">Main Sekarang</button>
+        <button class="btn btn-logout" onclick="logout()" data-i18n="btn-logout">Logout Akun</button>
     </div>
 
     <script src="global.js"></script>
     <script>
         function load() {
+            // Load Data Profil
             document.getElementById('p-user').innerText = localStorage.getItem('user_vip') || "-";
             document.getElementById('p-full').innerText = localStorage.getItem('full_name') || "-";
             document.getElementById('p-bank').innerText = localStorage.getItem('bank_name') || "-";
             document.getElementById('p-rek').innerText = localStorage.getItem('acc_number') || "-";
+
+            // Update Saldo & Tier via Global System
+            if (typeof updateSaldo === 'function') {
+                updateSaldo(0); 
+            }
+
+            // Hitung Progress Bar Tier
+            const saldo = parseInt(localStorage.getItem('saldo_permainan')) || 0;
+            let persen = 0;
+            let color = "var(--pink)";
+
+            if (saldo >= 1000000) {
+                persen = 100;
+                color = "var(--blue)";
+            } else if (saldo >= 500000) {
+                persen = ((saldo - 500000) / 500000) * 100;
+                color = "var(--blue)";
+            } else {
+                persen = (saldo / 500000) * 100;
+                color = "var(--pink)";
+            }
+
+            const bar = document.getElementById('tier-progress-bar');
+            if (bar) {
+                bar.style.width = persen + "%";
+                bar.style.background = color;
+            }
+            document.getElementById('tier-persen').innerText = Math.floor(persen) + "%";
+
+            // Jalankan Sistem Bahasa
+            if (typeof applyLanguage === 'function') {
+                applyLanguage();
+            }
         }
+
         function logout() {
-            localStorage.clear();
-            location.href='auth.html';
+            const lang = localStorage.getItem('appLang') || 'id';
+            const msg = lang === 'id' ? "Apakah Anda yakin ingin keluar?" : "Are you sure you want to logout?";
+            
+            if (confirm(msg)) {
+                // Simpan bahasa sebelum hapus semua data agar saat login ulang bahasa tetap sama
+                const currentLang = localStorage.getItem('appLang');
+                localStorage.clear();
+                localStorage.setItem('appLang', currentLang);
+                location.href='auth.html';
+            }
         }
+
         window.onload = load;
     </script>
 </body>
