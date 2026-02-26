@@ -4,7 +4,7 @@
 // ============================================================
 // 0. KONFIGURASI DATABASE CLOUD (TAMBAHAN ADMIN)
 // ============================================================
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxV38jx0r-kiTeV_AQTYvT-q6Gn8MbqZmujvEbGWnF4p7HFyV8BWLUCAv_LuxmdVk30kg/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqQWXIJuVnkIxLvdu3kYiiRDVh7eyrsy-KU6rG1qtQClgfAzmMoclv2ULFZ_hRdE_qUg/exec";
 
 // Fungsi Universal untuk berkomunikasi dengan Google Sheets
 async function fetchCloud(data) {
