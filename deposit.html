@@ -34,7 +34,6 @@
 
         .instruksi-box { background: #000; border: 1px solid #222; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; min-height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         
-        /* --- STYLE TABEL RIWAYAT (SCROLLABLE) --- */
         .history-section { 
             margin-top: 30px; 
             background: rgba(0,0,0,0.4); 
@@ -43,23 +42,12 @@
             border: 1px solid #222;
         }
         .history-title { 
-            font-size: 12px; 
-            color: var(--neon-blue); 
-            font-weight: 900; 
-            margin-bottom: 15px; 
-            text-align: left;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-transform: uppercase;
+            font-size: 12px; color: var(--neon-blue); font-weight: 900; margin-bottom: 15px; 
+            text-align: left; display: flex; align-items: center; gap: 8px; text-transform: uppercase;
         }
         .history-title::before { content: ""; width: 3px; height: 12px; background: var(--neon-blue); display: inline-block; }
 
-        .table-scroll {
-            max-height: 165px; 
-            overflow-y: auto;
-            border-radius: 8px;
-        }
+        .table-scroll { max-height: 165px; overflow-y: auto; border-radius: 8px; }
 
         table { width: 100%; border-collapse: collapse; font-size: 11px; }
         thead { position: sticky; top: 0; background: #111; z-index: 1; }
@@ -79,52 +67,37 @@
         }
 
         .btn-back {
-            display: block;
-            margin-top: 25px;
-            padding: 12px;
-            text-decoration: none;
-            color: #888;
-            font-size: 12px;
-            font-weight: 900;
-            border: 1px solid #222;
-            border-radius: 12px;
-            text-align: center;
-            transition: 0.3s;
-            text-transform: uppercase;
+            display: block; margin-top: 25px; padding: 12px; text-decoration: none; color: #888; font-size: 12px;
+            font-weight: 900; border: 1px solid #222; border-radius: 12px; text-align: center; text-transform: uppercase;
         }
-        .btn-back:hover { color: white; border-color: #444; background: rgba(255,255,255,0.05); }
 
-        /* POPUP */
         #neon-popup { 
             display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
             width: 80%; max-width: 320px; background: #000; border: 2px solid var(--neon-blue); 
             border-radius: 20px; padding: 25px; z-index: 10000; text-align: center; box-shadow: 0 0 50px var(--neon-blue);
         }
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; }
-
-        .crypto-logos { display: flex; justify: center; gap: 10px; margin: 10px 0; }
-        .crypto-logos i { font-size: 18px; color: #aaa; }
     </style>
 </head>
 <body>
 
     <div class="overlay" id="overlay"></div>
     <div id="neon-popup">
-        <div id="popup-msg" style="font-weight: bold; margin-bottom: 20px; font-size: 14px;"></div>
+        <div id="popup-msg" style="font-weight: bold; margin-bottom: 20px; font-size: 14px; color: white;"></div>
         <button onclick="closePopup()" style="background: var(--neon-blue); border: none; padding: 10px 25px; border-radius: 8px; font-weight: 900; cursor: pointer; color: black;" data-i18n="btn-ok">OKE</button>
     </div>
 
     <div class="container">
         <div class="glass-card">
             <h2 class="neon-title" data-i18n="nav-deposit">FORM SETOR DANA</h2>
-            <p id="min-deposit-text" style="color: var(--neon-pink); font-size: 10px; text-align: center; margin-bottom: 20px; font-weight: bold;">⚠️ MINIMAL DEPOSIT: IDR 20,000</p>
+            <p id="min-deposit-text" style="color: var(--neon-pink); font-size: 10px; text-align: center; margin-bottom: 20px; font-weight: bold;"></p>
             
             <label id="label-nominal" data-i18n="label-nominal-depo">NOMINAL DEPOSIT (IDR)</label>
             <input type="number" id="input-nominal" placeholder="0">
 
             <div class="method-tabs">
-                <button id="tab-qris" onclick="pilihMetode('QRIS')" class="btn-tab active">QRIS RUPIAH</button>
-                <button id="tab-crypto" onclick="pilihMetode('CRYPTO')" class="btn-tab">USDT CRYPTO</button>
+                <button id="tab-qris" onclick="pilihMetode('QRIS')" class="btn-tab active" data-i18n="tab-qris">QRIS RUPIAH</button>
+                <button id="tab-crypto" onclick="pilihMetode('CRYPTO')" class="btn-tab" data-i18n="tab-crypto">USDT CRYPTO</button>
             </div>
 
             <div id="box-instruksi" class="instruksi-box">
@@ -138,9 +111,9 @@
                     <i class="fa-brands fa-bitcoin" style="font-size: 30px; color: var(--neon-gold); margin-bottom: 10px;"></i>
                     <h4 style="color:var(--neon-gold); font-size: 12px; margin: 0;">MULTICHAIN PAYMENT</h4>
                     
-                    <div class="crypto-logos" style="display: flex; justify-content: center;">
+                    <div style="display: flex; justify-content: center; gap: 10px; margin: 10px 0;">
                         <i class="fa-solid fa-coins" title="USDT"></i>
-                        <i class="fa-brands fa-ethereum" title="ETH / OPTIMISM"></i>
+                        <i class="fa-brands fa-ethereum" title="ETH"></i>
                         <i class="fa-solid fa-bolt-lightning" title="SOLANA" style="color:#9945FF"></i>
                         <i class="fa-solid fa-circle-nodes" title="BNB" style="color:#F3BA2F"></i>
                     </div>
@@ -184,11 +157,31 @@
     <script>
         let metodeTerpilih = "QRIS";
 
-        function showPopup(msg, isError = false) {
+        // Fungsi untuk menerjemahkan status dan pesan dinamis
+        function getLang() { return localStorage.getItem('appLang') || 'id'; }
+
+        function showPopup(msgId, isError = false, directText = false) {
             const popup = document.getElementById('neon-popup');
             const text = document.getElementById('popup-msg');
+            const lang = getLang();
+            
             popup.style.borderColor = isError ? 'var(--neon-pink)' : 'var(--neon-blue)';
-            text.innerText = msg;
+            
+            if(directText) {
+                text.innerText = msgId;
+            } else {
+                // Mengambil dari kamus global jika ada, jika tidak pakai fallback hardcode
+                if(window.translations && window.translations[lang] && window.translations[lang][msgId]) {
+                    text.innerText = window.translations[lang][msgId];
+                } else {
+                    const fallback = {
+                        id: { "err-min-crypto": "MINIMAL DEPOSIT VIA CRYPTO ADALAH $10", "err-min-idr": "MINIMAL DEPOSIT IDR 20.000", "success-depo": "KONFIRMASI TERKIRIM! HARAP TUNGGU VALIDASI ADMIN." },
+                        en: { "err-min-crypto": "MINIMUM DEPOSIT VIA CRYPTO IS $10", "err-min-idr": "MINIMUM DEPOSIT IDR 20,000", "success-depo": "CONFIRMATION SENT! PLEASE WAIT FOR ADMIN VALIDATION." }
+                    };
+                    text.innerText = fallback[lang][msgId] || msgId;
+                }
+            }
+            
             popup.style.display = 'block';
             document.getElementById('overlay').style.display = 'block';
         }
@@ -200,7 +193,7 @@
 
         function pilihMetode(tipe) {
             metodeTerpilih = tipe;
-            const lang = localStorage.getItem('appLang') || 'id';
+            const lang = getLang();
             document.getElementById('tab-qris').classList.remove('active');
             document.getElementById('tab-crypto').classList.remove('active');
             
@@ -212,41 +205,26 @@
                 document.getElementById('konten-qris').style.display = 'block';
                 document.getElementById('konten-crypto').style.display = 'none';
                 minText.innerText = (lang === 'id') ? "⚠️ MINIMAL DEPOSIT: IDR 20,000" : "⚠️ MINIMUM DEPOSIT: IDR 20,000";
-                labelNominal.innerText = (lang === 'id') ? "NOMINAL DEPOSIT (IDR)" : "DEPOSIT AMOUNT (IDR)";
             } else {
                 document.getElementById('tab-crypto').classList.add('active');
                 document.getElementById('konten-qris').style.display = 'none';
                 document.getElementById('konten-crypto').style.display = 'block';
                 minText.innerText = (lang === 'id') ? "⚠️ MINIMAL DEPOSIT: $10" : "⚠️ MINIMUM DEPOSIT: $10";
-                labelNominal.innerText = (lang === 'id') ? "NOMINAL DEPOSIT ($)" : "DEPOSIT AMOUNT ($)";
             }
         }
 
         function prosesDeposit() {
             const nom = document.getElementById('input-nominal').value;
-            const lang = localStorage.getItem('appLang') || 'id';
+            const lang = getLang();
             
             if (metodeTerpilih === "CRYPTO") {
-                if (!nom || nom < 10) {
-                    const msg = (lang === 'id') ? "MINIMAL DEPOSIT VIA CRYPTO ADALAH $10" : "MINIMUM DEPOSIT VIA CRYPTO IS $10";
-                    return showPopup(msg, true);
-                }
+                if (!nom || nom < 10) return showPopup("err-min-crypto", true);
             } else {
-                if(!nom || nom < 20000) {
-                    const msg = (lang === 'id') ? "MINIMAL DEPOSIT IDR 20.000" : "MINIMUM DEPOSIT IDR 20,000";
-                    return showPopup(msg, true);
-                }
+                if(!nom || nom < 20000) return showPopup("err-min-idr", true);
             }
 
             const skrg = new Date();
-            const d = String(skrg.getDate()).padStart(2, '0');
-            const m = String(skrg.getMonth() + 1).padStart(2, '0');
-            const y = skrg.getFullYear();
-            const h = String(skrg.getHours()).padStart(2, '0');
-            const min = String(skrg.getMinutes()).padStart(2, '0');
-            const s = String(skrg.getSeconds()).padStart(2, '0');
-            
-            const waktuLengkap = `${d}/${m}/${y} ${h}:${min}:${s}`;
+            const waktuLengkap = `${String(skrg.getDate()).padStart(2, '0')}/${String(skrg.getMonth() + 1).padStart(2, '0')}/${skrg.getFullYear()} ${String(skrg.getHours()).padStart(2, '0')}:${String(skrg.getMinutes()).padStart(2, '0')}`;
 
             const data = { 
                 id: "DEP" + Math.floor(1000 + Math.random() * 9000),
@@ -260,8 +238,7 @@
             riwayat.unshift(data);
             localStorage.setItem('riwayat_depo', JSON.stringify(riwayat));
 
-            const successMsg = (lang === 'id') ? "KONFIRMASI TERKIRIM! HARAP TUNGGU VALIDASI ADMIN." : "CONFIRMATION SENT! PLEASE WAIT FOR ADMIN VALIDATION.";
-            showPopup(successMsg);
+            showPopup("success-depo");
             document.getElementById('input-nominal').value = "";
             muatRiwayat();
         }
@@ -269,7 +246,7 @@
         function muatRiwayat() {
             const container = document.getElementById('list-riwayat');
             const riwayat = JSON.parse(localStorage.getItem('riwayat_depo')) || [];
-            const lang = localStorage.getItem('appLang') || 'id';
+            const lang = getLang();
             
             if(riwayat.length === 0) {
                 const emptyMsg = (lang === 'id') ? "Belum ada transaksi deposit." : "No deposit transactions yet.";
@@ -295,11 +272,11 @@
             `).join('');
         }
 
-        // Jalankan saat halaman dibuka
         window.addEventListener('load', () => {
+            // Memastikan applyLanguage dari global.js terpanggil
             if(typeof applyLanguage === 'function') applyLanguage();
+            pilihMetode('QRIS'); 
             muatRiwayat();
-            pilihMetode('QRIS'); // Reset teks minimal sesuai bahasa awal
         });
     </script>
 </body>
