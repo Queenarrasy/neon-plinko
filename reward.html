@@ -114,7 +114,13 @@
 
         #empty-state { text-align: center; padding: 40px 0; color: #444; font-size: 12px; }
 
-        /* --- STYLE UNTUK NEON MODAL --- */
+        /* LOADING */
+        #loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); display: none; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 2000000;
+        }
+
         #neon-modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
@@ -138,6 +144,11 @@
     </style>
 </head>
 <body>
+
+    <div id="loading-overlay">
+        <div style="width:40px; height:40px; border:4px solid var(--blue); border-top-color:transparent; border-radius:50%; animation:spin 1s linear infinite;"></div>
+        <p style="color:var(--blue); font-size:10px; margin-top:10px;">SYNCING CLOUD...</p>
+    </div>
 
     <div id="neon-modal-overlay">
         <div class="neon-modal">
@@ -169,7 +180,8 @@
     <div class="admin-inbox">
         <div class="inbox-title"><i class="fa-solid fa-envelope"></i> <span data-i18n="label-inbox">KOTAK MASUK</span></div>
         <div id="inbox-list">
-            </div>
+            <div style="font-size:11px; color:#555; text-align:center; padding:10px;">Mengecek pesan dari Admin...</div>
+        </div>
     </div>
 
     <div class="reward-header">
@@ -205,7 +217,7 @@
 
     <script src="global.js"></script>
     <script>
-        // --- LOGIKA KODE REFERRAL UNIK (NEW) ---
+        // --- LOGIKA KODE REFERRAL UNIK ---
         function generateMyCode() {
             const username = localStorage.getItem('user_session') || "MEMBER";
             let myCode = localStorage.getItem('unique_referral_code');
@@ -243,7 +255,38 @@
             document.getElementById('neon-modal-overlay').style.display = 'none';
         }
 
-        // --- LOGIKA REWARD HARIAN ---
+        // --- LOGIKA REWARD HARIAN (SYNC CLOUD) ---
+        async function claimDailyReward() {
+            const username = localStorage.getItem('user_session');
+            const today = new Date().toDateString();
+            const lang = localStorage.getItem('appLang') || 'id';
+
+            document.getElementById('loading-overlay').style.display = 'flex';
+
+            // Sinkronisasi ke Cloud
+            const result = await fetchCloud({
+                action: "deposit", 
+                username: username,
+                amount: 1000,
+                method: "DAILY CHECK-IN",
+                date: new Date().toLocaleString('id-ID')
+            });
+
+            document.getElementById('loading-overlay').style.display = 'none';
+
+            if (result === "SUCCESS") {
+                let saldoSekarang = parseInt(localStorage.getItem('saldo_permainan')) || 0;
+                localStorage.setItem('saldo_permainan', saldoSekarang + 1000);
+                localStorage.setItem('last_daily_claim', today);
+                
+                const msg = lang === 'id' ? "Selamat! Hadiah check-in IDR 1.000 telah ditambahkan ke saldo Anda." : "Congratulations! IDR 1,000 check-in reward has been added to your balance.";
+                showNeonModal(msg, lang === 'id' ? "KLAIM BERHASIL" : "CLAIM SUCCESS");
+                setTimeout(() => { location.reload(); }, 2000);
+            } else {
+                showNeonModal("Gagal klaim, periksa koneksi internet.", "ERROR");
+            }
+        }
+
         function checkDailyStatus() {
             const lastClaim = localStorage.getItem('last_daily_claim');
             const today = new Date().toDateString();
@@ -256,60 +299,61 @@
             }
         }
 
-        function claimDailyReward() {
-            const today = new Date().toDateString();
+        // --- LOGIKA KOTAK MASUK (SYNC CLOUD) ---
+        async function syncInbox() {
+            const user = localStorage.getItem('user_session');
+            const list = document.getElementById('inbox-list');
             const lang = localStorage.getItem('appLang') || 'id';
-            const msg = lang === 'id' ? "Selamat! Hadiah check-in IDR 1.000 telah ditambahkan ke saldo Anda." : "Congratulations! IDR 1,000 check-in reward has been added to your balance.";
-            const title = lang === 'id' ? "KLAIM BERHASIL" : "CLAIM SUCCESS";
 
-            if (updateSaldo(1000)) { 
-                localStorage.setItem('last_daily_claim', today);
-                showNeonModal(msg, title);
-                setTimeout(() => { location.reload(); }, 2000);
+            // Panggil action get_inbox di global.js
+            const messages = await fetchCloud({ action: "get_inbox", username: user });
+
+            if (messages && messages.length > 0) {
+                list.innerHTML = "";
+                messages.forEach((msg, index) => {
+                    const btnText = lang === 'id' ? `AMBIL IDR ${msg.nominal.toLocaleString()}` : `TAKE IDR ${msg.nominal.toLocaleString()}`;
+                    const giftTitle = lang === 'id' ? "HADIAH ADMIN" : "ADMIN GIFT";
+                    list.innerHTML += `
+                        <div class="msg-card">
+                            <div class="msg-text">
+                                <i class="fa-solid fa-gift" style="color:var(--yellow)"></i> <b>${giftTitle}</b><br>
+                                ${msg.pesan}
+                            </div>
+                            <button class="btn-claim-gift" onclick="claimAdminGiftCloud('${msg.id}', ${msg.nominal})">
+                                ${btnText}
+                            </button>
+                        </div>
+                    `;
+                });
+            } else {
+                const noMsg = lang === 'id' ? "Tidak ada pesan atau hadiah baru." : "No new messages or rewards.";
+                list.innerHTML = `<div style="font-size:11px; color:#555; text-align:center; padding:10px;">${noMsg}</div>`;
             }
         }
 
-        // --- LOGIKA KOTAK MASUK ADMIN ---
-        function renderInbox() {
-            const inboxList = document.getElementById('inbox-list');
-            const messages = JSON.parse(localStorage.getItem('admin_messages')) || [];
+        async function claimAdminGiftCloud(giftId, amount) {
+            const user = localStorage.getItem('user_session');
             const lang = localStorage.getItem('appLang') || 'id';
             
-            if (messages.length === 0) {
-                const noMsg = lang === 'id' ? "Tidak ada pesan atau hadiah baru." : "No new messages or rewards.";
-                inboxList.innerHTML = `<div style="font-size:11px; color:#555; text-align:center; padding:10px;">${noMsg}</div>`;
-                return;
-            }
+            document.getElementById('loading-overlay').style.display = 'flex';
 
-            inboxList.innerHTML = "";
-            messages.forEach((msg, index) => {
-                const btnText = lang === 'id' ? `AMBIL IDR ${msg.amount.toLocaleString()}` : `TAKE IDR ${msg.amount.toLocaleString()}`;
-                const giftTitle = lang === 'id' ? "HADIAH SALDO" : "BALANCE GIFT";
-                inboxList.innerHTML += `
-                    <div class="msg-card">
-                        <div class="msg-text">
-                            <i class="fa-solid fa-gift" style="color:var(--yellow)"></i> <b>${giftTitle}</b><br>
-                            ${msg.text}
-                        </div>
-                        <button class="btn-claim-gift" onclick="claimAdminGift(${index}, ${msg.amount})">
-                            ${btnText}
-                        </button>
-                    </div>
-                `;
+            const result = await fetchCloud({
+                action: "claim_reward",
+                username: user,
+                reward_id: giftId
             });
-        }
 
-        function claimAdminGift(index, amount) {
-            const lang = localStorage.getItem('appLang') || 'id';
-            const msgSuccess = lang === 'id' ? "Berhasil mengklaim hadiah admin sebesar IDR " + amount.toLocaleString() : "Successfully claimed admin gift of IDR " + amount.toLocaleString();
-            const title = lang === 'id' ? "HADIAH DITERIMA" : "GIFT RECEIVED";
+            document.getElementById('loading-overlay').style.display = 'none';
 
-            if (updateSaldo(amount)) {
-                let messages = JSON.parse(localStorage.getItem('admin_messages'));
-                messages.splice(index, 1); 
-                localStorage.setItem('admin_messages', JSON.stringify(messages));
-                showNeonModal(msgSuccess, title);
+            if (result === "SUCCESS") {
+                let saldo = parseInt(localStorage.getItem('saldo_permainan')) || 0;
+                localStorage.setItem('saldo_permainan', saldo + amount);
+                
+                const msgSuccess = lang === 'id' ? "Hadiah IDR " + amount.toLocaleString() + " diterima!" : "Gift IDR " + amount.toLocaleString() + " received!";
+                showNeonModal(msgSuccess, "SUCCESS");
                 setTimeout(() => { location.reload(); }, 2000);
+            } else {
+                showNeonModal("Gagal klaim hadiah.", "FAILED");
             }
         }
 
@@ -317,7 +361,7 @@
         function renderRewardPage() {
             generateMyCode(); 
             checkDailyStatus();
-            renderInbox();
+            syncInbox(); // Panggil sinkronisasi Cloud
 
             const listContainer = document.getElementById('referral-list');
             const btnKlaim = document.getElementById('btn-klaim-reward');
@@ -396,5 +440,8 @@
             renderRewardPage();
         };
     </script>
+    <style>
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
 </body>
 </html>
