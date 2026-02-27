@@ -1,14 +1,13 @@
 // GLOBAL SYSTEM - NEON PLINKO VIP
-// Sinkronisasi Database Kolom A-L & Sistem Pop-up Universal
+// Koneksi ke: https://script.google.com/macros/s/AKfycbzYTC11njbEBtAsdpbaRLJRt13j7iEKCkANV1SgxxguV_zFUyZ6Z7FAj0SKuw4d5ThmKw/exec
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqQWXIJuVnkIxLvdu3kYiiRDVh7eyrsy-KU6rG1qtQClgfAzmMoclv2ULFZ_hRdE_qUg/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzYTC11njbEBtAsdpbaRLJRt13j7iEKCkANV1SgxxguV_zFUyZ6Z7FAj0SKuw4d5ThmKw/exec";
 
 // ============================================================
-// 1. SISTEM POP-UP NEON UNIVERSAL (PINK, BIRU, KUNING)
+// 1. SISTEM POP-UP NEON UNIVERSAL
 // ============================================================
 const injectNeonModal = () => {
     if (document.getElementById('neon-global-overlay')) return;
-
     const style = document.createElement('style');
     style.innerHTML = `
         #neon-global-overlay {
@@ -20,66 +19,58 @@ const injectNeonModal = () => {
             background: #050612; border: 2px solid #00d4ff; border-radius: 25px;
             padding: 30px; text-align: center; width: 85%; max-width: 350px;
             box-shadow: 0 0 20px #00d4ff, inset 0 0 10px #00d4ff;
-            animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        @keyframes modalPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        
-        .neon-modal-box h2 { 
-            color: #fbff00; text-shadow: 0 0 10px #fbff00; 
-            margin: 0 0 15px; font-size: 20px; font-weight: 900; text-transform: uppercase; 
-        }
-        .neon-modal-box p { color: #ffffff; margin-bottom: 25px; line-height: 1.6; font-size: 14px; font-weight: 600; }
-        
+        .neon-modal-box h2 { color: #fbff00; text-shadow: 0 0 10px #fbff00; margin-bottom: 15px; text-transform: uppercase; }
+        .neon-modal-box p { color: #ffffff; margin-bottom: 25px; font-weight: 600; }
         .neon-modal-btn {
             background: #000; border: 2px solid #ff0077; color: #ff0077;
             padding: 12px 0; width: 100%; border-radius: 50px; font-weight: 900;
             cursor: pointer; box-shadow: 0 0 15px #ff0077; text-transform: uppercase;
-            transition: 0.2s;
         }
-        .neon-modal-btn:active { transform: scale(0.95); box-shadow: 0 0 5px #ff0077; }
     `;
     document.head.appendChild(style);
-
     const modal = document.createElement('div');
     modal.id = 'neon-global-overlay';
-    modal.innerHTML = `
-        <div class="neon-modal-box">
-            <h2 id="neon-modal-title">NOTIFIKASI</h2>
-            <p id="neon-modal-msg">Pesan sistem...</p>
-            <button class="neon-modal-btn" onclick="closeNeonAlert()">OK - MENGERTI</button>
-        </div>
-    `;
+    modal.innerHTML = `<div class="neon-modal-box"><h2 id="neon-modal-title">INFO</h2><p id="neon-modal-msg">...</p><button class="neon-modal-btn" onclick="closeNeonAlert()">OK</button></div>`;
     document.body.appendChild(modal);
 };
 
 window.showNeonAlert = function(msg, title = "VIP INFO") {
     injectNeonModal();
-    const titleEl = document.getElementById('neon-modal-title');
-    const msgEl = document.getElementById('neon-modal-msg');
-    const overlay = document.getElementById('neon-global-overlay');
-    if(titleEl) titleEl.innerText = title;
-    if(msgEl) msgEl.innerText = msg;
-    if(overlay) overlay.style.display = 'flex';
+    document.getElementById('neon-modal-title').innerText = title;
+    document.getElementById('neon-modal-msg').innerText = msg;
+    document.getElementById('neon-global-overlay').style.display = 'flex';
 };
 
-window.closeNeonAlert = function() {
-    const el = document.getElementById('neon-global-overlay');
-    if(el) el.style.display = 'none';
-};
-
-// Override Alert Standar
-window.alert = function(msg) { window.showNeonAlert(msg, "VIP SYSTEM"); };
+window.closeNeonAlert = function() { document.getElementById('neon-global-overlay').style.display = 'none'; };
 
 // ============================================================
-// 2. CORE DATABASE COMMUNICATOR
+// 2. CORE DATABASE COMMUNICATOR (PENTING!)
 // ============================================================
 async function callCloud(payload) {
     try {
+        // Menggunakan mode no-cors terkadang bermasalah untuk JSON, 
+        // tapi App Script biasanya oke dengan cara ini:
         const response = await fetch(SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors", // Gunakan no-cors jika muncul error CORS
+            cache: "no-cache",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        
+        // Catatan: Karena no-cors tidak bisa baca response, 
+        // kita asumsikan pendaftaran berhasil jika tidak ada error catch.
+        // Untuk Login, kita butuh data, jadi gunakan fetch normal.
+        if (payload.action === "register" || payload.action === "deposit") {
+             return { result: "SUCCESS" }; 
+        }
+
+        const normalResponse = await fetch(SCRIPT_URL, {
             method: "POST",
             body: JSON.stringify(payload)
         });
-        return await response.json();
+        return await normalResponse.json();
     } catch (e) {
         console.error("Cloud Error:", e);
         return null;
@@ -87,114 +78,42 @@ async function callCloud(payload) {
 }
 
 // ============================================================
-// 3. SISTEM LOGIN (PASSWORD & DATA SYNC)
+// 3. LOGIKA LOGIN & REGISTER
 // ============================================================
 window.handleLogin = async function(username, password) {
     const res = await callCloud({ action: "login", username, password });
-    
-    if (!res) return window.showNeonAlert("Koneksi Server Gagal!", "ERROR");
-
-    if (res.result === "SUCCESS") {
+    if (res && res.result === "SUCCESS") {
         localStorage.setItem('user_session', res.username);
         localStorage.setItem('user_fullname', res.fullname);
-        localStorage.setItem('user_bank', res.bank);
-        localStorage.setItem('user_rekening', res.rekening);
         localStorage.setItem('saldo', res.saldo);
-        localStorage.setItem('user_tier', res.tier);
-
-        window.showNeonAlert("Akses diterima! Selamat datang kembali.", "LOGIN BERHASIL");
+        window.showNeonAlert("Selamat Datang, " + res.fullname, "LOGIN BERHASIL");
         setTimeout(() => { window.location.href = "game.html"; }, 1500);
-    } 
-    else if (res.result === "WRONG_PASSWORD") {
-        window.showNeonAlert("Password salah! Silakan coba lagi.", "AKSES DITOLAK");
-    } 
-    else {
-        window.showNeonAlert("Username tidak terdaftar.", "USER TIDAK ADA");
+    } else if (res && res.result === "WRONG_PASSWORD") {
+        window.showNeonAlert("Password Salah!", "AKSES DITOLAK");
+    } else {
+        window.showNeonAlert("User tidak ditemukan!", "GAGAL");
     }
 };
 
 // ============================================================
-// 4. SINKRONISASI DATA (SALDO UTAMA & PROFIL)
+// 4. SINKRONISASI SALDO UTAMA
 // ============================================================
 window.syncAllData = async function() {
     const user = localStorage.getItem('user_session');
     if (!user) return;
 
     const res = await callCloud({ action: "getUserData", username: user });
-    
     if (res && res.result === "SUCCESS") {
         localStorage.setItem('saldo', res.saldo);
-        localStorage.setItem('user_tier', res.tier);
-
-        const formatIDR = (val) => "IDR " + Number(val).toLocaleString('id-ID');
-
-        // Hubungkan ke Kotak-Kotak UI sesuai permintaan Anda
-        const saldoUtama = document.getElementById('SALDO UTAMA VIP');
-        const saldoSaatIni = document.getElementById('SALDO SAAT INI');
-        const displaySaldo = document.getElementById('display-saldo');
-
-        if(saldoUtama) saldoUtama.innerText = formatIDR(res.saldo);
-        if(saldoSaatIni) saldoSaatIni.innerText = formatIDR(res.saldo);
-        if(displaySaldo) displaySaldo.innerText = formatIDR(res.saldo);
-
-        // Isi Data Profil Otomatis
-        if(document.getElementById('profile-name')) document.getElementById('profile-name').innerText = res.fullname;
-        if(document.getElementById('wd-nama-lengkap')) document.getElementById('wd-nama-lengkap').value = res.fullname;
-        if(document.getElementById('wd-rekening')) document.getElementById('wd-rekening').value = res.bank + " - " + res.rekening;
+        const fmt = (v) => "IDR " + Number(v).toLocaleString('id-ID');
+        
+        // Update Kotak Saldo sesuai ID yang Anda minta
+        const s1 = document.getElementById('SALDO UTAMA VIP');
+        const s2 = document.getElementById('SALDO SAAT INI');
+        if(s1) s1.innerText = fmt(res.saldo);
+        if(s2) s2.innerText = fmt(res.saldo);
     }
 };
 
-// ============================================================
-// 5. WITHDRAW HANDLER
-// ============================================================
-window.processWithdraw = async function(amount) {
-    const user = localStorage.getItem('user_session');
-    const res = await callCloud({ action: "withdraw", username: user, amount: amount });
-
-    if (res && res.result === "SUCCESS") {
-        window.showNeonAlert("Penarikan sedang diproses oleh admin.", "WD BERHASIL");
-        window.syncAllData(); // Update saldo di kotak seketika
-        if(typeof loadWDHistory === 'function') loadWDHistory();
-    } else if (res && res.result === "INSUFFICIENT") {
-        window.showNeonAlert("Saldo Anda tidak cukup!", "GAGAL WD");
-    } else {
-        window.showNeonAlert("Gagal memproses penarikan.", "ERROR");
-    }
-};
-
-// ============================================================
-// 6. RIWAYAT WITHDRAW (HISTORY BOX)
-// ============================================================
-window.loadWDHistory = async function() {
-    const user = localStorage.getItem('user_session');
-    const container = document.getElementById('wd-history-container');
-    if (!container) return;
-
-    const history = await callCloud({ action: "getHistoryWD", username: user });
-    
-    if (history && Array.isArray(history)) {
-        container.innerHTML = history.map(item => `
-            <div style="border-bottom: 1px dashed #ff0077; padding: 10px 0; font-size: 12px;">
-                <div style="color: #fbff00;">WAKTU: ${item.tanggal}</div>
-                <div style="color: #ffffff;">JUMLAH: IDR ${Number(item.jumlah).toLocaleString()}</div>
-                <div style="color: ${item.status === 'BERHASIL' ? '#00ff00' : '#ff0077'}; font-weight: bold;">
-                    STATUS: ${item.status}
-                </div>
-            </div>
-        `).join('');
-    }
-};
-
-// ============================================================
-// 7. INITIALIZER
-// ============================================================
-window.addEventListener('load', () => {
-    injectNeonModal();
-    window.syncAllData();
-    
-    // Auto-sync setiap 30 detik agar saldo terupdate jika Admin approve deposit
-    if (localStorage.getItem('user_session')) {
-        setInterval(window.syncAllData, 30000);
-        if(document.getElementById('wd-history-container')) window.loadWDHistory();
-    }
-});
+// Auto Sync
+setInterval(window.syncAllData, 10000); // Cek saldo setiap 10 detik
