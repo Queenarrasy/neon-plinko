@@ -187,35 +187,42 @@
         }
 
         function load() {
-            // Mengambil data dari localStorage yang disimpan saat Login/Daftar
-            const sessionUser = localStorage.getItem('user_session');
-            
-            if (sessionUser) {
-                document.getElementById('p-user').innerText = sessionUser;
-                document.getElementById('p-full').innerText = localStorage.getItem('fullname') || "-";
-                document.getElementById('p-bank').innerText = localStorage.getItem('bank_name') || "-";
-                document.getElementById('p-rek').innerText = localStorage.getItem('account_no') || "-";
-                document.getElementById('p-status').innerText = localStorage.getItem('user_status') || "ACTIVE";
-                
-                const saldo = parseInt(localStorage.getItem('saldo_permainan')) || 0;
-                const tier = localStorage.getItem('user_tier') || "BRONZE";
-                
-                document.getElementById('display-saldo').innerText = "IDR " + saldo.toLocaleString('id-ID');
-                document.getElementById('tier-name').innerText = tier + " MEMBER";
+            function load() {
+    const sessionUser = localStorage.getItem('user_session');
+    
+    if (sessionUser) {
+        // Mengisi ID Member / Username
+        document.getElementById('p-user').innerText = sessionUser;
+        
+        // Mengisi Nama Lengkap (Pastikan kunci 'fullname' sesuai dengan auth.html)
+        const name = localStorage.getItem('fullname');
+        document.getElementById('p-full').innerText = (name && name !== "undefined") ? name : "DATA TIDAK ADA";
+        
+        // Mengisi Metode Pembayaran
+        document.getElementById('p-bank').innerText = localStorage.getItem('bank_name') || "-";
+        
+        // Mengisi Nomor Rekening (Pastikan kunci 'account_no' sesuai dengan auth.html)
+        const rek = localStorage.getItem('account_no');
+        document.getElementById('p-rek').innerText = (rek && rek !== "undefined") ? rek : "DATA TIDAK ADA";
+        
+        // Mengisi Status
+        document.getElementById('p-status').innerText = localStorage.getItem('user_status') || "ACTIVE";
+        
+        // Update Saldo & Tier
+        const saldo = parseInt(localStorage.getItem('saldo_permainan')) || 0;
+        const tier = localStorage.getItem('user_tier') || "BRONZE";
+        document.getElementById('display-saldo').innerText = "IDR " + saldo.toLocaleString('id-ID');
+        document.getElementById('tier-name').innerText = tier + " MEMBER";
 
-                // Visual Progress Tier
-                let persen = (saldo / 2000000) * 100; // Contoh target 2jt untuk naik tier
-                if (persen > 100) persen = 100;
-                if (persen < 5) persen = 5; // Minimal biar bar kelihatan
-                
-                const bar = document.getElementById('tier-progress-bar');
-                bar.style.width = persen + "%";
-                bar.style.background = `linear-gradient(90deg, var(--pink), var(--yellow))`;
-                document.getElementById('tier-persen').innerText = Math.floor(persen) + "%";
-            } else {
-                location.href = 'auth.html';
-            }
-        }
+        // Progress Bar (Visual)
+        let persen = (saldo / 1000000) * 100;
+        if (persen > 100) persen = 100;
+        document.getElementById('tier-progress-bar').style.width = persen + "%";
+        document.getElementById('tier-persen').innerText = Math.floor(persen) + "%";
+    } else {
+        location.href = 'auth.html';
+    }
+}
 
         window.onload = load;
     </script>
