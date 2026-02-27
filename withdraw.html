@@ -20,16 +20,30 @@
             backdrop-filter: blur(10px);
         }
 
-        .saldo-container {
+        /* SESUAI PERMINTAAN: SALDO SAAT INI */
+        .wd-balance {
             background: #000;
             border: 1px solid var(--blue);
             border-radius: 15px;
             padding: 15px;
             margin-bottom: 20px;
-            box-shadow: inset 0 0 10px rgba(0, 212, 255, 0.1);
+            box-shadow: inset 0 0 10px rgba(0, 212, 255, 0.2);
         }
-        .saldo-label { font-size: 10px; color: var(--blue); font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
-        .saldo-value { font-size: 24px; color: #fff; font-weight: 900; text-shadow: 0 0 5px var(--blue); margin-top: 5px; }
+        .wd-balance p { 
+            font-size: 10px; 
+            color: var(--blue); 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+            margin: 0;
+        }
+        .wd-balance h2 { 
+            font-size: 26px; 
+            color: #fff; 
+            font-weight: 900; 
+            text-shadow: 0 0 8px var(--blue); 
+            margin: 5px 0 0 0; 
+        }
         
         .form-group { text-align: left; margin-bottom: 15px; }
         .form-group label { font-size: 9px; color: var(--blue); font-weight: 900; margin-left: 5px; text-transform: uppercase; }
@@ -109,9 +123,9 @@
     <div class="card">
         <h2 style="color: var(--pink); margin-top: 0; letter-spacing: 2px;"><i class="fa-solid fa-money-bill-transfer"></i> WITHDRAW</h2>
         
-        <div class="saldo-container">
-            <div class="saldo-label">Saldo Saat Ini</div>
-            <div class="saldo-value" id="wd-display-saldo">IDR 0</div>
+        <div class="wd-balance">
+            <p>SALDO SAAT INI</p>
+            <h2 id="display-saldo">IDR 0</h2>
         </div>
 
         <div class="form-group">
@@ -155,28 +169,40 @@
     </div>
 
     <script>
+        // Gunakan SCRIPT_URL Anda yang sama di Profil/Game
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqQWXIJuVnkIxLvdu3kYiiRDVh7eyrsy-KU6rG1qtQClgfAzmMoclv2ULFZ_hRdE_qUg/exec";
 
-        // Fungsi Sinkronisasi Data dari Memori Browser
-        function loadWithdrawData() {
-            // Mengambil semua kemungkinan kunci yang digunakan saat login
-            const namaLengkap = localStorage.getItem('fullname') || localStorage.getItem('full_name') || "BELUM TERSET";
-            const nomorRek = localStorage.getItem('account_no') || localStorage.getItem('rekening') || "BELUM TERSET";
-            const namaBank = localStorage.getItem('bank_name') || localStorage.getItem('bank') || "";
-            const saldoAktif = localStorage.getItem('saldo_permainan') || 0;
+        async function syncSaldoWD() {
+            const user = localStorage.getItem('user_session');
+            if(!user) return;
 
-            // Masukkan ke input (uppercase agar rapi)
-            document.getElementById('wd-name').value = namaLengkap.toUpperCase();
-            
-            // Format Bank - Nomor Rekening
-            if (nomorRek !== "BELUM TERSET") {
-                document.getElementById('wd-rek').value = namaBank ? `${namaBank.toUpperCase()} - ${nomorRek}` : nomorRek;
-            } else {
-                document.getElementById('wd-rek').value = "BELUM TERSET";
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'getUserData', username: user })
+                });
+                const data = await response.json();
+                if (data.result === "SUCCESS") {
+                    localStorage.setItem('saldo', data.saldo);
+                    document.getElementById('display-saldo').innerText = "IDR " + parseInt(data.saldo).toLocaleString('id-ID');
+                }
+            } catch (e) {
+                console.log("Sync Error");
+                // Fallback ke local jika gagal sync
+                const localSaldo = localStorage.getItem('saldo') || 0;
+                document.getElementById('display-saldo').innerText = "IDR " + parseInt(localSaldo).toLocaleString('id-ID');
             }
+        }
 
-            // Update Saldo
-            document.getElementById('wd-display-saldo').innerText = "IDR " + parseInt(saldoAktif).toLocaleString('id-ID');
+        function loadWithdrawData() {
+            const namaLengkap = localStorage.getItem('fullname') || "BELUM TERSET";
+            const nomorRek = localStorage.getItem('rekening') || "BELUM TERSET";
+            const namaBank = localStorage.getItem('bank') || "";
+
+            document.getElementById('wd-name').value = namaLengkap.toUpperCase();
+            document.getElementById('wd-rek').value = namaBank ? `${namaBank.toUpperCase()} - ${nomorRek}` : nomorRek;
+            
+            syncSaldoWD();
         }
 
         function showNeonModal(msg, title = "INFO", isConfirm = false, onConfirm = null) {
@@ -199,13 +225,8 @@
 
         function konfirmasiWD() {
             const amt = parseInt(document.getElementById('wd-amount').value);
-            const saldo = parseInt(localStorage.getItem('saldo_permainan')) || 0;
-            const checkName = document.getElementById('wd-name').value;
+            const saldo = parseInt(localStorage.getItem('saldo')) || 0;
 
-            if (checkName === "BELUM TERSET") {
-                showNeonModal("Data akun tidak terbaca. Silakan login ulang!", "SINKRONISASI ERROR");
-                return;
-            }
             if (isNaN(amt) || amt < 50000) {
                 showNeonModal("Minimal penarikan adalah IDR 50.000", "NOMINAL SALAH");
                 return;
@@ -219,28 +240,23 @@
 
         async function kirimWDKeCloud() {
             const amt = parseInt(document.getElementById('wd-amount').value);
-            const user = localStorage.getItem('user_session') || "Guest";
-            const full = localStorage.getItem('fullname') || localStorage.getItem('full_name');
-            const bank = localStorage.getItem('bank_name') || localStorage.getItem('bank');
-            const rek = localStorage.getItem('account_no') || localStorage.getItem('rekening');
+            const user = localStorage.getItem('user_session');
+            const full = localStorage.getItem('fullname');
+            const bank = localStorage.getItem('bank');
+            const rek = localStorage.getItem('rekening');
 
             document.getElementById('loading-overlay').style.display = 'flex';
-            
-            // Format Waktu Kolom A
-            const skrg = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'medium', timeStyle: 'medium' });
 
             try {
                 const response = await fetch(SCRIPT_URL, {
                     method: "POST",
                     body: JSON.stringify({
                         action: "withdraw",
-                        tanggal: skrg,       // Kolom A
-                        username: user,     // Kolom B
-                        fullname: full,     // Kolom C
-                        bank: bank,         // Kolom D
-                        rekening: rek,      // Kolom E
-                        amount: amt,        // Kolom F
-                        status: "PROSES"    // Kolom G
+                        username: user,
+                        fullname: full,
+                        bank: bank,
+                        rekening: rek,
+                        amount: amt
                     })
                 });
                 
@@ -248,12 +264,15 @@
                 document.getElementById('loading-overlay').style.display = 'none';
 
                 if (result.result === "SUCCESS") {
-                    const currentSaldo = parseInt(localStorage.getItem('saldo_permainan')) || 0;
-                    localStorage.setItem('saldo_permainan', currentSaldo - amt);
-                    showNeonModal("Penarikan berhasil diajukan. Mohon tunggu proses admin.", "SUKSES");
+                    // Update local saldo setelah potong otomatis di server
+                    const currentSaldo = parseInt(localStorage.getItem('saldo')) || 0;
+                    localStorage.setItem('saldo', currentSaldo - amt);
+                    showNeonModal("Penarikan berhasil diajukan. Saldo Anda telah terpotong.", "SUKSES");
                     document.getElementById('wd-amount').value = "";
                     loadWithdrawData();
                     renderHistory();
+                } else if (result.result === "INSUFFICIENT") {
+                    showNeonModal("Saldo di server tidak mencukupi.", "GAGAL");
                 } else {
                     showNeonModal("Gagal mengirim permintaan.", "ERROR");
                 }
@@ -268,7 +287,10 @@
             const user = localStorage.getItem('user_session');
             if(!user) return;
             try {
-                const response = await fetch(`${SCRIPT_URL}?action=getHistory&username=${user}&type=withdraw`);
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'getHistory', username: user, type: 'withdraw' })
+                });
                 const data = await response.json();
                 list.innerHTML = ""; 
                 if (!data || data.length === 0) {
