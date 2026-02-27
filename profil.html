@@ -3,243 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PROFIL NEON VIP</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>PROFIL VIP - NEON PLINKO</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         :root { 
-            --pink: #ff0077; 
-            --blue: #00d4ff; 
-            --yellow: #fbff00; 
-            --bg: #070816; 
+            --pink: #ff0077; --blue: #00d4ff; --yellow: #fbff00; --bg: #070816; 
+            --pink-neon: 0 0 10px var(--pink);
+            --blue-neon: 0 0 10px var(--blue);
         }
         
         body { 
             background: var(--bg); 
-            background-image: 
-                radial-gradient(circle at 10% 10%, rgba(255, 0, 119, 0.12) 0%, transparent 40%),
-                radial-gradient(circle at 90% 90%, rgba(0, 212, 255, 0.12) 0%, transparent 40%);
             color: white; 
             font-family: 'Segoe UI', sans-serif; 
-            display: flex; 
-            justify-content: center; 
+            margin: 0; 
             padding: 20px;
-            min-height: 100vh;
+        }
+
+        .header-profil {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .header-profil i {
+            font-size: 50px;
+            color: var(--pink);
+            text-shadow: var(--pink-neon);
+        }
+
+        .user-info h3 { margin: 0; color: var(--blue); text-shadow: var(--blue-neon); }
+        .user-info p { margin: 0; font-size: 12px; color: #aaa; }
+
+        /* Sesuai Permintaan: SALDO UTAMA VIP */
+        .saldo-card {
+            background: linear-gradient(135deg, #0d0f26, #1a1d40);
+            border: 2px solid var(--blue);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: var(--blue-neon);
+            margin-bottom: 25px;
+        }
+
+        .saldo-card p {
             margin: 0;
-        }
-        
-        .card { 
-            width: 100%; max-width: 420px; background: rgba(255, 255, 255, 0.02); 
-            border: 2px solid var(--blue); border-radius: 35px; padding: 35px 25px;
-            box-shadow: 0 0 30px rgba(0, 212, 255, 0.2); text-align: center;
-            backdrop-filter: blur(15px);
-            margin-top: 10px;
+            font-size: 14px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            color: var(--yellow);
         }
 
-        /* TIER AREA */
-        .tier-header { margin-bottom: 30px; }
-        #tier-name { 
-            font-weight: 900; letter-spacing: 5px; font-size: 22px; 
-            display: block; margin-bottom: 12px; 
-            color: var(--yellow); text-shadow: 0 0 15px var(--yellow);
-            text-transform: uppercase;
+        .saldo-card h2 {
+            margin: 10px 0 0 0;
+            font-size: 32px;
+            color: white;
+            text-shadow: 0 0 15px var(--blue);
         }
-        
-        .progress-container { 
-            background: #000; height: 14px; border-radius: 20px; border: 1px solid #333; 
-            overflow: hidden; margin: 12px 0; position: relative; box-shadow: inset 0 0 10px #000;
-        }
-        .progress-bar { 
-            width: 0%; height: 100%; transition: 1.5s cubic-bezier(0.17, 0.67, 0.83, 0.67); 
-            background: linear-gradient(90deg, var(--pink), var(--yellow));
-            box-shadow: 0 0 20px var(--pink);
-        }
-        .tier-info-text { font-size: 11px; color: var(--blue); display: flex; justify-content: space-between; font-weight: 900; letter-spacing: 1px; }
 
-        /* SALDO BOX */
-        .balance-card { 
-            background: rgba(0, 0, 0, 0.6); border: 2px solid var(--pink);
-            border-radius: 25px; padding: 25px; margin-bottom: 30px; 
-            box-shadow: 0 0 25px rgba(255, 0, 119, 0.3);
-            position: relative;
+        .menu-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
-        .balance-card small { color: #fff; text-transform: uppercase; font-size: 11px; letter-spacing: 3px; }
-        .balance-card h1 { margin: 15px 0 0; font-size: 32px; color: var(--yellow); text-shadow: 0 0 15px var(--yellow); }
 
-        /* DATA LIST */
-        .data-list { text-align: left; }
-        .data-item { 
-            background: rgba(255,255,255,0.05); padding: 15px; border-radius: 18px; 
-            margin-bottom: 12px; border-right: 4px solid var(--blue);
-            transition: 0.3s;
+        .menu-item {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-decoration: none;
+            color: white;
+            border: 1px solid #333;
         }
-        .data-item:hover { background: rgba(255,255,255,0.08); transform: translateX(5px); }
-        .label { font-size: 10px; color: var(--blue); font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
-        .val { font-size: 16px; color: #fff; margin-top: 5px; font-weight: 500; text-shadow: 0 0 5px rgba(255,255,255,0.2); }
 
-        /* BUTTONS */
-        .btn { 
-            width: 100%; padding: 18px; border-radius: 20px; border: none; font-weight: 900; 
-            text-transform: uppercase; cursor: pointer; margin-top: 15px; transition: 0.3s;
-            font-size: 14px; letter-spacing: 2px;
-        }
-        .btn-game { 
-            background: linear-gradient(90deg, var(--blue), #0088ff); color: #000; 
-            box-shadow: 0 0 20px var(--blue);
-        }
-        .btn-logout { background: transparent; border: 2px solid var(--pink); color: var(--pink); box-shadow: 0 0 10px var(--pink); }
-        .btn:hover { transform: scale(1.03); filter: brightness(1.2); }
+        .menu-item i { color: var(--pink); }
 
-        /* NEON MODAL POPUP */
-        #neon-modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.92); display: none; justify-content: center; align-items: center; z-index: 10000;
-            backdrop-filter: blur(10px);
+        .btn-back {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--blue);
+            text-decoration: none;
+            font-weight: bold;
         }
-        .neon-modal {
-            background: #050612; border: 2px solid var(--yellow); border-radius: 30px;
-            padding: 30px; text-align: center; width: 85%; max-width: 320px;
-            box-shadow: 0 0 40px var(--yellow);
-        }
-        .neon-modal h2 { color: var(--pink); text-shadow: 0 0 10px var(--pink); margin-bottom: 15px; text-transform: uppercase; font-weight: 900; }
-        .modal-btns { display: flex; gap: 10px; margin-top: 25px; }
-        .m-btn { flex: 1; padding: 14px; border-radius: 50px; border: none; font-weight: 900; cursor: pointer; text-transform: uppercase; }
-        .btn-confirm { background: var(--blue); color: #000; }
-        .btn-cancel { background: #222; color: #fff; }
     </style>
 </head>
 <body>
 
-    <div id="neon-modal-overlay">
-        <div class="neon-modal">
-            <h2 id="modal-title">KONFIRMASI</h2>
-            <p id="modal-msg">Apakah Anda yakin ingin keluar dari akun VIP?</p>
-            <div class="modal-btns">
-                <button class="m-btn btn-cancel" onclick="closeModal()">Batal</button>
-                <button class="m-btn btn-confirm" onclick="executeLogout()">Ya, Logout</button>
-            </div>
+    <a href="game.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> KEMBALI</a>
+
+    <div class="header-profil">
+        <i class="fa-solid fa-circle-user"></i>
+        <div class="user-info">
+            <h3 id="display-username">PLAYER</h3>
+            <p id="display-fullname">VIP Member</p>
         </div>
     </div>
 
-    <div class="card">
-        <div class="tier-header">
-            <span id="tier-name">LOADING VIP...</span>
-            <div class="progress-container">
-                <div id="tier-progress-bar" class="progress-bar"></div>
-            </div>
-            <div class="tier-info-text">
-                <span>XP PROGRESS</span>
-                <span id="tier-persen">0%</span>
-            </div>
-        </div>
+    <div class="saldo-card">
+        <p>SALDO UTAMA VIP</p>
+        <h2 id="display-saldo">IDR 0</h2>
+    </div>
 
-        <div class="balance-card">
-            <small>Saldo Utama VIP</small>
-            <h1 id="display-saldo">IDR 0</h1>
+    <div class="menu-list">
+        <div class="menu-item">
+            <span>Metode Bank</span>
+            <span id="display-bank" style="color: var(--blue);">...</span>
         </div>
-
-        <div class="data-list">
-            <div class="data-item">
-                <div class="label">ID Member (Username)</div>
-                <div class="val" id="p-user">-</div>
-            </div>
-            <div class="data-item">
-                <div class="label">Nama Lengkap</div>
-                <div class="val" id="p-full">-</div>
-            </div>
-            <div class="data-item">
-                <div class="label">Metode Pembayaran</div>
-                <div class="val" id="p-bank">-</div>
-            </div>
-            <div class="data-item">
-                <div class="label">Nomor Rekening</div>
-                <div class="val" id="p-rek">-</div>
-            </div>
-            <div class="data-item">
-                <div class="label">Status Keanggotaan</div>
-                <div class="val" id="p-status">-</div>
-            </div>
+        <div class="menu-item">
+            <span>Nomor Rekening</span>
+            <span id="display-rekening">...</span>
         </div>
-
-        <button class="btn btn-game" onclick="location.href='game.html'">
-            <i class="fas fa-play-circle"></i> Mulai Bermain
-        </button>
-        <button class="btn btn-logout" onclick="showLogoutModal()">
-            <i class="fas fa-sign-out-alt"></i> Logout Akun
-        </button>
+        <a href="deposit.html" class="menu-item">
+            <span>Tambah Saldo</span>
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+        <a href="withdraw.html" class="menu-item">
+            <span>Tarik Dana</span>
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
     </div>
 
     <script src="global.js"></script>
     <script>
-        function showLogoutModal() {
-            document.getElementById('neon-modal-overlay').style.display = 'flex';
-        }
-
-        function closeModal() {
-            document.getElementById('neon-modal-overlay').style.display = 'none';
-        }
-
-        async function executeLogout() {
-            try {
-                // Update status ke Offline di Database jika fungsi tersedia
-                if(typeof updateOnlineStatus === 'function') {
-                    await updateOnlineStatus("Offline");
-                }
-            } catch (e) {
-                console.log("Status update skipped");
+        // Fungsi untuk mengambil data terbaru dari Google Sheets
+        async function syncDataProfil() {
+            const user = localStorage.getItem('user_session');
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
             }
-            localStorage.clear();
-            location.href = 'auth.html';
-        }
 
-        function loadProfileData() {
-            const sessionUser = localStorage.getItem('user_session');
+            // Tampilkan data lokal dulu agar tidak kosong
+            document.getElementById('display-username').innerText = user.toUpperCase();
+            document.getElementById('display-fullname').innerText = localStorage.getItem('fullname') || 'VIP Player';
+            document.getElementById('display-bank').innerText = localStorage.getItem('bank') || '-';
+            document.getElementById('display-rekening').innerText = localStorage.getItem('rekening') || '-';
             
-            if (sessionUser) {
-                // 1. Username
-                document.getElementById('p-user').innerText = sessionUser;
-                
-                // 2. Nama Lengkap (Kunci: fullname)
-                const name = localStorage.getItem('fullname');
-                document.getElementById('p-full').innerText = (name && name !== "undefined" && name !== "null") ? name : "-";
-                
-                // 3. Bank / E-Wallet (Kunci: bank_name)
-                const bank = localStorage.getItem('bank_name');
-                document.getElementById('p-bank').innerText = (bank && bank !== "undefined" && bank !== "null") ? bank : "-";
-                
-                // 4. Nomor Rekening (Kunci: account_no)
-                const rek = localStorage.getItem('account_no');
-                document.getElementById('p-rek').innerText = (rek && rek !== "undefined" && rek !== "null") ? rek : "-";
-                
-                // 5. Status Keanggotaan
-                const status = localStorage.getItem('user_status');
-                document.getElementById('p-status').innerText = (status && status !== "undefined") ? status : "ACTIVE";
-                
-                // 6. Saldo & Tier
-                const saldoRaw = localStorage.getItem('saldo_permainan');
-                const saldo = parseInt(saldoRaw) || 0;
-                const tier = localStorage.getItem('user_tier') || "BRONZE";
-                
-                document.getElementById('display-saldo').innerText = "IDR " + saldo.toLocaleString('id-ID');
-                document.getElementById('tier-name').innerText = tier + " MEMBER";
+            const localSaldo = localStorage.getItem('saldo') || 0;
+            document.getElementById('display-saldo').innerText = 'IDR ' + parseInt(localSaldo).toLocaleString();
 
-                // 7. Visual Progress Tier (Target XP: 1.000.000)
-                let persen = (saldo / 1000000) * 100;
-                if (persen > 100) persen = 100;
-                if (persen < 2) persen = 2; // Biar bar tetap terlihat sedikit
-                
-                const bar = document.getElementById('tier-progress-bar');
-                if(bar) {
-                    bar.style.width = persen + "%";
-                    document.getElementById('tier-persen').innerText = Math.floor(persen) + "%";
+            try {
+                // Panggil action 'getUserData' yang ada di Apps Script terbaru Anda
+                const response = await fetch(window.SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'getUserData',
+                        username: user
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.result === "SUCCESS") {
+                    // Update LocalStorage dengan data terbaru dari server
+                    localStorage.setItem('saldo', data.saldo);
+                    localStorage.setItem('tier', data.tier);
+
+                    // Update tampilan Saldo Utama VIP secara halus
+                    document.getElementById('display-saldo').innerText = 'IDR ' + parseInt(data.saldo).toLocaleString();
+                    console.log("Saldo disinkronkan dengan server.");
                 }
-            } else {
-                // Jika tidak login, kembalikan ke auth
-                location.href = 'auth.html';
+            } catch (err) {
+                console.error("Gagal sinkron saldo:", err);
             }
         }
 
         // Jalankan saat halaman dibuka
-        window.onload = loadProfileData;
+        window.onload = syncDataProfil;
     </script>
 </body>
 </html>
