@@ -141,7 +141,7 @@
                         </tr>
                     </thead>
                     <tbody id="wd-history-list">
-                        </tbody>
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -153,17 +153,33 @@
 
     <script src="global.js"></script>
     <script>
-        // URL Apps Script Anda
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqQWXIJuVnkIxLvdu3kYiiRDVh7eyrsy-KU6rG1qtQClgfAzmMoclv2ULFZ_hRdE_qUg/exec";
 
+        // Fungsi Load Data yang Diperbaiki agar sinkron
         function loadWithdrawData() {
-            const name = localStorage.getItem('fullname') || "-";
-            const rek = localStorage.getItem('account_no') || "-"; // Menggunakan kunci yang sama dengan auth.html
-            const bank = localStorage.getItem('bank_name') || "-";
+            console.log("Checking LocalStorage...");
+            
+            // Ambil Nama
+            const name = localStorage.getItem('fullname') || localStorage.getItem('full_name') || "-";
+            
+            // Ambil Nomor Rekening & Bank
+            const rek = localStorage.getItem('account_no') || localStorage.getItem('rekening') || "-";
+            const bank = localStorage.getItem('bank_name') || localStorage.getItem('bank') || "-";
+            
+            // Ambil Saldo
             const saldo = localStorage.getItem('saldo_permainan') || 0;
 
-            document.getElementById('wd-name').value = name;
-            document.getElementById('wd-rek').value = bank + " - " + rek;
+            // Masukkan ke elemen Input
+            document.getElementById('wd-name').value = (name !== "undefined" && name !== "null") ? name : "-";
+            
+            // Format tampilan Rekening: BANK - NOREK
+            if (rek !== "-" && rek !== "null" && rek !== "undefined") {
+                document.getElementById('wd-rek').value = bank + " - " + rek;
+            } else {
+                document.getElementById('wd-rek').value = "-";
+            }
+
+            // Update Tampilan Saldo
             document.getElementById('wd-display-saldo').innerText = "IDR " + parseInt(saldo).toLocaleString('id-ID');
         }
 
@@ -171,7 +187,6 @@
             document.getElementById('modal-title').innerText = title;
             document.getElementById('modal-msg').innerText = msg;
             const footer = document.getElementById('modal-footer');
-            
             if (isConfirm) {
                 footer.innerHTML = `
                     <button class="neon-modal-btn cancel" onclick="closeNeonModal()">BATAL</button>
@@ -189,33 +204,31 @@
         function konfirmasiWD() {
             const amt = parseInt(document.getElementById('wd-amount').value);
             const saldo = parseInt(localStorage.getItem('saldo_permainan')) || 0;
-
             if (isNaN(amt) || amt < 50000) {
                 showNeonModal("Minimal penarikan adalah IDR 50.000", "DATA TIDAK VALID");
                 return;
             }
             if (amt > saldo) {
-                showNeonModal("Saldo Anda tidak mencukupi untuk melakukan penarikan ini.", "SALDO KURANG");
+                showNeonModal("Saldo Anda tidak mencukupi.", "SALDO KURANG");
                 return;
             }
-
-            showNeonModal(`Anda akan menarik IDR ${amt.toLocaleString('id-ID')}?`, "KONFIRMASI", true, kirimWDKeCloud);
+            showNeonModal(`Tarik IDR ${amt.toLocaleString('id-ID')}?`, "KONFIRMASI", true, kirimWDKeCloud);
         }
 
         async function kirimWDKeCloud() {
             const amt = parseInt(document.getElementById('wd-amount').value);
             const user = localStorage.getItem('user_session');
-            const full = localStorage.getItem('fullname');
-            const bank = localStorage.getItem('bank_name');
-            const rek = localStorage.getItem('account_no');
+            const full = document.getElementById('wd-name').value;
+            
+            // Pecah kembali bank dan rek dari input readonly
+            const rekFull = document.getElementById('wd-rek').value.split(" - ");
+            const bank = rekFull[0];
+            const rek = rekFull[1];
 
             document.getElementById('loading-overlay').style.display = 'flex';
-            
-            // Format Tanggal untuk Sheet
             const skrg = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
 
             try {
-                // Mengirim data ke action "withdraw" di Apps Script
                 const response = await fetch(SCRIPT_URL, {
                     method: "POST",
                     body: JSON.stringify({
@@ -226,68 +239,49 @@
                         bank: bank,
                         rekening: rek,
                         amount: amt,
-                        status: "PROSES" // Otomatis berstatus PROSES saat ajukan
+                        status: "PROSES"
                     })
                 });
-
                 const result = await response.json();
                 document.getElementById('loading-overlay').style.display = 'none';
-
                 if (result.result === "SUCCESS") {
-                    // Potong saldo di LocalStorage
                     const saldoBaru = (parseInt(localStorage.getItem('saldo_permainan')) || 0) - amt;
                     localStorage.setItem('saldo_permainan', saldoBaru);
-
-                    showNeonModal("Permintaan penarikan telah dikirim dan sedang diproses admin.", "SUKSES");
+                    showNeonModal("Permintaan penarikan dikirim.", "SUKSES");
                     document.getElementById('wd-amount').value = "";
                     loadWithdrawData();
-                    renderHistory(); // Refresh tabel riwayat
+                    renderHistory();
                 } else {
-                    showNeonModal("Terjadi kesalahan pada server.", "GAGAL");
+                    showNeonModal("Gagal mengirim data.", "ERROR");
                 }
             } catch (e) {
                 document.getElementById('loading-overlay').style.display = 'none';
-                showNeonModal("Gagal terhubung ke database. Coba lagi.", "KONEKSI ERROR");
+                showNeonModal("Gagal terhubung ke database.", "KONEKSI ERROR");
             }
         }
 
         async function renderHistory() {
             const list = document.getElementById('wd-history-list');
             const user = localStorage.getItem('user_session');
-            
-            list.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:20px; color:#444;'>Sinkronisasi...</td></tr>";
-
+            list.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:10px; color:#444;'>Loading...</td></tr>";
             try {
                 const response = await fetch(`${SCRIPT_URL}?action=getHistory&username=${user}&type=withdraw`);
                 const data = await response.json();
-
                 list.innerHTML = ""; 
-
                 if (!data || data.length === 0) {
-                    list.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:20px; color:#444;'>Tidak ada riwayat.</td></tr>";
+                    list.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:10px; color:#444;'>Belum ada data.</td></tr>";
                     return;
                 }
-
                 data.forEach(item => {
-                    let statusHTML = "";
-                    // Filter tampilan status sesuai instruksi
-                    if (item.status === "BERHASIL") {
-                        statusHTML = `<span class="status-berhasil">BERHASIL</span>`;
-                    } else if (item.status === "GAGAL" || item.status === "DITOLAK") {
-                        statusHTML = `<span style="color:#ff4d4d;">DITOLAK</span>`;
-                    } else {
-                        statusHTML = `<span class="status-proses">PROSES</span>`;
-                    }
-
-                    const row = `<tr>
-                        <td style="font-size: 9px; color: #888;">${item.tanggal}</td>
-                        <td style="color: var(--yellow); font-weight: bold;">IDR ${parseInt(item.amount).toLocaleString('id-ID')}</td>
-                        <td>${statusHTML}</td>
+                    let st = item.status === "BERHASIL" ? '<span class="status-berhasil">BERHASIL</span>' : '<span class="status-proses">PROSES</span>';
+                    list.innerHTML += `<tr>
+                        <td style="font-size:9px;">${item.tanggal}</td>
+                        <td style="color:var(--yellow);">IDR ${parseInt(item.amount).toLocaleString('id-ID')}</td>
+                        <td>${st}</td>
                     </tr>`;
-                    list.innerHTML += row;
                 });
             } catch (e) {
-                list.innerHTML = "<tr><td colspan='3' style='text-align:center; color:red;'>Gagal memuat riwayat.</td></tr>";
+                list.innerHTML = "<tr><td colspan='3' style='text-align:center;'>Gagal sinkron riwayat.</td></tr>";
             }
         }
 
