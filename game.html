@@ -28,7 +28,7 @@
         .neon-b { color: var(--blue); text-shadow: var(--blue-neon); }
         .neon-y { color: var(--yellow); text-shadow: var(--yellow-neon); }
         
-        .header { display: flex; justify-content: center; align-items: center; padding: 15px 10px; position: relative; z-index: 100; background: var(--bg); }
+        .header { display: flex; justify-content: center; align-items: center; padding: 15px 10px; position: relative; z-index: 100; background: var(--bg); flex-shrink: 0; }
         
         /* Navigasi Kiri (Profil) */
         .prof-container { position: absolute; left: 20px; display: flex; flex-direction: column; align-items: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
@@ -43,7 +43,7 @@
         .balance-box { background: #000; border: 2px solid var(--blue); border-radius: 20px; padding: 5px 20px; text-align: center; min-width: 140px; }
         #display-saldo { font-size: 18px; font-weight: 900; }
 
-        #game-container { position: relative; width: 100%; height: 380px; flex-shrink: 0; margin-top: 5px; overflow: hidden; }
+        #game-container { position: relative; width: 100%; height: 360px; flex-shrink: 0; margin-top: 5px; overflow: hidden; }
         
         /* Peg/Paku Design */
         .peg { 
@@ -70,11 +70,11 @@
             will-change: left, top; 
         }
 
-        .multipliers { display: flex; justify-content: center; gap: 4px; padding: 0 5px; margin-top: 10px; z-index: 80; }
+        .multipliers { display: flex; justify-content: center; gap: 4px; padding: 0 5px; margin-top: 5px; z-index: 80; flex-shrink: 0; }
         .slot { 
             flex: 1; 
             max-width: 45px; 
-            height: 40px; 
+            height: 35px; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
@@ -88,16 +88,21 @@
         .m-yellow { background: var(--yellow); color: black; box-shadow: var(--yellow-neon); }
         .m-blue { background: var(--blue); color: black; box-shadow: var(--blue-neon); }
 
-        .nav-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; padding: 0 20px; margin-top: 15px; }
-        .btn-nav { background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 12px 5px; border-radius: 12px; text-align: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-        .btn-nav i { font-size: 22px; margin-bottom: 5px; display: block; }
-        .btn-nav span { font-size: 9px; font-weight: 900; }
+        /* Navigasi Grid (Withdraw, Deposit, Reward) */
+        .nav-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 0 20px; margin-top: 10px; flex-shrink: 0; }
+        .btn-nav { background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 8px 5px; border-radius: 12px; text-align: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .btn-nav i { font-size: 18px; margin-bottom: 3px; display: block; }
+        .btn-nav span { font-size: 8px; font-weight: 900; }
 
-        .play-area { text-align: center; padding: 10px; flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 20px; }
-        .mode-toggles { display: flex; justify-content: center; gap: 8px; margin-bottom: 15px; }
-        .toggle { padding: 8px 25px; border-radius: 20px; font-size: 10px; font-weight: 900; cursor: pointer; border: 1px solid #333; background: #000; color: #555; -webkit-tap-highlight-color: transparent; }
+        /* Play Area Adjusted */
+        .play-area { text-align: center; padding: 5px 15px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
+        
+        .mode-toggles { display: flex; justify-content: center; gap: 8px; margin-bottom: 8px; }
+        .toggle { padding: 6px 20px; border-radius: 20px; font-size: 10px; font-weight: 900; cursor: pointer; border: 1px solid #333; background: #000; color: #555; -webkit-tap-highlight-color: transparent; }
         .toggle.active { border-color: var(--pink); color: var(--yellow); text-shadow: var(--yellow-neon); box-shadow: inset 0 0 10px var(--pink); }
-        .btn-main { width: 100%; padding: 16px; border-radius: 50px; border: none; font-weight: 900; font-size: 18px; text-transform: uppercase; cursor: pointer; background: linear-gradient(90deg, var(--pink), var(--blue)); color: white; -webkit-tap-highlight-color: transparent; box-shadow: 0 0 20px var(--pink); }
+        
+        .bet-selector { display: flex; align-items: center; justify-content: center; gap: 20px; background: #000; border-radius: 50px; padding: 5px; margin-bottom: 10px; border: 1px solid #444; width: 90%; margin: 0 auto 10px auto; }
+        .btn-main { width: 100%; padding: 12px; border-radius: 50px; border: none; font-weight: 900; font-size: 16px; text-transform: uppercase; cursor: pointer; background: linear-gradient(90deg, var(--pink), var(--blue)); color: white; -webkit-tap-highlight-color: transparent; box-shadow: 0 0 15px var(--pink); }
 
         #score-board { position: absolute; left: 10px; top: 120px; width: 90px; display: flex; flex-direction: column; gap: 6px; z-index: 50; }
         .score-item { background: rgba(0,0,0,0.85); border: 1px solid var(--blue); font-size: 9px; padding: 6px; border-radius: 6px; text-align: center; font-weight: 900; color: var(--yellow); text-shadow: var(--yellow-neon); animation: popupIn 0.3s ease-out; overflow: hidden; white-space: nowrap; }
@@ -156,7 +161,7 @@
             <div id="btn-normal" class="toggle active" onclick="setMode('normal')">NORMAL</div>
             <div id="btn-auto" class="toggle" onclick="setMode('auto')">AUTO</div>
         </div>
-        <div class="bet-selector" style="display: flex; align-items: center; justify-content: center; gap: 20px; background: #000; border-radius: 50px; padding: 8px; margin-bottom: 15px; border: 1px solid #444; width: 85%; margin: 0 auto 15px auto;">
+        <div class="bet-selector">
             <button style="background:none; border:none; color:var(--pink); font-size: 24px; font-weight: 900;" onclick="changeBet(-1)">-</button>
             <div id="current-bet" class="neon-y" style="font-size: 18px; font-weight: 900; color:var(--blue);">1,000</div>
             <button style="background:none; border:none; color:var(--pink); font-size: 24px; font-weight: 900;" onclick="changeBet(1)">+</button>
@@ -175,8 +180,6 @@
 
             isSyncing = true;
             try {
-                // Pastikan SCRIPT_URL sudah didefinisikan di global.js atau di sini
-                // Ganti dengan URL script Anda jika belum ada di global.js
                 const SCRIPT_URL_USER = "https://script.google.com/macros/s/AKfycbwqQWXIJuVnkIxLvdu3kYiiRDVh7eyrsy-KU6rG1qtQClgfAzmMoclv2ULFZ_hRdE_qUg/exec";
                 
                 const response = await fetch(SCRIPT_URL_USER, {
@@ -189,15 +192,14 @@
                     const currentLocalSaldo = parseInt(localStorage.getItem('saldo') || 0);
                     const serverSaldo = parseInt(data.saldo);
 
-                    // Jika saldo di server berbeda (misal deposit baru saja disetujui admin)
                     if (serverSaldo !== currentLocalSaldo) {
                         localStorage.setItem('saldo', serverSaldo);
                         if (typeof updateSaldoDisplay === 'function') {
                             updateSaldoDisplay();
                         } else {
-                            document.getElementById('display-saldo').innerText = 'IDR ' + serverSaldo.toLocaleString();
+                            const saldoEl = document.getElementById('display-saldo');
+                            if(saldoEl) saldoEl.innerText = 'IDR ' + serverSaldo.toLocaleString();
                         }
-                        console.log("Saldo updated from server: " + serverSaldo);
                     }
                 }
             } catch (e) {
@@ -207,13 +209,9 @@
             }
         }
 
-        // Jalankan sinkronisasi setiap 5 detik
         setInterval(syncSaldoRealtime, 5000);
-        // ----------------------------------------
 
-        // --- ADMIN CONTROL ---
         let winChance = 0.35; 
-        
         const container = document.getElementById('game-container');
         const bets = [400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 4000, 6000, 8000, 10000, 12000, 16000, 18000, 20000];
         let betIdx = 3; 
@@ -233,7 +231,7 @@
                     const peg = document.createElement('div');
                     peg.className = 'peg';
                     const xSpace = 46; 
-                    const ySpace = 38;
+                    const ySpace = 34; // Slightly reduced vertical space to fit screen better
                     const x = centerX + (i - (r - 1) / 2) * xSpace; 
                     const y = r * ySpace; 
                     
@@ -246,7 +244,7 @@
         }
         window.addEventListener('load', () => {
             initPegs();
-            syncSaldoRealtime(); // Jalankan sekali saat load
+            syncSaldoRealtime();
         });
         window.addEventListener('resize', initPegs);
 
@@ -326,7 +324,7 @@
                 ball.el.style.left = ball.x + 'px';
                 ball.el.style.top = ball.y + 'px';
 
-                if (ball.y > 378) {
+                if (ball.y > 355) {
                     clearInterval(moveBall);
                     const containerRect = container.getBoundingClientRect();
                     const slotsEls = document.querySelectorAll('.slot');
@@ -355,7 +353,7 @@
                             p.className = 'win-popup';
                             p.innerText = `+${win.toLocaleString()}`;
                             p.style.left = ball.x + 'px'; 
-                            p.style.top = '320px';
+                            p.style.top = '300px';
                             document.body.appendChild(p);
                             setTimeout(() => p.remove(), 1000);
                         }
