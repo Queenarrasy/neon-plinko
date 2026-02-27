@@ -7,14 +7,19 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         :root { --pink: #ff0077; --blue: #00d4ff; --yellow: #fbff00; --bg: #070816; }
-        
         body { 
             background: var(--bg); 
             background-image: 
                 radial-gradient(circle at 0% 0%, rgba(255, 0, 119, 0.15) 0%, transparent 35%),
                 radial-gradient(circle at 100% 100%, rgba(0, 212, 255, 0.15) 0%, transparent 35%);
-            color: white; font-family: 'Segoe UI', sans-serif; 
-            display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px;
+            color: white; 
+            font-family: 'Segoe UI', sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            padding: 20px; 
             overflow-x: hidden;
         }
         
@@ -25,14 +30,13 @@
             backdrop-filter: blur(10px);
         }
 
-        /* JUDUL NEON BOLD */
-        .title { font-size: 38px; font-weight: 900; text-transform: uppercase; margin-bottom: 25px; line-height: 1.1; }
-        .t-pink { color: var(--pink); text-shadow: 0 0 15px var(--pink), 0 0 30px var(--pink); }
-        .t-blue { color: var(--blue); text-shadow: 0 0 15px var(--blue), 0 0 30px var(--blue); }
-        .t-yellow { color: var(--yellow); text-shadow: 0 0 15px var(--yellow), 0 0 30px var(--yellow); }
+        .title { font-size: 34px; font-weight: 900; text-transform: uppercase; line-height: 1; margin-bottom: 30px; }
+        .t-pink { color: var(--pink); text-shadow: 0 0 10px var(--pink); }
+        .t-blue { color: var(--blue); text-shadow: 0 0 10px var(--blue); }
+        .t-yellow { color: var(--yellow); text-shadow: 0 0 10px var(--yellow); }
 
         .form-group { margin-bottom: 15px; text-align: left; position: relative; }
-        label { font-size: 11px; font-weight: 900; color: var(--blue); letter-spacing: 1.5px; margin-left: 5px; text-transform: uppercase; }
+        label { font-size: 10px; font-weight: 900; color: var(--blue); letter-spacing: 1px; margin-left: 5px; text-transform: uppercase; }
         
         input, select { 
             width: 100%; padding: 14px; background: #000; border: 1px solid #333; 
@@ -41,12 +45,10 @@
         }
         input:focus { border-color: var(--pink); box-shadow: 0 0 10px rgba(255, 0, 119, 0.3); }
 
-        /* PASSWORD EYE ICON */
         .pass-wrapper { position: relative; }
         .toggle-pass { 
             position: absolute; right: 15px; top: 50%; transform: translateY(-50%); 
-            color: var(--blue); cursor: pointer; z-index: 10; font-size: 18px;
-            text-shadow: 0 0 5px var(--blue);
+            color: var(--blue); cursor: pointer; margin-top: 2px;
         }
 
         .btn-submit { 
@@ -55,37 +57,37 @@
             cursor: pointer; text-transform: uppercase; margin-top: 20px; font-size: 16px;
             box-shadow: 0 0 20px var(--pink); transition: 0.3s;
         }
-        .btn-submit:hover { transform: scale(1.02); box-shadow: 0 0 30px var(--pink); }
+        .btn-submit:active { transform: scale(0.98); }
 
         .switch-link { margin-top: 20px; font-size: 13px; color: #888; cursor: pointer; }
-        .switch-link b { color: var(--yellow); text-decoration: underline; text-shadow: 0 0 5px var(--yellow); }
+        .switch-link b { color: var(--yellow); text-decoration: underline; }
 
-        /* MODAL NEON */
         #neon-modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.92); display: none; justify-content: center; align-items: center; z-index: 10000;
+            background: rgba(0,0,0,0.95); backdrop-filter: blur(10px);
+            display: none; justify-content: center; align-items: center; z-index: 1000000;
         }
         .neon-modal {
-            background: #050612; border: 2px solid var(--pink); border-radius: 25px;
+            background: #050612; border: 2px solid var(--blue); border-radius: 25px;
             padding: 30px; text-align: center; width: 85%; max-width: 320px;
-            box-shadow: 0 0 40px var(--pink);
+            box-shadow: 0 0 50px rgba(0, 212, 255, 0.5);
         }
-        .neon-modal h2 { margin: 0 0 10px; font-size: 22px; font-weight: 900; text-transform: uppercase; }
+        .neon-modal h2 { color: var(--yellow); text-shadow: 0 0 10px var(--yellow); margin: 0 0 15px 0; text-transform: uppercase; }
         .neon-modal-btn {
-            background: transparent; border: 2px solid var(--blue); color: var(--blue);
+            background: transparent; border: 2px solid var(--pink); color: var(--pink);
             padding: 12px 0; width: 100%; border-radius: 50px; font-weight: 900;
-            cursor: pointer; box-shadow: 0 0 15px var(--blue); text-transform: uppercase; margin-top: 15px;
+            cursor: pointer; box-shadow: 0 0 15px var(--pink); text-transform: uppercase;
         }
-
+        
         #loading-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.8); display: none; flex-direction: column;
-            justify-content: center; align-items: center; z-index: 11000;
+            justify-content: center; align-items: center; z-index: 2000000;
         }
         .spinner {
-            width: 45px; height: 45px; border: 4px solid var(--blue);
-            border-top: 4px solid transparent; border-radius: 50%;
-            animation: spin 1s linear infinite; box-shadow: 0 0 10px var(--blue);
+            width: 50px; height: 50px; border: 5px solid rgba(0, 212, 255, 0.1);
+            border-top: 5px solid var(--blue); border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
@@ -94,40 +96,38 @@
 
     <div id="loading-overlay">
         <div class="spinner"></div>
-        <p style="color: var(--blue); margin-top: 15px; font-weight: 900; letter-spacing: 2px;">SYNCING DATABASE...</p>
+        <p style="margin-top: 15px; color: var(--blue); font-weight: bold; letter-spacing: 2px;">MENGHUBUNGKAN KE SERVER...</p>
     </div>
 
     <div id="neon-modal-overlay">
         <div class="neon-modal">
-            <h2 id="modal-title" class="t-yellow">INFO</h2>
-            <p id="modal-msg"></p>
+            <h2 id="modal-title">INFO</h2>
+            <p id="modal-msg">Pesan sistem.</p>
             <button class="neon-modal-btn" onclick="closeNeonModal()">MENGERTI</button>
         </div>
     </div>
 
     <div class="auth-card">
         <div class="title">
-            <span class="t-pink">NEON</span> <br>
-            <span class="t-blue">PLINKO</span> <br>
-            <span class="t-yellow">VIP</span>
+            <span class="t-pink">NEON</span> <span class="t-blue">PLINKO</span> <br> <span class="t-yellow">VIP</span>
         </div>
 
-        <h3 id="form-label" class="t-blue" style="margin-bottom: 25px; letter-spacing: 2px; font-weight: 900;">PENDAFTARAN</h3>
+        <h3 id="form-label" style="color: var(--blue); margin-bottom: 25px; letter-spacing: 2px; font-weight: 900;">PENDAFTARAN</h3>
 
         <form id="main-form">
             <div class="form-group">
                 <label>USERNAME</label>
-                <input type="text" id="username" placeholder="Masukkan Username" required>
+                <input type="text" id="username" placeholder="Buat username unik" required>
             </div>
 
             <div id="extra-fields">
                 <div class="form-group">
                     <label>NOMOR HP (WHATSAPP)</label>
-                    <input type="number" id="phone" placeholder="Contoh: 0812xxxx">
+                    <input type="number" id="phone" placeholder="Contoh: 08123456789">
                 </div>
                 <div class="form-group">
                     <label>NAMA LENGKAP</label>
-                    <input type="text" id="fullname" placeholder="Sesuai Buku Tabungan">
+                    <input type="text" id="fullname" placeholder="Nama sesuai rekening/e-wallet">
                 </div>
                 <div class="form-group">
                     <label>NAMA BANK / EWALLET</label>
@@ -135,18 +135,13 @@
                         <option value="DANA">DANA</option>
                         <option value="OVO">OVO</option>
                         <option value="GOPAY">GOPAY</option>
-                        <option value="BCA">BCA</option>
-                        <option value="BRI">BRI</option>
-                        <option value="MANDIRI">MANDIRI</option>
+                        <option value="BCA">BANK BCA</option>
+                        <option value="BRI">BANK BRI</option>
+                        <option value="MANDIRI">BANK MANDIRI</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>NOMOR REKENING</label>
-                    <input type="number" id="rekening" placeholder="Masukkan nomor akun">
-                </div>
-                <div class="form-group">
-                    <label>KODE REFERRAL (OPSIONAL)</label>
-                    <input type="text" id="referral" placeholder="Masukkan kode referral">
+                    <label>NOMOR REKENING</label> <input type="number" id="rekening" placeholder="Masukkan nomor akun pembayaran">
                 </div>
             </div>
 
@@ -154,8 +149,13 @@
                 <label>PASSWORD</label>
                 <div class="pass-wrapper">
                     <input type="password" id="password" placeholder="Minimal 6 karakter" required>
-                    <i class="fa-solid fa-eye toggle-pass" id="eye-icon" onclick="togglePass()"></i>
+                    <i class="fa-solid fa-eye toggle-pass" onclick="togglePassword()"></i>
                 </div>
+            </div>
+
+            <div class="form-group" id="ref-group">
+                <label>KODE REFERRAL (OPSIONAL)</label>
+                <input type="text" id="referral_code" placeholder="Masukkan kode jika ada">
             </div>
 
             <button type="button" class="btn-submit" onclick="processAuth()" id="btn-text">Daftar Sekarang</button>
@@ -167,55 +167,58 @@
     <script src="global.js"></script>
     <script>
         let isLogin = false;
+        let redirectUrl = "";
 
-        function showNeonModal(msg, title = "INFO") {
+        function showNeonModal(msg, title = "INFO", nextUrl = "") {
             document.getElementById('modal-title').innerText = title;
             document.getElementById('modal-msg').innerText = msg;
             document.getElementById('neon-modal-overlay').style.display = 'flex';
+            redirectUrl = nextUrl;
         }
 
         function closeNeonModal() {
             document.getElementById('neon-modal-overlay').style.display = 'none';
+            if (redirectUrl) window.location.href = redirectUrl;
         }
 
-        function togglePass() {
+        function togglePassword() {
             const passInput = document.getElementById('password');
-            const icon = document.getElementById('eye-icon');
-            if (passInput.type === "password") {
-                passInput.type = "text";
-                icon.classList.replace('fa-eye', 'fa-eye-slash');
-            } else {
-                passInput.type = "password";
-                icon.classList.replace('fa-eye-slash', 'fa-eye');
-            }
+            const icon = document.querySelector('.toggle-pass');
+            passInput.type = passInput.type === "password" ? "text" : "password";
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
         }
 
         function toggleMode() {
             isLogin = !isLogin;
             const extra = document.getElementById('extra-fields');
+            const ref = document.getElementById('ref-group'); 
             const label = document.getElementById('form-label');
             const btn = document.getElementById('btn-text');
             const sw = document.getElementById('auth-switch');
 
             if (isLogin) {
                 extra.style.display = 'none';
+                ref.style.display = 'none'; 
                 label.innerText = "LOGIN MEMBER";
                 btn.innerText = "Masuk Sekarang";
-                sw.innerHTML = "Belum punya akun? <b class='t-yellow'>Daftar VIP</b>";
+                sw.innerHTML = "Belum punya akun? <b>Daftar Akun VIP</b>";
             } else {
                 extra.style.display = 'block';
+                ref.style.display = 'block'; 
                 label.innerText = "PENDAFTARAN VIP";
                 btn.innerText = "Daftar Sekarang";
-                sw.innerHTML = "Sudah punya akun? <b class='t-yellow'>Login di sini</b>";
+                sw.innerHTML = "Sudah punya akun? <b>Login di sini</b>";
             }
         }
 
         async function processAuth() {
+            // Penggunaan trim() sangat penting agar login di perangkat manapun tidak error karena spasi
             const user = document.getElementById('username').value.trim();
             const pass = document.getElementById('password').value.trim();
 
-            if (!user || pass.length < 6) {
-                showNeonModal("Username & Password (min 6 digit) wajib diisi!", "PERINGATAN");
+            if (user === "" || pass.length < 6) {
+                showNeonModal("Username & Password (min 6 karakter) wajib diisi!", "ERROR");
                 return;
             }
 
@@ -223,79 +226,89 @@
 
             try {
                 if (isLogin) {
+                    // LOGIN PROCESS
                     const result = await fetchCloud({
                         action: "login",
                         username: user,
                         password: pass
                     });
-
+                    
                     document.getElementById('loading-overlay').style.display = 'none';
-
-                    if (result && result.status === "SUCCESS") {
-                        // SIMPAN SESSION KE LOCALSTORAGE
+                    
+                    if (result && result.status !== "FAILED") {
+                        // Simpan semua kolom untuk Profil & Withdraw
                         localStorage.setItem('user_session', result.username);
-                        localStorage.setItem('fullname', result.fullname || "-");
-                        localStorage.setItem('bank_name', result.bank || "-");
-                        localStorage.setItem('account_no', result.rekening || "-");
+                        localStorage.setItem('phone', result.phone || "");
+                        localStorage.setItem('fullname', result.fullname || "");
+                        localStorage.setItem('account_no', result.rekening || "");
+                        localStorage.setItem('bank_name', result.bank || "");
                         localStorage.setItem('saldo_permainan', result.saldo || 0);
                         localStorage.setItem('user_tier', result.tier || "BRONZE");
-                        localStorage.setItem('user_status', "ACTIVE");
+                        localStorage.setItem('winrate', result.winrate || 0.5);
+                        localStorage.setItem('user_status', "ONLINE");
 
-                        showNeonModal("Akses Diterima! Selamat Datang.", "SUKSES");
-                        setTimeout(() => window.location.href = "game.html", 1500);
+                        showNeonModal("Akses VIP Diterima! Selamat datang kembali.", "SUKSES", "game.html");
                     } else {
-                        showNeonModal("Username atau Password Salah!", "GAGAL");
+                        showNeonModal("Username atau Password salah!", "GAGAL");
                     }
                 } else {
-                    // MODE REGISTER
-                    const phoneVal = document.getElementById('phone').value;
-                    const fullVal = document.getElementById('fullname').value;
+                    // REGISTER PROCESS
+                    const phoneVal = document.getElementById('phone').value.trim();
+                    const fullVal = document.getElementById('fullname').value.trim();
                     const bankVal = document.getElementById('bank').value;
-                    const rekVal = document.getElementById('rekening').value;
-                    const reffVal = document.getElementById('referral').value;
+                    const rekVal = document.getElementById('rekening').value.trim();
+                    const refVal = document.getElementById('referral_code').value.trim();
 
-                    if(!fullVal || !rekVal) {
+                    if (!phoneVal || !fullVal || !rekVal) {
                         document.getElementById('loading-overlay').style.display = 'none';
-                        showNeonModal("Nama dan Nomor Rekening wajib diisi!", "GAGAL");
+                        showNeonModal("Harap lengkapi semua data pendaftaran!", "ERROR");
                         return;
                     }
 
                     const result = await fetchCloud({
                         action: "register",
                         username: user,
-                        password: pass,
                         phone: phoneVal,
                         fullname: fullVal,
                         bank: bankVal,
                         rekening: rekVal,
-                        referral: reffVal
+                        password: pass,
+                        referral: refVal
                     });
-
+                    
                     document.getElementById('loading-overlay').style.display = 'none';
-
+                    
                     if (result === "SUCCESS") {
-                        // SIMPAN SESSION AGAR LANGSUNG TERBACA DI PROFIL
+                        // Simpan data pendaftaran secara lokal agar Profil langsung sinkron
                         localStorage.setItem('user_session', user);
+                        localStorage.setItem('phone', phoneVal);
                         localStorage.setItem('fullname', fullVal);
                         localStorage.setItem('bank_name', bankVal);
                         localStorage.setItem('account_no', rekVal);
                         localStorage.setItem('saldo_permainan', 0);
                         localStorage.setItem('user_tier', "BRONZE");
-                        localStorage.setItem('user_status', "ACTIVE");
+                        localStorage.setItem('user_status', "ONLINE");
 
-                        showNeonModal("Pendaftaran Berhasil!", "SUKSES");
-                        setTimeout(() => window.location.href = "game.html", 1500);
+                        showNeonModal("Pendaftaran Berhasil! Akun Anda sudah aktif.", "SUKSES", "game.html");
                     } else if (result === "EXISTS") {
-                        showNeonModal("Username atau Rekening sudah terdaftar!", "GAGAL");
+                        showNeonModal("Username sudah digunakan oleh pemain lain!", "GAGAL");
+                    } else {
+                        showNeonModal("Gagal mendaftar. Coba lagi nanti.", "ERROR");
                     }
                 }
-            } catch (e) {
+            } catch (error) {
                 document.getElementById('loading-overlay').style.display = 'none';
-                showNeonModal("Gagal terhubung ke database!", "ERROR");
+                showNeonModal("Kesalahan Jaringan! Pastikan URL Apps Script benar.", "ERROR");
             }
         }
 
-        window.onload = toggleMode;
+        window.onload = () => {
+            toggleMode(); 
+            const urlParams = new URLSearchParams(window.location.search);
+            if(urlParams.get('ref')) {
+                document.getElementById('referral_code').value = urlParams.get('ref');
+            }
+        };
     </script>
 </body>
 </html>
