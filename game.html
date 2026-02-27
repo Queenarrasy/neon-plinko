@@ -30,12 +30,10 @@
         
         .header { display: flex; justify-content: center; align-items: center; padding: 15px 10px; position: relative; z-index: 100; background: var(--bg); flex-shrink: 0; }
         
-        /* Navigasi Kiri (Profil) */
         .prof-container { position: absolute; left: 20px; display: flex; flex-direction: column; align-items: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
         .prof-link { font-size: 28px; color: var(--pink); text-shadow: var(--pink-neon); }
         .prof-text { font-size: 8px; font-weight: 900; margin-top: 2px; color: var(--blue); text-shadow: var(--blue-neon); }
 
-        /* Navigasi Kanan (Setting) */
         .settings-container { position: absolute; right: 20px; display: flex; flex-direction: column; align-items: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
         .settings-link { font-size: 26px; color: var(--blue); text-shadow: var(--blue-neon); }
         .settings-text { font-size: 8px; font-weight: 900; margin-top: 2px; color: var(--pink); text-shadow: var(--pink-neon); }
@@ -43,66 +41,33 @@
         .balance-box { background: #000; border: 2px solid var(--blue); border-radius: 20px; padding: 5px 20px; text-align: center; min-width: 140px; }
         #display-saldo { font-size: 18px; font-weight: 900; }
 
-        #game-container { position: relative; width: 100%; height: 360px; flex-shrink: 0; margin-top: 5px; overflow: hidden; }
+        #game-container { position: relative; width: 100%; height: 350px; flex-shrink: 0; margin-top: 5px; overflow: hidden; }
         
-        /* Peg/Paku Design */
-        .peg { 
-            position: absolute; 
-            width: 8px; 
-            height: 8px; 
-            background: #fff; 
-            border-radius: 50%; 
-            transform: translate(-50%, -50%); 
-            box-shadow: 0 0 10px #fff, 0 0 20px var(--blue); 
-            z-index: 5; 
-        }
+        .peg { position: absolute; width: 8px; height: 8px; background: #fff; border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 10px #fff, 0 0 20px var(--blue); z-index: 5; }
 
-        .ball { 
-            position: absolute; 
-            width: 14px; 
-            height: 14px; 
-            background: radial-gradient(circle at 30% 30%, var(--pink), #900);
-            border-radius: 50%; 
-            box-shadow: 0 0 15px var(--pink); 
-            z-index: 10; 
-            transform: translate(-50%, -50%); 
-            pointer-events: none; 
-            will-change: left, top; 
-        }
+        .ball { position: absolute; width: 14px; height: 14px; background: radial-gradient(circle at 30% 30%, var(--pink), #900); border-radius: 50%; box-shadow: 0 0 15px var(--pink); z-index: 10; transform: translate(-50%, -50%); pointer-events: none; will-change: left, top; }
 
         .multipliers { display: flex; justify-content: center; gap: 4px; padding: 0 5px; margin-top: 5px; z-index: 80; flex-shrink: 0; }
-        .slot { 
-            flex: 1; 
-            max-width: 45px; 
-            height: 35px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            border-radius: 6px; 
-            font-size: 11px; 
-            font-weight: 900; 
-            border: 1px solid rgba(255,255,255,0.2); 
-            transition: transform 0.1s, background 0.2s; 
-        }
+        .slot { flex: 1; max-width: 45px; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 6px; font-size: 11px; font-weight: 900; border: 1px solid rgba(255,255,255,0.2); transition: transform 0.1s, background 0.2s; }
         .m-pink { background: var(--pink); box-shadow: var(--pink-neon); }
         .m-yellow { background: var(--yellow); color: black; box-shadow: var(--yellow-neon); }
         .m-blue { background: var(--blue); color: black; box-shadow: var(--blue-neon); }
 
-        /* Navigasi Grid (Withdraw, Deposit, Reward) */
-        .nav-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 0 20px; margin-top: 10px; flex-shrink: 0; }
-        .btn-nav { background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 8px 5px; border-radius: 12px; text-align: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-        .btn-nav i { font-size: 18px; margin-bottom: 3px; display: block; }
+        /* Jarak Navigasi Grid Diatur Seragam */
+        .nav-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; padding: 0 20px; margin-top: 20px; flex-shrink: 0; }
+        .btn-nav { background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 10px 5px; border-radius: 12px; text-align: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .btn-nav i { font-size: 18px; margin-bottom: 5px; display: block; }
         .btn-nav span { font-size: 8px; font-weight: 900; }
 
-        /* Play Area Adjusted */
-        .play-area { text-align: center; padding: 5px 15px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
+        /* Play Area dengan Jarak Visual yang Seimbang */
+        .play-area { text-align: center; padding: 10px 20px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; gap: 15px; }
         
-        .mode-toggles { display: flex; justify-content: center; gap: 8px; margin-bottom: 8px; }
-        .toggle { padding: 6px 20px; border-radius: 20px; font-size: 10px; font-weight: 900; cursor: pointer; border: 1px solid #333; background: #000; color: #555; -webkit-tap-highlight-color: transparent; }
+        .mode-toggles { display: flex; justify-content: center; gap: 12px; }
+        .toggle { flex: 1; max-width: 120px; padding: 10px 0; border-radius: 20px; font-size: 10px; font-weight: 900; cursor: pointer; border: 1px solid #333; background: #000; color: #555; -webkit-tap-highlight-color: transparent; }
         .toggle.active { border-color: var(--pink); color: var(--yellow); text-shadow: var(--yellow-neon); box-shadow: inset 0 0 10px var(--pink); }
         
-        .bet-selector { display: flex; align-items: center; justify-content: center; gap: 20px; background: #000; border-radius: 50px; padding: 5px; margin-bottom: 10px; border: 1px solid #444; width: 90%; margin: 0 auto 10px auto; }
-        .btn-main { width: 100%; padding: 12px; border-radius: 50px; border: none; font-weight: 900; font-size: 16px; text-transform: uppercase; cursor: pointer; background: linear-gradient(90deg, var(--pink), var(--blue)); color: white; -webkit-tap-highlight-color: transparent; box-shadow: 0 0 15px var(--pink); }
+        .bet-selector { display: flex; align-items: center; justify-content: space-between; background: #000; border-radius: 50px; padding: 8px 25px; border: 1px solid #444; width: 100%; box-sizing: border-box; }
+        .btn-main { width: 100%; padding: 14px; border-radius: 50px; border: none; font-weight: 900; font-size: 16px; text-transform: uppercase; cursor: pointer; background: linear-gradient(90deg, var(--pink), var(--blue)); color: white; -webkit-tap-highlight-color: transparent; box-shadow: 0 0 15px var(--pink); }
 
         #score-board { position: absolute; left: 10px; top: 120px; width: 90px; display: flex; flex-direction: column; gap: 6px; z-index: 50; }
         .score-item { background: rgba(0,0,0,0.85); border: 1px solid var(--blue); font-size: 9px; padding: 6px; border-radius: 6px; text-align: center; font-weight: 900; color: var(--yellow); text-shadow: var(--yellow-neon); animation: popupIn 0.3s ease-out; overflow: hidden; white-space: nowrap; }
@@ -124,7 +89,7 @@
     <div class="header">
         <div class="prof-container" onclick="location.href='profil.html'">
             <i class="fa-solid fa-circle-user prof-link"></i>
-            <span class="prof-text" data-i18n="menu-profile">PROFIL</span>
+            <span class="prof-text">PROFIL</span>
         </div>
 
         <div class="balance-box">
@@ -134,7 +99,7 @@
 
         <div class="settings-container" onclick="location.href='settings.html'">
             <i class="fa-solid fa-gear settings-link"></i>
-            <span class="settings-text" data-i18n="nav-settings">SETTING</span>
+            <span class="settings-text">SETTING</span>
         </div>
     </div>
 
@@ -161,56 +126,52 @@
             <div id="btn-normal" class="toggle active" onclick="setMode('normal')">NORMAL</div>
             <div id="btn-auto" class="toggle" onclick="setMode('auto')">AUTO</div>
         </div>
+        
         <div class="bet-selector">
-            <button style="background:none; border:none; color:var(--pink); font-size: 24px; font-weight: 900;" onclick="changeBet(-1)">-</button>
-            <div id="current-bet" class="neon-y" style="font-size: 18px; font-weight: 900; color:var(--blue);">1,000</div>
-            <button style="background:none; border:none; color:var(--pink); font-size: 24px; font-weight: 900;" onclick="changeBet(1)">+</button>
+            <button style="background:none; border:none; color:var(--pink); font-size: 28px; font-weight: 900; cursor: pointer;" onclick="changeBet(-1)">-</button>
+            <div id="current-bet" class="neon-y" style="font-size: 20px; font-weight: 900; color:var(--blue);">1,000</div>
+            <button style="background:none; border:none; color:var(--pink); font-size: 28px; font-weight: 900; cursor: pointer;" onclick="changeBet(1)">+</button>
         </div>
+        
         <button class="btn-main" id="play-btn" onclick="handlePlay()">MULAI MAIN</button>
     </div>
 
     <script src="global.js"></script>
     <script>
-        // --- AUTO UPDATE SALDO DARI DATABASE ---
+        // --- UPDATE TAMPILAN SALDO ---
+        function updateSaldoDisplay() {
+            const currentSaldo = parseInt(localStorage.getItem('saldo') || 0);
+            const saldoEl = document.getElementById('display-saldo');
+            if(saldoEl) {
+                saldoEl.innerText = 'IDR ' + currentSaldo.toLocaleString('id-ID');
+            }
+        }
+
+        // --- SINKRONISASI SERVER ---
         let isSyncing = false;
         async function syncSaldoRealtime() {
             if (isSyncing) return;
             const username = localStorage.getItem('user_session');
             if (!username) return;
-
             isSyncing = true;
             try {
                 const SCRIPT_URL_USER = "https://script.google.com/macros/s/AKfycbwqQWXIJuVnkIxLvdu3kYiiRDVh7eyrsy-KU6rG1qtQClgfAzmMoclv2ULFZ_hRdE_qUg/exec";
-                
                 const response = await fetch(SCRIPT_URL_USER, {
                     method: "POST",
                     body: JSON.stringify({ action: "getUserData", username: username })
                 });
                 const data = await response.json();
-                
                 if (data && data.saldo !== undefined) {
-                    const currentLocalSaldo = parseInt(localStorage.getItem('saldo') || 0);
-                    const serverSaldo = parseInt(data.saldo);
-
-                    if (serverSaldo !== currentLocalSaldo) {
-                        localStorage.setItem('saldo', serverSaldo);
-                        if (typeof updateSaldoDisplay === 'function') {
-                            updateSaldoDisplay();
-                        } else {
-                            const saldoEl = document.getElementById('display-saldo');
-                            if(saldoEl) saldoEl.innerText = 'IDR ' + serverSaldo.toLocaleString();
-                        }
-                    }
+                    localStorage.setItem('saldo', data.saldo);
+                    updateSaldoDisplay();
                 }
-            } catch (e) {
-                console.error("Sync Error:", e);
-            } finally {
-                isSyncing = false;
-            }
+            } catch (e) { console.error("Sync Error:", e); } 
+            finally { isSyncing = false; }
         }
 
         setInterval(syncSaldoRealtime, 5000);
 
+        // --- GAME LOGIC ---
         let winChance = 0.35; 
         const container = document.getElementById('game-container');
         const bets = [400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 4000, 6000, 8000, 10000, 12000, 16000, 18000, 20000];
@@ -225,16 +186,14 @@
             pegLocations = [];
             const rows = 9; 
             const centerX = container.offsetWidth / 2;
-            
             for (let r = 2; r <= rows; r++) {
                 for (let i = 0; i < r; i++) {
                     const peg = document.createElement('div');
                     peg.className = 'peg';
                     const xSpace = 46; 
-                    const ySpace = 34; // Slightly reduced vertical space to fit screen better
+                    const ySpace = 32; 
                     const x = centerX + (i - (r - 1) / 2) * xSpace; 
                     const y = r * ySpace; 
-                    
                     peg.style.left = x + 'px';
                     peg.style.top = y + 'px';
                     container.appendChild(peg);
@@ -242,11 +201,12 @@
                 }
             }
         }
+
         window.addEventListener('load', () => {
             initPegs();
+            updateSaldoDisplay();
             syncSaldoRealtime();
         });
-        window.addEventListener('resize', initPegs);
 
         function showNeonModal(msg) { document.getElementById('modal-msg').innerText = msg; document.getElementById('neon-overlay').style.display = 'flex'; }
         function closeNeonModal() { document.getElementById('neon-overlay').style.display = 'none'; }
@@ -273,10 +233,25 @@
             if (board.children.length > 5) board.removeChild(board.lastChild);
         }
 
+        // --- LOGIKA UPDATE SALDO LOKAL ---
+        function internalUpdateSaldo(amount) {
+            let current = parseInt(localStorage.getItem('saldo') || 0);
+            if (current + amount < 0) return false;
+            current += amount;
+            localStorage.setItem('saldo', current);
+            updateSaldoDisplay();
+            return true;
+        }
+
         function dropBall() {
             const bet = bets[betIdx];
-            if (typeof updateSaldo === 'function') {
-                if (!updateSaldo(-bet)) { setMode('normal'); showNeonModal("Saldo Tidak Cukup!"); return; }
+            // Gunakan fungsi internalUpdateSaldo jika global updateSaldo tidak tersedia
+            const success = (typeof updateSaldo === 'function') ? updateSaldo(-bet) : internalUpdateSaldo(-bet);
+            
+            if (!success) { 
+                setMode('normal'); 
+                showNeonModal("Saldo Tidak Cukup!"); 
+                return; 
             }
 
             const ballEl = document.createElement('div');
@@ -286,74 +261,50 @@
             let startOffset = (Math.random() - 0.5) * 10;
             if (Math.random() < winChance) startOffset = Math.random() > 0.5 ? 25 : -25;
 
-            let ball = {
-                el: ballEl,
-                x: container.offsetWidth / 2 + startOffset,
-                y: 15,
-                vx: (Math.random() - 0.5) * 2,
-                vy: 0
-            };
-
-            const gravity = 0.6; 
-            const friction = 0.98; 
-            const bounce = 0.5; 
+            let ball = { el: ballEl, x: container.offsetWidth / 2 + startOffset, y: 15, vx: (Math.random() - 0.5) * 2, vy: 0 };
+            const gravity = 0.6; const friction = 0.98; const bounce = 0.5; 
 
             const moveBall = setInterval(() => {
-                ball.vy += gravity;
-                ball.vx *= friction;
-                ball.x += ball.vx;
-                ball.y += ball.vy;
-
+                ball.vy += gravity; ball.vx *= friction; ball.x += ball.vx; ball.y += ball.vy;
                 pegLocations.forEach(p => {
-                    const dx = ball.x - p.x;
-                    const dy = ball.y - p.y;
+                    const dx = ball.x - p.x; const dy = ball.y - p.y;
                     const dist = Math.sqrt(dx*dx + dy*dy);
                     if (dist < 11) {
                         const angle = Math.atan2(dy, dx);
                         const speed = Math.sqrt(ball.vx*ball.vx + ball.vy*ball.vy);
                         ball.vx = Math.cos(angle) * speed * bounce + (Math.random()-0.5) * 2.5;
                         ball.vy = Math.sin(angle) * speed * bounce;
-                        ball.x = p.x + Math.cos(angle) * 11.5;
-                        ball.y = p.y + Math.sin(angle) * 11.5;
+                        ball.x = p.x + Math.cos(angle) * 11.5; ball.y = p.y + Math.sin(angle) * 11.5;
                     }
                 });
-
                 if (ball.x < 10) { ball.x = 10; ball.vx *= -0.4; }
                 if (ball.x > container.offsetWidth - 10) { ball.x = container.offsetWidth - 10; ball.vx *= -0.4; }
+                ball.el.style.left = ball.x + 'px'; ball.el.style.top = ball.y + 'px';
 
-                ball.el.style.left = ball.x + 'px';
-                ball.el.style.top = ball.y + 'px';
-
-                if (ball.y > 355) {
+                if (ball.y > 345) {
                     clearInterval(moveBall);
                     const containerRect = container.getBoundingClientRect();
                     const slotsEls = document.querySelectorAll('.slot');
                     let finalSlot = -1; 
-
                     slotsEls.forEach((s, index) => {
                         const sRect = s.getBoundingClientRect();
                         const ballGlobalX = ball.x + containerRect.left;
                         if (ballGlobalX >= sRect.left && ballGlobalX <= sRect.right) {
                             finalSlot = index;
-                            s.style.transform = "scale(1.15)";
-                            s.style.filter = "brightness(1.5)";
-                            setTimeout(() => {
-                                s.style.transform = "scale(1)";
-                                s.style.filter = "brightness(1)";
-                            }, 200);
+                            s.style.transform = "scale(1.15)"; s.style.filter = "brightness(1.5)";
+                            setTimeout(() => { s.style.transform = "scale(1)"; s.style.filter = "brightness(1)"; }, 200);
                         }
                     });
 
                     if (finalSlot !== -1) {
                         const win = Math.floor(bet * slots[finalSlot]);
-                        if (typeof updateSaldo === 'function') updateSaldo(win);
+                        (typeof updateSaldo === 'function') ? updateSaldo(win) : internalUpdateSaldo(win);
                         if (win > 0) {
                             addScoreBoard(win);
                             const p = document.createElement('div');
                             p.className = 'win-popup';
                             p.innerText = `+${win.toLocaleString()}`;
-                            p.style.left = ball.x + 'px'; 
-                            p.style.top = '300px';
+                            p.style.left = ball.x + 'px'; p.style.top = '280px';
                             document.body.appendChild(p);
                             setTimeout(() => p.remove(), 1000);
                         }
