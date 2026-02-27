@@ -1,10 +1,9 @@
 // GLOBAL SYSTEM - NEON PLINKO VIP
-// Koneksi ke: https://script.google.com/macros/s/AKfycbzYTC11njbEBtAsdpbaRLJRt13j7iEKCkANV1SgxxguV_zFUyZ6Z7FAj0SKuw4d5ThmKw/exec
-
+// Koneksi ke Google Apps Script
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzYTC11njbEBtAsdpbaRLJRt13j7iEKCkANV1SgxxguV_zFUyZ6Z7FAj0SKuw4d5ThmKw/exec";
 
 // ============================================================
-// 1. SISTEM POP-UP NEON UNIVERSAL
+// 1. SISTEM POP-UP NEON UNIVERSAL (PINK, BLUE, YELLOW THEME)
 // ============================================================
 const injectNeonModal = () => {
     if (document.getElementById('neon-global-overlay')) return;
@@ -12,26 +11,71 @@ const injectNeonModal = () => {
     style.innerHTML = `
         #neon-global-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(7, 8, 22, 0.95); backdrop-filter: blur(10px);
+            background: rgba(5, 6, 18, 0.9); backdrop-filter: blur(12px);
             display: none; justify-content: center; align-items: center; z-index: 1000000;
+            font-family: 'Segoe UI', Roboto, sans-serif;
         }
         .neon-modal-box {
-            background: #050612; border: 2px solid #00d4ff; border-radius: 25px;
-            padding: 30px; text-align: center; width: 85%; max-width: 350px;
-            box-shadow: 0 0 20px #00d4ff, inset 0 0 10px #00d4ff;
+            background: #0a0b1e; 
+            border: 3px solid #00d4ff; 
+            border-radius: 30px;
+            padding: 35px 25px; 
+            text-align: center; 
+            width: 90%; 
+            max-width: 380px;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.3), inset 0 0 15px rgba(0, 212, 255, 0.1);
+            animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .neon-modal-box h2 { color: #fbff00; text-shadow: 0 0 10px #fbff00; margin-bottom: 15px; text-transform: uppercase; }
-        .neon-modal-box p { color: #ffffff; margin-bottom: 25px; font-weight: 600; }
+        @keyframes modalPop {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .neon-modal-box h2 { 
+            color: #fbff00; 
+            text-shadow: 0 0 15px #fbff00; 
+            margin-bottom: 20px; 
+            text-transform: uppercase; 
+            font-weight: 900;
+            letter-spacing: 2px;
+            font-size: 24px;
+        }
+        .neon-modal-box p { 
+            color: #ffffff; 
+            margin-bottom: 30px; 
+            font-weight: 600; 
+            line-height: 1.6;
+            font-size: 16px;
+        }
         .neon-modal-btn {
-            background: #000; border: 2px solid #ff0077; color: #ff0077;
-            padding: 12px 0; width: 100%; border-radius: 50px; font-weight: 900;
-            cursor: pointer; box-shadow: 0 0 15px #ff0077; text-transform: uppercase;
+            background: transparent; 
+            border: 2px solid #ff0077; 
+            color: #ff0077;
+            padding: 14px 0; 
+            width: 100%; 
+            border-radius: 50px; 
+            font-weight: 900;
+            cursor: pointer; 
+            box-shadow: 0 0 15px rgba(255, 0, 119, 0.4); 
+            text-transform: uppercase;
+            transition: 0.3s;
+            letter-spacing: 2px;
+        }
+        .neon-modal-btn:hover {
+            background: #ff0077;
+            color: white;
+            box-shadow: 0 0 25px #ff0077;
         }
     `;
     document.head.appendChild(style);
     const modal = document.createElement('div');
     modal.id = 'neon-global-overlay';
-    modal.innerHTML = `<div class="neon-modal-box"><h2 id="neon-modal-title">INFO</h2><p id="neon-modal-msg">...</p><button class="neon-modal-btn" onclick="closeNeonAlert()">OK</button></div>`;
+    modal.innerHTML = `
+        <div class="neon-modal-box">
+            <h2 id="neon-modal-title">INFO</h2>
+            <p id="neon-modal-msg">...</p>
+            <button class="neon-modal-btn" onclick="closeNeonAlert()">OK</button>
+        </div>
+    `;
     document.body.appendChild(modal);
 };
 
@@ -42,35 +86,28 @@ window.showNeonAlert = function(msg, title = "VIP INFO") {
     document.getElementById('neon-global-overlay').style.display = 'flex';
 };
 
-window.closeNeonAlert = function() { document.getElementById('neon-global-overlay').style.display = 'none'; };
+window.closeNeonAlert = function() { 
+    document.getElementById('neon-global-overlay').style.display = 'none'; 
+};
 
 // ============================================================
-// 2. CORE DATABASE COMMUNICATOR (PENTING!)
+// 2. CORE DATABASE COMMUNICATOR (VERSI TERBARU & STABIL)
 // ============================================================
 async function callCloud(payload) {
     try {
-        // Menggunakan mode no-cors terkadang bermasalah untuk JSON, 
-        // tapi App Script biasanya oke dengan cara ini:
         const response = await fetch(SCRIPT_URL, {
             method: "POST",
-            mode: "no-cors", // Gunakan no-cors jika muncul error CORS
-            cache: "no-cache",
-            headers: { "Content-Type": "application/json" },
+            mode: "cors",
+            headers: {
+                "Content-Type": "text/plain;charset=utf-8"
+            },
             body: JSON.stringify(payload)
         });
         
-        // Catatan: Karena no-cors tidak bisa baca response, 
-        // kita asumsikan pendaftaran berhasil jika tidak ada error catch.
-        // Untuk Login, kita butuh data, jadi gunakan fetch normal.
-        if (payload.action === "register" || payload.action === "deposit") {
-             return { result: "SUCCESS" }; 
-        }
-
-        const normalResponse = await fetch(SCRIPT_URL, {
-            method: "POST",
-            body: JSON.stringify(payload)
-        });
-        return await normalResponse.json();
+        // Mengambil teks respon terlebih dahulu untuk menghindari error parsing
+        const text = await response.text();
+        return JSON.parse(text);
+        
     } catch (e) {
         console.error("Cloud Error:", e);
         return null;
@@ -78,7 +115,7 @@ async function callCloud(payload) {
 }
 
 // ============================================================
-// 3. LOGIKA LOGIN & REGISTER
+// 3. LOGIKA LOGIN & SESSION
 // ============================================================
 window.handleLogin = async function(username, password) {
     const res = await callCloud({ action: "login", username, password });
@@ -86,17 +123,17 @@ window.handleLogin = async function(username, password) {
         localStorage.setItem('user_session', res.username);
         localStorage.setItem('user_fullname', res.fullname);
         localStorage.setItem('saldo', res.saldo);
-        window.showNeonAlert("Selamat Datang, " + res.fullname, "LOGIN BERHASIL");
+        window.showNeonAlert("Selamat Datang Kembali, Member VIP " + res.fullname, "AKSES DITERIMA");
         setTimeout(() => { window.location.href = "game.html"; }, 1500);
     } else if (res && res.result === "WRONG_PASSWORD") {
-        window.showNeonAlert("Password Salah!", "AKSES DITOLAK");
+        window.showNeonAlert("Password yang Anda masukkan salah!", "AKSES DITOLAK");
     } else {
-        window.showNeonAlert("User tidak ditemukan!", "GAGAL");
+        window.showNeonAlert("ID Member tidak ditemukan di database!", "LOGIN GAGAL");
     }
 };
 
 // ============================================================
-// 4. SINKRONISASI SALDO UTAMA
+// 4. SINKRONISASI SALDO & DATA REAL-TIME
 // ============================================================
 window.syncAllData = async function() {
     const user = localStorage.getItem('user_session');
@@ -107,13 +144,19 @@ window.syncAllData = async function() {
         localStorage.setItem('saldo', res.saldo);
         const fmt = (v) => "IDR " + Number(v).toLocaleString('id-ID');
         
-        // Update Kotak Saldo sesuai ID yang Anda minta
+        // Update elemen UI jika tersedia di halaman
         const s1 = document.getElementById('SALDO UTAMA VIP');
         const s2 = document.getElementById('SALDO SAAT INI');
+        const s3 = document.getElementById('saldo-display'); // Tambahan ID umum
+        
         if(s1) s1.innerText = fmt(res.saldo);
         if(s2) s2.innerText = fmt(res.saldo);
+        if(s3) s3.innerText = fmt(res.saldo);
     }
 };
 
-// Auto Sync
-setInterval(window.syncAllData, 10000); // Cek saldo setiap 10 detik
+// Inisialisasi Sinkronisasi Otomatis
+if (localStorage.getItem('user_session')) {
+    window.syncAllData();
+    setInterval(window.syncAllData, 10000); // Sinkronisasi setiap 10 detik
+}
