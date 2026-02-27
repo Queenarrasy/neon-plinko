@@ -13,14 +13,18 @@
         .neon-title { color: var(--neon-blue); font-size: 18px; font-weight: 900; text-align: center; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; text-shadow: 0 0 10px var(--neon-blue); }
         label { font-size: 11px; color: #888; display: block; margin-bottom: 10px; font-weight: bold; text-align: left; }
         input[type="number"] { width: 100%; padding: 15px; background: #000; border: 1px solid #333; border-radius: 12px; color: var(--neon-gold); font-size: 20px; font-weight: 900; outline: none; text-align: center; box-sizing: border-box; }
+        
+        /* New Crypto Converter Style */
+        .converter-badge { font-size: 10px; color: var(--neon-gold); margin-top: 8px; text-align: center; display: none; font-weight: bold; background: rgba(251, 255, 0, 0.1); padding: 5px; border-radius: 8px; border: 1px solid rgba(251, 255, 0, 0.2); }
+
         .method-tabs { display: flex; gap: 10px; margin: 20px 0; }
         .btn-tab { flex: 1; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 10px; color: white; cursor: pointer; font-size: 11px; font-weight: 900; transition: 0.3s; }
         .btn-tab.active { border-color: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); background: rgba(0, 212, 255, 0.1); }
         .instruksi-box { background: #000; border: 1px solid #222; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; min-height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .history-section { margin-top: 30px; background: rgba(0,0,0,0.4); border-radius: 15px; padding: 15px; border: 1px solid #222; }
         .history-title { font-size: 12px; color: var(--neon-blue); font-weight: 900; margin-bottom: 15px; text-align: left; display: flex; align-items: center; gap: 8px; text-transform: uppercase; }
-        .table-scroll { max-height: 200px; overflow-y: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        .table-scroll { max-height: 250px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 10px; }
         th { color: #666; text-align: left; padding: 10px 8px; border-bottom: 1px solid #333; font-weight: 900; }
         td { padding: 12px 8px; border-bottom: 1px solid #111; vertical-align: middle; }
         .status-badge { font-size: 8px; font-weight: 900; padding: 4px 6px; border-radius: 4px; text-transform: uppercase; }
@@ -49,8 +53,9 @@
             <h2 class="neon-title">SETOR DANA</h2>
             <p id="min-deposit-text" style="color:var(--neon-pink);font-size:10px;text-align:center;margin-bottom:20px;font-weight:bold;"></p>
             
-            <label>NOMINAL DEPOSIT (ANGKA SAJA)</label>
-            <input type="number" id="input-nominal" placeholder="0">
+            <label id="input-label">NOMINAL DEPOSIT (IDR)</label>
+            <input type="number" id="input-nominal" placeholder="0" oninput="hitungKurs()">
+            <div id="crypto-kurs" class="converter-badge">Estimasi: Rp 0</div>
 
             <div class="method-tabs">
                 <button id="tab-qris" onclick="pilihMetode('QRIS')" class="btn-tab active">QRIS RUPIAH</button>
@@ -77,7 +82,7 @@
                 <div class="history-title"><i class="fa-solid fa-clock-rotate-left"></i> RIWAYAT DEPOSIT</div>
                 <div class="table-scroll">
                     <table>
-                        <thead><tr><th>WAKTU</th><th>NOMINAL</th><th>STATUS</th></tr></thead>
+                        <thead><tr><th>WAKTU</th><th>NOMINAL</th><th style="text-align:right;">STATUS</th></tr></thead>
                         <tbody id="list-riwayat"></tbody>
                     </table>
                 </div>
@@ -89,6 +94,28 @@
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqQWXIJuVnkIxLvdu3kYiiRDVh7eyrsy-KU6rG1qtQClgfAzmMoclv2ULFZ_hRdE_qUg/exec";
         let metodeTerpilih = "QRIS";
+        let hargaUSDT = 15800; // Default kurs jika API gagal
+
+        // Fungsi Ambil Kurs Realtime
+        async function updateKurs() {
+            try {
+                const r = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=USDTIDR');
+                const d = await r.json();
+                if(d.price) hargaUSDT = parseFloat(d.price);
+            } catch(e) { console.log("Kurs API Error, use fallback"); }
+        }
+
+        function hitungKurs() {
+            const nom = document.getElementById('input-nominal').value;
+            const badge = document.getElementById('crypto-kurs');
+            if(metodeTerpilih === 'CRYPTO' && nom > 0) {
+                const totalIDR = nom * hargaUSDT;
+                badge.innerText = `Estimasi: Rp ${totalIDR.toLocaleString('id-ID')}`;
+                badge.style.display = 'block';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
 
         function showPopup(msg, isError = false) {
             const popup = document.getElementById('neon-popup');
@@ -107,39 +134,46 @@
             document.getElementById('konten-qris').style.display = tipe === 'QRIS' ? 'block' : 'none';
             document.getElementById('konten-crypto').style.display = tipe === 'CRYPTO' ? 'block' : 'none';
             document.getElementById('min-deposit-text').innerText = tipe === 'QRIS' ? "⚠️ MINIMAL DEPOSIT: IDR 20,000" : "⚠️ MINIMAL DEPOSIT: $10";
+            document.getElementById('input-label').innerText = tipe === 'QRIS' ? "NOMINAL DEPOSIT (IDR)" : "NOMINAL DEPOSIT (USDT)";
+            document.getElementById('input-nominal').value = "";
+            hitungKurs();
         }
 
         async function prosesDeposit() {
-            const nom = parseFloat(document.getElementById('input-nominal').value);
+            const inputVal = parseFloat(document.getElementById('input-nominal').value);
             const user = localStorage.getItem('user_session');
             const full = localStorage.getItem('fullname') || "User VIP";
 
             if (!user) return showPopup("Sesi habis, silakan login ulang", true);
             
             // Validasi Ketat
-            if (metodeTerpilih === 'QRIS' && (!nom || nom < 20000)) return showPopup("Minimal Transaksi 20000", true);
-            if (metodeTerpilih === 'CRYPTO' && (!nom || nom < 10)) return showPopup("Minimum $10", true);
+            if (metodeTerpilih === 'QRIS' && (!inputVal || inputVal < 20000)) return showPopup("Minimal Transaksi 20000", true);
+            if (metodeTerpilih === 'CRYPTO' && (!inputVal || inputVal < 10)) return showPopup("Minimum $10", true);
 
             document.getElementById('loading-overlay').style.display = 'flex';
+
+            // Jika Crypto, hitung total rupiah yang dikirim ke sheet
+            const finalAmount = (metodeTerpilih === 'CRYPTO') ? (inputVal * hargaUSDT) : inputVal;
 
             try {
                 const response = await fetch(SCRIPT_URL, {
                     method: "POST",
+                    mode: "no-cors", // Fix CORS issues
                     body: JSON.stringify({
                         action: "deposit",
                         username: user,
                         fullname: full,
-                        amount: nom,
-                        method: metodeTerpilih
+                        amount: finalAmount, // Nilai IDR murni agar admin mudah proses
+                        method: metodeTerpilih,
+                        cryptoNominal: inputVal // Info tambahan utk admin
                     })
                 });
-                const res = await response.json();
-                if (res.result === "SUCCESS") {
-                    showPopup("Konfirmasi Terkirim! Mohon tunggu verifikasi admin.");
-                    document.getElementById('input-nominal').value = "";
-                    muatRiwayatCloud();
-                }
-            } catch (e) { showPopup("Koneksi Error!", true); }
+                
+                // Karena no-cors, kita anggap sukses jika tidak catch error
+                showPopup("Konfirmasi Terkirim! Mohon tunggu verifikasi admin.");
+                document.getElementById('input-nominal').value = "";
+                setTimeout(muatRiwayatCloud, 2000); // Delay sedikit agar sheet sempat menulis
+            } catch (e) { showPopup("Terjadi Kesalahan Koneksi", true); }
             document.getElementById('loading-overlay').style.display = 'none';
         }
 
@@ -147,28 +181,57 @@
             const container = document.getElementById('list-riwayat');
             const user = localStorage.getItem('user_session');
             if(!user) return;
+
+            // Efek Loading pada Tabel
+            container.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#555; padding:10px;">Sinkronisasi...</td></tr>';
+
             try {
-                const resp = await fetch(`${SCRIPT_URL}?action=getHistory&username=${user}&type=deposit`);
+                const resp = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        action: "getHistory",
+                        username: user,
+                        type: "deposit"
+                    })
+                });
                 const data = await resp.json();
+                
                 if(!data || data.length === 0) {
                     container.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#444;padding:20px;">Belum ada riwayat.</td></tr>';
                     return;
                 }
-                container.innerHTML = data.map(item => `
-                    <tr>
-                        <td><span style="font-size:9px;color:#777;">${item.tanggal}</span></td>
-                        <td><span style="color:var(--neon-gold);font-weight:bold;">${parseFloat(item.amount).toLocaleString()}</span></td>
-                        <td style="text-align:right;">
-                            <span class="status-badge ${item.status.toUpperCase() === 'BERHASIL' ? 'status-berhasil' : 'status-proses'}">
-                                ${item.status}
-                            </span>
-                        </td>
-                    </tr>
-                `).join('');
-            } catch (e) { console.log("History Load Error"); }
+
+                container.innerHTML = data.map(item => {
+                    const statusClass = item.status.toUpperCase() === 'BERHASIL' ? 'status-berhasil' : 'status-proses';
+                    return `
+                        <tr>
+                            <td>
+                                <span style="font-size:9px;color:#777;display:block;">${item.tanggal}</span>
+                            </td>
+                            <td>
+                                <span style="color:var(--neon-gold);font-weight:bold;display:block;">Rp ${parseFloat(item.amount).toLocaleString('id-ID')}</span>
+                                <span style="font-size:8px;color:#555;">METODE: ${metodeTerpilih}</span>
+                            </td>
+                            <td style="text-align:right;">
+                                <span class="status-badge ${statusClass}">
+                                    ${item.status}
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (e) { 
+                container.innerHTML = '<tr><td colspan="3" style="text-align:center; color:red;">Gagal memuat riwayat</td></tr>';
+            }
         }
 
-        window.onload = () => { pilihMetode('QRIS'); muatRiwayatCloud(); };
+        window.onload = async () => { 
+            await updateKurs();
+            pilihMetode('QRIS'); 
+            muatRiwayatCloud(); 
+            // Cek status otomatis tiap 10 detik
+            setInterval(muatRiwayatCloud, 10000);
+        };
     </script>
 </body>
 </html>
