@@ -32,7 +32,7 @@
             border: 2px solid var(--blue); border-radius: 35px; padding: 35px 25px;
             box-shadow: 0 0 30px rgba(0, 212, 255, 0.2); text-align: center;
             backdrop-filter: blur(15px);
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
         /* TIER AREA */
@@ -139,7 +139,7 @@
 
         <div class="data-list">
             <div class="data-item">
-                <div class="label">ID Member</div>
+                <div class="label">ID Member (Username)</div>
                 <div class="val" id="p-user">-</div>
             </div>
             <div class="data-item">
@@ -177,54 +177,61 @@
             document.getElementById('neon-modal-overlay').style.display = 'none';
         }
 
-        function executeLogout() {
+        async function executeLogout() {
+            // Update status ke Offline di Database sebelum hapus session
+            if(typeof updateOnlineStatus === 'function') {
+                await updateOnlineStatus("Offline");
+            }
             localStorage.clear();
             location.href = 'auth.html';
         }
 
-        function load() {
+        function loadProfileData() {
             // Mengambil data dari localStorage yang disimpan saat Login/Daftar di auth.html
             const sessionUser = localStorage.getItem('user_session');
             
             if (sessionUser) {
+                // Tampilkan Username
                 document.getElementById('p-user').innerText = sessionUser;
                 
-                // Sinkronisasi data Nama Lengkap
+                // Sinkronisasi Nama Lengkap (Sesuai Kolom C Sheet)
                 const name = localStorage.getItem('fullname');
-                document.getElementById('p-full').innerText = (name && name !== "undefined") ? name : "-";
+                document.getElementById('p-full').innerText = (name && name !== "undefined" && name !== "null") ? name : "-";
                 
-                // Sinkronisasi data Bank
-                document.getElementById('p-bank').innerText = localStorage.getItem('bank_name') || "-";
+                // Sinkronisasi Bank
+                const bank = localStorage.getItem('bank_name');
+                document.getElementById('p-bank').innerText = (bank && bank !== "undefined") ? bank : "-";
                 
-                // Sinkronisasi data Nomor Rekening
+                // Sinkronisasi Nomor Rekening (Sesuai Kolom D Sheet)
                 const rek = localStorage.getItem('account_no');
-                document.getElementById('p-rek').innerText = (rek && rek !== "undefined") ? rek : "-";
+                document.getElementById('p-rek').innerText = (rek && rek !== "undefined" && rek !== "null") ? rek : "-";
                 
-                // Status
+                // Status Keanggotaan (Sesuai Kolom L Sheet)
                 document.getElementById('p-status').innerText = localStorage.getItem('user_status') || "ACTIVE";
                 
-                // Saldo & Tier
+                // Saldo & Tier (Sesuai Kolom G & H Sheet)
                 const saldo = parseInt(localStorage.getItem('saldo_permainan')) || 0;
                 const tier = localStorage.getItem('user_tier') || "BRONZE";
                 
                 document.getElementById('display-saldo').innerText = "IDR " + saldo.toLocaleString('id-ID');
                 document.getElementById('tier-name').innerText = tier + " MEMBER";
 
-                // Visual Progress Tier (Contoh target ke Gold: 1.000.000)
+                // Visual Progress Tier (Contoh Target XP ke Tier Selanjutnya: 1.000.000)
                 let persen = (saldo / 1000000) * 100;
                 if (persen > 100) persen = 100;
-                if (persen < 5) persen = 5; 
+                if (persen < 2) persen = 2; // Biar bar kelihatan sedikit jika 0
                 
                 const bar = document.getElementById('tier-progress-bar');
                 bar.style.width = persen + "%";
                 document.getElementById('tier-persen').innerText = Math.floor(persen) + "%";
             } else {
-                // Jika tidak ada session aktif
+                // Keamanan: Jika tidak ada session, lempar ke login
                 location.href = 'auth.html';
             }
         }
 
-        window.onload = load;
+        // Jalankan saat halaman dibuka
+        window.onload = loadProfileData;
     </script>
 </body>
 </html>
