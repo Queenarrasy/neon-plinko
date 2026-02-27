@@ -7,13 +7,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         :root { --pink: #ff0077; --blue: #00d4ff; --yellow: #fbff00; --bg: #070816; }
+        
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
         body { 
             background: var(--bg); 
             background-image: 
                 radial-gradient(circle at 0% 0%, rgba(255, 0, 119, 0.15) 0%, transparent 35%),
                 radial-gradient(circle at 100% 100%, rgba(0, 212, 255, 0.15) 0%, transparent 35%);
             color: white; 
-            font-family: 'Segoe UI', sans-serif; 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
             display: flex; 
             justify-content: center; 
             align-items: center; 
@@ -24,62 +27,79 @@
         }
         
         .auth-card { 
-            width: 100%; max-width: 420px; background: rgba(255, 255, 255, 0.02); 
-            border: 2px solid var(--blue); border-radius: 30px; padding: 40px 25px;
-            box-shadow: 0 0 30px rgba(0, 212, 255, 0.2); text-align: center;
-            backdrop-filter: blur(10px);
+            width: 100%; 
+            max-width: 420px; 
+            background: rgba(10, 11, 30, 0.8); 
+            border: 2px solid var(--blue); 
+            border-radius: 30px; 
+            padding: 40px 25px;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.2), inset 0 0 15px rgba(0, 212, 255, 0.1);
+            text-align: center;
+            backdrop-filter: blur(15px);
+            animation: fadeIn 0.6s ease-out;
         }
 
-        .title { font-size: 34px; font-weight: 900; text-transform: uppercase; line-height: 1; margin-bottom: 30px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .title { font-size: 34px; font-weight: 900; text-transform: uppercase; line-height: 1; margin-bottom: 30px; letter-spacing: -1px; }
         .t-pink { color: var(--pink); text-shadow: 0 0 10px var(--pink); }
         .t-blue { color: var(--blue); text-shadow: 0 0 10px var(--blue); }
         .t-yellow { color: var(--yellow); text-shadow: 0 0 10px var(--yellow); }
 
-        .form-group { margin-bottom: 15px; text-align: left; position: relative; }
-        label { font-size: 10px; font-weight: 900; color: var(--blue); letter-spacing: 1px; margin-left: 5px; text-transform: uppercase; }
+        .form-group { margin-bottom: 18px; text-align: left; position: relative; }
+        label { font-size: 11px; font-weight: 900; color: var(--blue); letter-spacing: 1.5px; margin-left: 5px; text-transform: uppercase; display: block; margin-bottom: 5px; }
         
         input, select { 
-            width: 100%; padding: 14px; background: #000; border: 1px solid #333; 
-            border-radius: 12px; color: white; box-sizing: border-box; outline: none; 
-            transition: 0.3s; font-size: 14px; margin-top: 5px;
+            width: 100%; padding: 14px 16px; background: rgba(0, 0, 0, 0.6); border: 1px solid #222; 
+            border-radius: 12px; color: white; outline: none; 
+            transition: 0.3s; font-size: 14px; font-weight: 600;
         }
-        input:focus { border-color: var(--pink); box-shadow: 0 0 10px rgba(255, 0, 119, 0.3); }
+        input:focus { border-color: var(--pink); box-shadow: 0 0 15px rgba(255, 0, 119, 0.3); background: rgba(0,0,0,0.8); }
 
         .pass-wrapper { position: relative; }
         .toggle-pass { 
             position: absolute; right: 15px; top: 50%; transform: translateY(-50%); 
-            color: var(--blue); cursor: pointer; margin-top: 2px;
+            color: var(--blue); cursor: pointer; transition: 0.2s;
         }
+        .toggle-pass:hover { color: var(--pink); }
 
         .btn-submit { 
             width: 100%; padding: 16px; background: linear-gradient(90deg, var(--pink), #aa0055); 
-            border: none; border-radius: 12px; color: white; font-weight: 900; 
-            cursor: pointer; text-transform: uppercase; margin-top: 20px; font-size: 16px;
-            box-shadow: 0 0 20px var(--pink); transition: 0.3s;
+            border: none; border-radius: 50px; color: white; font-weight: 900; 
+            cursor: pointer; text-transform: uppercase; margin-top: 25px; font-size: 16px;
+            box-shadow: 0 5px 20px rgba(255, 0, 119, 0.4); transition: 0.3s;
+            letter-spacing: 1px;
         }
-        .btn-submit:active { transform: scale(0.98); }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(255, 0, 119, 0.6); }
+        .btn-submit:active { transform: scale(0.96); }
 
-        .switch-link { margin-top: 20px; font-size: 13px; color: #888; cursor: pointer; }
-        .switch-link b { color: var(--yellow); text-decoration: underline; }
+        .switch-link { margin-top: 25px; font-size: 14px; color: #aaa; cursor: pointer; transition: 0.3s; }
+        .switch-link b { color: var(--yellow); text-decoration: none; border-bottom: 1px solid var(--yellow); padding-bottom: 2px; }
+        .switch-link:hover { color: #fff; }
 
+        /* Loader Overlay */
         #loading-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); display: none; flex-direction: column;
+            background: rgba(7, 8, 22, 0.9); display: none; flex-direction: column;
             justify-content: center; align-items: center; z-index: 2000000;
+            backdrop-filter: blur(5px);
         }
         .spinner {
-            width: 50px; height: 50px; border: 5px solid rgba(0, 212, 255, 0.1);
-            border-top: 5px solid var(--blue); border-radius: 50%;
-            animation: spin 1s linear infinite;
+            width: 60px; height: 60px; border: 4px solid rgba(0, 212, 255, 0.1);
+            border-top: 4px solid var(--blue); border-right: 4px solid var(--pink); border-radius: 50%;
+            animation: spin 0.8s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Utility */
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
     <div id="loading-overlay">
         <div class="spinner"></div>
-        <p style="margin-top: 15px; color: var(--blue); font-weight: bold; letter-spacing: 2px;">MENGHUBUNGKAN KE SERVER...</p>
+        <p style="margin-top: 20px; color: var(--blue); font-weight: 900; letter-spacing: 3px; font-size: 12px; text-transform: uppercase;">Mengakses Database...</p>
     </div>
 
     <div class="auth-card">
@@ -87,12 +107,12 @@
             <span class="t-pink">NEON</span> <span class="t-blue">PLINKO</span> <br> <span class="t-yellow">VIP</span>
         </div>
 
-        <h3 id="form-label" style="color: var(--blue); margin-bottom: 25px; letter-spacing: 2px; font-weight: 900;">PENDAFTARAN VIP</h3>
+        <h3 id="form-label" style="color: var(--blue); margin-bottom: 25px; letter-spacing: 2px; font-weight: 900; text-transform: uppercase; font-size: 16px;">PENDAFTARAN VIP</h3>
 
-        <form id="main-form">
+        <form id="auth-form">
             <div class="form-group">
                 <label>USERNAME</label>
-                <input type="text" id="username" placeholder="Buat username unik" required>
+                <input type="text" id="username" placeholder="Masukkan ID VIP Anda" autocomplete="username">
             </div>
 
             <div id="extra-fields">
@@ -102,10 +122,10 @@
                 </div>
                 <div class="form-group">
                     <label>NAMA LENGKAP</label>
-                    <input type="text" id="fullname" placeholder="Nama sesuai rekening/e-wallet">
+                    <input type="text" id="fullname" placeholder="Sesuai Rekening / E-Wallet">
                 </div>
                 <div class="form-group">
-                    <label>NAMA BANK / EWALLET</label>
+                    <label>METODE PEMBAYARAN</label>
                     <select id="bank">
                         <option value="DANA">DANA</option>
                         <option value="OVO">OVO</option>
@@ -116,22 +136,22 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>NOMOR REKENING</label> 
-                    <input type="number" id="rekening" placeholder="Masukkan nomor akun pembayaran">
+                    <label>NOMOR REKENING / AKUN</label> 
+                    <input type="number" id="rekening" placeholder="Masukkan Nomor Akun Anda">
                 </div>
             </div>
 
             <div class="form-group">
                 <label>PASSWORD</label>
                 <div class="pass-wrapper">
-                    <input type="password" id="password" placeholder="Minimal 6 karakter" required>
+                    <input type="password" id="password" placeholder="Minimal 6 karakter" autocomplete="current-password">
                     <i class="fa-solid fa-eye toggle-pass" onclick="togglePassword()"></i>
                 </div>
             </div>
 
             <div class="form-group" id="ref-group">
                 <label>KODE REFERRAL (OPSIONAL)</label>
-                <input type="text" id="referral_code" placeholder="Masukkan kode jika ada">
+                <input type="text" id="referral_code" placeholder="Kode VIP Pengajak">
             </div>
 
             <button type="button" class="btn-submit" onclick="processAuth()" id="btn-text">Daftar Sekarang</button>
@@ -147,9 +167,13 @@
         function togglePassword() {
             const passInput = document.getElementById('password');
             const icon = document.querySelector('.toggle-pass');
-            passInput.type = passInput.type === "password" ? "text" : "password";
-            icon.classList.toggle('fa-eye');
-            icon.classList.toggle('fa-eye-slash');
+            if (passInput.type === "password") {
+                passInput.type = "text";
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                passInput.type = "password";
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
         }
 
         function toggleMode() {
@@ -161,14 +185,14 @@
             const sw = document.getElementById('auth-switch');
 
             if (isLogin) {
-                extra.style.display = 'none';
-                ref.style.display = 'none'; 
-                label.innerText = "LOGIN MEMBER";
+                extra.classList.add('hidden');
+                ref.classList.add('hidden'); 
+                label.innerText = "LOGIN MEMBER VIP";
                 btn.innerText = "Masuk Sekarang";
                 sw.innerHTML = "Belum punya akun? <b>Daftar Akun VIP</b>";
             } else {
-                extra.style.display = 'block';
-                ref.style.display = 'block'; 
+                extra.classList.remove('hidden');
+                ref.classList.remove('hidden'); 
                 label.innerText = "PENDAFTARAN VIP";
                 btn.innerText = "Daftar Sekarang";
                 sw.innerHTML = "Sudah punya akun? <b>Login di sini</b>";
@@ -178,33 +202,35 @@
         async function processAuth() {
             const user = document.getElementById('username').value.trim();
             const pass = document.getElementById('password').value.trim();
+            const loader = document.getElementById('loading-overlay');
 
             if (user === "" || pass.length < 6) {
-                showNeonAlert("Username & Password (min 6 karakter) wajib diisi!", "ERROR");
+                showNeonAlert("Username dan Password (min 6 karakter) wajib diisi!", "DATA TIDAK LENGKAP");
                 return;
             }
 
-            document.getElementById('loading-overlay').style.display = 'flex';
+            loader.style.display = 'flex';
 
             try {
                 if (isLogin) {
-                    // --- MENGGUNAKAN FUNGSI LOGIN DARI GLOBAL.JS ---
-                    // Fungsi handleLogin di global.js sudah menangani penyimpanan & redirect
+                    // --- MODE LOGIN ---
+                    // Memanggil fungsi handleLogin yang ada di global.js
                     await handleLogin(user, pass);
-                    document.getElementById('loading-overlay').style.display = 'none';
+                    loader.style.display = 'none';
                 } else {
-                    // --- PROSES DAFTAR ---
+                    // --- MODE REGISTER ---
                     const phoneVal = document.getElementById('phone').value.trim();
                     const fullVal = document.getElementById('fullname').value.trim();
                     const bankVal = document.getElementById('bank').value;
                     const rekVal = document.getElementById('rekening').value.trim();
 
                     if (!phoneVal || !fullVal || !rekVal) {
-                        document.getElementById('loading-overlay').style.display = 'none';
-                        showNeonAlert("Harap lengkapi semua data pendaftaran!", "ERROR");
+                        loader.style.display = 'none';
+                        showNeonAlert("Mohon lengkapi semua data pendaftaran!", "PERINGATAN");
                         return;
                     }
 
+                    // Memanggil fungsi callCloud dari global.js
                     const result = await callCloud({
                         action: "register",
                         username: user,
@@ -215,35 +241,35 @@
                         password: pass
                     });
                     
-                    document.getElementById('loading-overlay').style.display = 'none';
+                    loader.style.display = 'none';
                     
-                    if (result.result === "SUCCESS") {
-                        // Simpan data pendaftaran agar sinkron dengan global.js
+                    if (result && result.result === "SUCCESS") {
+                        // Simpan sesi awal
                         localStorage.setItem('user_session', user);
                         localStorage.setItem('user_fullname', fullVal);
-                        localStorage.setItem('user_bank', bankVal);
-                        localStorage.setItem('user_rekening', rekVal);
                         localStorage.setItem('saldo', 0);
-                        localStorage.setItem('user_tier', "BRONZE");
-
-                        showNeonAlert("Pendaftaran Berhasil! Akun Anda sudah aktif.", "SUKSES");
+                        
+                        showNeonAlert("Akun VIP Berhasil Dibuat!", "SUKSES");
                         setTimeout(() => { window.location.href = "game.html"; }, 2000);
-                    } else if (result.result === "EXISTS") {
-                        showNeonAlert("Username sudah digunakan pemain lain!", "GAGAL");
+                    } else if (result && result.result === "EXISTS") {
+                        showNeonAlert("Username sudah digunakan, coba yang lain.", "ID TIDAK TERSEDIA");
                     } else {
-                        showNeonAlert("Gagal mendaftar. Silakan coba lagi.", "ERROR");
+                        showNeonAlert("Gagal mendaftar ke server. Coba beberapa saat lagi.", "ERROR SYSTEM");
                     }
                 }
             } catch (error) {
-                document.getElementById('loading-overlay').style.display = 'none';
-                showNeonAlert("Kesalahan Jaringan! Periksa koneksi Anda.", "ERROR");
+                loader.style.display = 'none';
+                console.error("Auth Error:", error);
+                showNeonAlert("Gagal terhubung ke database. Cek koneksi internet Anda.", "KONEKSI BERMASALAH");
             }
         }
 
+        // Handle Referral dari URL jika ada
         window.onload = () => {
             const urlParams = new URLSearchParams(window.location.search);
-            if(urlParams.get('ref')) {
-                document.getElementById('referral_code').value = urlParams.get('ref');
+            const refCode = urlParams.get('ref');
+            if(refCode) {
+                document.getElementById('referral_code').value = refCode;
             }
         };
     </script>
