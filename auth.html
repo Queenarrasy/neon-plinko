@@ -62,23 +62,6 @@
         .switch-link { margin-top: 20px; font-size: 13px; color: #888; cursor: pointer; }
         .switch-link b { color: var(--yellow); text-decoration: underline; }
 
-        #neon-modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); backdrop-filter: blur(10px);
-            display: none; justify-content: center; align-items: center; z-index: 1000000;
-        }
-        .neon-modal {
-            background: #050612; border: 2px solid var(--blue); border-radius: 25px;
-            padding: 30px; text-align: center; width: 85%; max-width: 320px;
-            box-shadow: 0 0 50px rgba(0, 212, 255, 0.5);
-        }
-        .neon-modal h2 { color: var(--yellow); text-shadow: 0 0 10px var(--yellow); margin: 0 0 15px 0; text-transform: uppercase; }
-        .neon-modal-btn {
-            background: transparent; border: 2px solid var(--pink); color: var(--pink);
-            padding: 12px 0; width: 100%; border-radius: 50px; font-weight: 900;
-            cursor: pointer; box-shadow: 0 0 15px var(--pink); text-transform: uppercase;
-        }
-        
         #loading-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.8); display: none; flex-direction: column;
@@ -97,14 +80,6 @@
     <div id="loading-overlay">
         <div class="spinner"></div>
         <p style="margin-top: 15px; color: var(--blue); font-weight: bold; letter-spacing: 2px;">MENGHUBUNGKAN KE SERVER...</p>
-    </div>
-
-    <div id="neon-modal-overlay">
-        <div class="neon-modal">
-            <h2 id="modal-title">INFO</h2>
-            <p id="modal-msg">Pesan sistem.</p>
-            <button class="neon-modal-btn" onclick="closeNeonModal()">MENGERTI</button>
-        </div>
     </div>
 
     <div class="auth-card">
@@ -168,19 +143,6 @@
     <script src="global.js"></script>
     <script>
         let isLogin = false;
-        let redirectUrl = "";
-
-        function showNeonModal(msg, title = "INFO", nextUrl = "") {
-            document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-msg').innerText = msg;
-            document.getElementById('neon-modal-overlay').style.display = 'flex';
-            redirectUrl = nextUrl;
-        }
-
-        function closeNeonModal() {
-            document.getElementById('neon-modal-overlay').style.display = 'none';
-            if (redirectUrl) window.location.href = redirectUrl;
-        }
 
         function togglePassword() {
             const passInput = document.getElementById('password');
@@ -218,7 +180,7 @@
             const pass = document.getElementById('password').value.trim();
 
             if (user === "" || pass.length < 6) {
-                showNeonModal("Username & Password (min 6 karakter) wajib diisi!", "ERROR");
+                showNeonAlert("Username & Password (min 6 karakter) wajib diisi!", "ERROR");
                 return;
             }
 
@@ -226,78 +188,55 @@
 
             try {
                 if (isLogin) {
-                    // --- PROSES LOGIN ---
-                    const result = await fetchCloud({
-                        action: "login",
-                        username: user,
-                        password: pass
-                    });
-                    
+                    // --- MENGGUNAKAN FUNGSI LOGIN DARI GLOBAL.JS ---
+                    // Fungsi handleLogin di global.js sudah menangani penyimpanan & redirect
+                    await handleLogin(user, pass);
                     document.getElementById('loading-overlay').style.display = 'none';
-                    
-                    if (result && result.status !== "FAILED") {
-                        // Simpan data dari database ke LocalStorage dengan kunci yang tepat
-                        localStorage.setItem('user_session', result.username);
-                        localStorage.setItem('phone', result.phone || "");
-                        localStorage.setItem('fullname', result.fullname || ""); // Kunci Nama Lengkap
-                        localStorage.setItem('account_no', result.rekening || ""); // Kunci Nomor Rekening
-                        localStorage.setItem('bank_name', result.bank || "");
-                        localStorage.setItem('saldo_permainan', result.saldo || 0);
-                        localStorage.setItem('user_tier', result.tier || "BRONZE");
-                        localStorage.setItem('user_status', "ONLINE");
-
-                        showNeonModal("Akses VIP Diterima! Selamat datang kembali.", "SUKSES", "game.html");
-                    } else {
-                        showNeonModal("Username atau Password salah!", "GAGAL");
-                    }
                 } else {
                     // --- PROSES DAFTAR ---
                     const phoneVal = document.getElementById('phone').value.trim();
                     const fullVal = document.getElementById('fullname').value.trim();
                     const bankVal = document.getElementById('bank').value;
                     const rekVal = document.getElementById('rekening').value.trim();
-                    const refVal = document.getElementById('referral_code').value.trim();
 
                     if (!phoneVal || !fullVal || !rekVal) {
                         document.getElementById('loading-overlay').style.display = 'none';
-                        showNeonModal("Harap lengkapi semua data pendaftaran!", "ERROR");
+                        showNeonAlert("Harap lengkapi semua data pendaftaran!", "ERROR");
                         return;
                     }
 
-                    const result = await fetchCloud({
+                    const result = await callCloud({
                         action: "register",
                         username: user,
                         phone: phoneVal,
                         fullname: fullVal,
                         bank: bankVal,
                         rekening: rekVal,
-                        password: pass,
-                        referral: refVal
+                        password: pass
                     });
                     
                     document.getElementById('loading-overlay').style.display = 'none';
                     
-                    if (result === "SUCCESS") {
-                        // Penyimpanan data pendaftaran agar profil & sistem withdraw langsung sinkron
+                    if (result.result === "SUCCESS") {
+                        // Simpan data pendaftaran agar sinkron dengan global.js
                         localStorage.setItem('user_session', user);
-                        localStorage.setItem('fullname', fullVal); // Pastikan pakai 'fullname'
-                        localStorage.setItem('account_no', rekVal); // Pastikan pakai 'account_no'
-                        localStorage.setItem('phone', phoneVal);
-                        localStorage.setItem('bank_name', bankVal);
-                        localStorage.setItem('saldo_permainan', 0);
+                        localStorage.setItem('user_fullname', fullVal);
+                        localStorage.setItem('user_bank', bankVal);
+                        localStorage.setItem('user_rekening', rekVal);
+                        localStorage.setItem('saldo', 0);
                         localStorage.setItem('user_tier', "BRONZE");
-                        localStorage.setItem('user_status', "ONLINE");
 
-                        showNeonModal("Pendaftaran Berhasil! Akun Anda sudah aktif.", "SUKSES", "game.html");
-                    } else if (result === "EXISTS") {
-                        showNeonModal("Username sudah digunakan pemain lain!", "GAGAL");
+                        showNeonAlert("Pendaftaran Berhasil! Akun Anda sudah aktif.", "SUKSES");
+                        setTimeout(() => { window.location.href = "game.html"; }, 2000);
+                    } else if (result.result === "EXISTS") {
+                        showNeonAlert("Username sudah digunakan pemain lain!", "GAGAL");
                     } else {
-                        showNeonModal("Gagal mendaftar. Silakan coba lagi.", "ERROR");
+                        showNeonAlert("Gagal mendaftar. Silakan coba lagi.", "ERROR");
                     }
                 }
             } catch (error) {
                 document.getElementById('loading-overlay').style.display = 'none';
-                showNeonModal("Kesalahan Jaringan! Periksa koneksi Anda.", "ERROR");
+                showNeonAlert("Kesalahan Jaringan! Periksa koneksi Anda.", "ERROR");
             }
         }
 
