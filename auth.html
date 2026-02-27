@@ -112,7 +112,7 @@
             <span class="t-pink">NEON</span> <span class="t-blue">PLINKO</span> <br> <span class="t-yellow">VIP</span>
         </div>
 
-        <h3 id="form-label" style="color: var(--blue); margin-bottom: 25px; letter-spacing: 2px; font-weight: 900;">PENDAFTARAN</h3>
+        <h3 id="form-label" style="color: var(--blue); margin-bottom: 25px; letter-spacing: 2px; font-weight: 900;">PENDAFTARAN VIP</h3>
 
         <form id="main-form">
             <div class="form-group">
@@ -141,7 +141,8 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>NOMOR REKENING</label> <input type="number" id="rekening" placeholder="Masukkan nomor akun pembayaran">
+                    <label>NOMOR REKENING</label> 
+                    <input type="number" id="rekening" placeholder="Masukkan nomor akun pembayaran">
                 </div>
             </div>
 
@@ -161,7 +162,7 @@
             <button type="button" class="btn-submit" onclick="processAuth()" id="btn-text">Daftar Sekarang</button>
         </form>
 
-        <div class="switch-link" id="auth-switch" onclick="toggleMode()"></div>
+        <div class="switch-link" id="auth-switch" onclick="toggleMode()">Sudah punya akun? <b>Login di sini</b></div>
     </div>
 
     <script src="global.js"></script>
@@ -213,7 +214,6 @@
         }
 
         async function processAuth() {
-            // Penggunaan trim() sangat penting agar login di perangkat manapun tidak error karena spasi
             const user = document.getElementById('username').value.trim();
             const pass = document.getElementById('password').value.trim();
 
@@ -226,7 +226,7 @@
 
             try {
                 if (isLogin) {
-                    // LOGIN PROCESS
+                    // --- PROSES LOGIN ---
                     const result = await fetchCloud({
                         action: "login",
                         username: user,
@@ -236,15 +236,14 @@
                     document.getElementById('loading-overlay').style.display = 'none';
                     
                     if (result && result.status !== "FAILED") {
-                        // Simpan semua kolom untuk Profil & Withdraw
+                        // Simpan data dari database ke LocalStorage dengan kunci yang tepat
                         localStorage.setItem('user_session', result.username);
                         localStorage.setItem('phone', result.phone || "");
-                        localStorage.setItem('fullname', result.fullname || "");
-                        localStorage.setItem('account_no', result.rekening || "");
+                        localStorage.setItem('fullname', result.fullname || ""); // Kunci Nama Lengkap
+                        localStorage.setItem('account_no', result.rekening || ""); // Kunci Nomor Rekening
                         localStorage.setItem('bank_name', result.bank || "");
                         localStorage.setItem('saldo_permainan', result.saldo || 0);
                         localStorage.setItem('user_tier', result.tier || "BRONZE");
-                        localStorage.setItem('winrate', result.winrate || 0.5);
                         localStorage.setItem('user_status', "ONLINE");
 
                         showNeonModal("Akses VIP Diterima! Selamat datang kembali.", "SUKSES", "game.html");
@@ -252,7 +251,7 @@
                         showNeonModal("Username atau Password salah!", "GAGAL");
                     }
                 } else {
-                    // REGISTER PROCESS
+                    // --- PROSES DAFTAR ---
                     const phoneVal = document.getElementById('phone').value.trim();
                     const fullVal = document.getElementById('fullname').value.trim();
                     const bankVal = document.getElementById('bank').value;
@@ -279,31 +278,30 @@
                     document.getElementById('loading-overlay').style.display = 'none';
                     
                     if (result === "SUCCESS") {
-                        // Simpan data pendaftaran secara lokal agar Profil langsung sinkron
+                        // Penyimpanan data pendaftaran agar profil & sistem withdraw langsung sinkron
                         localStorage.setItem('user_session', user);
+                        localStorage.setItem('fullname', fullVal); // Pastikan pakai 'fullname'
+                        localStorage.setItem('account_no', rekVal); // Pastikan pakai 'account_no'
                         localStorage.setItem('phone', phoneVal);
-                        localStorage.setItem('fullname', fullVal);
                         localStorage.setItem('bank_name', bankVal);
-                        localStorage.setItem('account_no', rekVal);
                         localStorage.setItem('saldo_permainan', 0);
                         localStorage.setItem('user_tier', "BRONZE");
                         localStorage.setItem('user_status', "ONLINE");
 
                         showNeonModal("Pendaftaran Berhasil! Akun Anda sudah aktif.", "SUKSES", "game.html");
                     } else if (result === "EXISTS") {
-                        showNeonModal("Username sudah digunakan oleh pemain lain!", "GAGAL");
+                        showNeonModal("Username sudah digunakan pemain lain!", "GAGAL");
                     } else {
-                        showNeonModal("Gagal mendaftar. Coba lagi nanti.", "ERROR");
+                        showNeonModal("Gagal mendaftar. Silakan coba lagi.", "ERROR");
                     }
                 }
             } catch (error) {
                 document.getElementById('loading-overlay').style.display = 'none';
-                showNeonModal("Kesalahan Jaringan! Pastikan URL Apps Script benar.", "ERROR");
+                showNeonModal("Kesalahan Jaringan! Periksa koneksi Anda.", "ERROR");
             }
         }
 
         window.onload = () => {
-            toggleMode(); 
             const urlParams = new URLSearchParams(window.location.search);
             if(urlParams.get('ref')) {
                 document.getElementById('referral_code').value = urlParams.get('ref');
