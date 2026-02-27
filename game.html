@@ -74,15 +74,21 @@
         .win-popup { position: absolute; font-weight: 900; color: var(--yellow); text-shadow: var(--yellow-neon); pointer-events: none; z-index: 1000; animation: floatUp 1s ease-out forwards; font-size: 24px; }
         @keyframes floatUp { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(-80px); opacity: 0; } }
 
+        /* Pop-up modal sudah disediakan oleh global.js, tapi tetap ada di sini sebagai cadangan */
         #neon-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 9999; }
         .neon-modal { background: #0d0f26; border: 2px solid var(--pink); border-radius: 20px; padding: 25px; width: 80%; text-align: center; box-shadow: 0 0 30px var(--pink); }
-        .neon-btn { background: var(--blue); border: none; padding: 12px; width: 100%; border-radius: 50px; font-weight: 900; margin-top: 15px; color: #000; }
     </style>
 </head>
 <body>
 
     <div id="score-board"></div>
-    <div id="neon-overlay"><div class="neon-modal"><h2 id="modal-title" class="neon-p">INFO</h2><p id="modal-msg" class="neon-b"></p><button class="neon-btn" onclick="closeNeonModal()">OK</button></div></div>
+    <div id="neon-overlay">
+        <div class="neon-modal">
+            <h2 id="modal-title" class="neon-p">INFO</h2>
+            <p id="modal-msg" class="neon-b"></p>
+            <button class="neon-btn" style="background:var(--blue); border:none; padding:12px; width:100%; border-radius:50px; font-weight:900; margin-top:15px;" onclick="closeNeonModal()">OK</button>
+        </div>
+    </div>
 
     <div class="header">
         <div class="prof-container" onclick="location.href='profil.html'">
@@ -135,43 +141,8 @@
     </div>
 
     <script src="global.js"></script>
+
     <script>
-        // --- KONFIGURASI URL SCRIPT ---
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqQWXIJuVnkIxLvdu3kYiiRDVh7eyrsy-KU6rG1qtQClgfAzmMoclv2ULFZ_hRdE_qUg/exec";
-
-        // --- UPDATE TAMPILAN SALDO ---
-        function updateSaldoDisplay() {
-            const currentSaldo = Number(localStorage.getItem('saldo') || 0);
-            const saldoEl = document.getElementById('display-saldo');
-            if(saldoEl) {
-                saldoEl.innerText = 'IDR ' + currentSaldo.toLocaleString('id-ID');
-            }
-        }
-
-        // --- SINKRONISASI SERVER ---
-        let isSyncing = false;
-        async function syncSaldoRealtime() {
-            if (isSyncing) return;
-            const username = localStorage.getItem('user_session');
-            if (!username) return;
-            isSyncing = true;
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify({ action: "getUserData", username: username })
-                });
-                const data = await response.json();
-                if (data && data.saldo !== undefined) {
-                    localStorage.setItem('saldo', data.saldo);
-                    updateSaldoDisplay();
-                    if(data.tier) document.getElementById('tier-name').innerText = data.tier + " PLAYER";
-                }
-            } catch (e) { console.error("Sync Error:", e); } 
-            finally { isSyncing = false; }
-        }
-
-        setInterval(syncSaldoRealtime, 10000);
-
         // --- GAME LOGIC ---
         let winChance = 0.35; 
         const container = document.getElementById('game-container');
@@ -203,15 +174,27 @@
             }
         }
 
+        // TAMPILAN AWAL
         window.addEventListener('load', () => {
             initPegs();
-            updateSaldoDisplay();
-            syncSaldoRealtime();
+            if(typeof updateSaldo === 'function') updateSaldo(0); // Panggil dari global.js
         });
 
-        function showNeonModal(msg) { document.getElementById('modal-msg').innerText = msg; document.getElementById('neon-overlay').style.display = 'flex'; }
+        function showNeonModal(msg) { 
+            // Coba pakai fungsi global jika ada, jika tidak pakai lokal
+            if(typeof showNeonAlert === 'function') showNeonAlert(msg, "VIP INFO");
+            else {
+                document.getElementById('modal-msg').innerText = msg; 
+                document.getElementById('neon-overlay').style.display = 'flex'; 
+            }
+        }
+        
         function closeNeonModal() { document.getElementById('neon-overlay').style.display = 'none'; }
-        function changeBet(d) { betIdx = Math.max(0, Math.min(bets.length-1, betIdx+d)); document.getElementById('current-bet').innerText = bets[betIdx].toLocaleString(); }
+        
+        function changeBet(d) { 
+            betIdx = Math.max(0, Math.min(bets.length-1, betIdx+d)); 
+            document.getElementById('current-bet').innerText = bets[betIdx].toLocaleString(); 
+        }
 
         function setMode(m) {
             isAuto = (m === 'auto');
@@ -223,7 +206,11 @@
         }
 
         function handlePlay() { if (isAuto) setMode('normal'); else dropBall(); }
-        function startAuto() { dropBall(); autoInterval = setInterval(() => { if(isAuto) dropBall(); }, 1200); }
+        
+        function startAuto() { 
+            dropBall(); 
+            autoInterval = setInterval(() => { if(isAuto) dropBall(); }, 1200); 
+        }
 
         function addScoreBoard(amount) {
             const board = document.getElementById('score-board');
@@ -245,7 +232,8 @@
                 const res = await response.json();
                 if (res.result === "SUCCESS") {
                     localStorage.setItem('saldo', res.newSaldo);
-                    updateSaldoDisplay();
+                    // Update tampilan saldo via global
+                    if(typeof updateSaldo === 'function') updateSaldo(0); 
                     return res.winAmount;
                 } else if (res.result === "INSUFFICIENT") {
                     setMode('normal'); 
@@ -265,9 +253,8 @@
                 return; 
             }
 
-            // Potong saldo di tampilan sementara agar terasa real-time
-            localStorage.setItem('saldo', currentSaldo - bet);
-            updateSaldoDisplay();
+            // Gunakan fungsi updateSaldo dari global.js untuk memotong saldo lokal
+            if(typeof updateSaldo === 'function') updateSaldo(-bet);
 
             const ballEl = document.createElement('div');
             ballEl.className = 'ball';
@@ -281,6 +268,7 @@
 
             const moveBall = setInterval(async () => {
                 ball.vy += gravity; ball.vx *= friction; ball.x += ball.vx; ball.y += ball.vy;
+                
                 pegLocations.forEach(p => {
                     const dx = ball.x - p.x; const dy = ball.y - p.y;
                     const dist = Math.sqrt(dx*dx + dy*dy);
@@ -292,15 +280,19 @@
                         ball.x = p.x + Math.cos(angle) * 11.5; ball.y = p.y + Math.sin(angle) * 11.5;
                     }
                 });
+
                 if (ball.x < 10) { ball.x = 10; ball.vx *= -0.4; }
                 if (ball.x > container.offsetWidth - 10) { ball.x = container.offsetWidth - 10; ball.vx *= -0.4; }
-                ball.el.style.left = ball.x + 'px'; ball.el.style.top = ball.y + 'px';
+                
+                ball.el.style.left = ball.x + 'px'; 
+                ball.el.style.top = ball.y + 'px';
 
                 if (ball.y > 345) {
                     clearInterval(moveBall);
                     const containerRect = container.getBoundingClientRect();
                     const slotsEls = document.querySelectorAll('.slot');
                     let finalSlot = -1; 
+                    
                     slotsEls.forEach((s, index) => {
                         const sRect = s.getBoundingClientRect();
                         const ballGlobalX = ball.x + containerRect.left;
