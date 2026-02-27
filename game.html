@@ -53,13 +53,11 @@
         .m-yellow { background: var(--yellow); color: black; box-shadow: var(--yellow-neon); }
         .m-blue { background: var(--blue); color: black; box-shadow: var(--blue-neon); }
 
-        /* Jarak Navigasi Grid Diatur Seragam */
         .nav-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; padding: 0 20px; margin-top: 20px; flex-shrink: 0; }
         .btn-nav { background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 10px 5px; border-radius: 12px; text-align: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
         .btn-nav i { font-size: 18px; margin-bottom: 5px; display: block; }
         .btn-nav span { font-size: 8px; font-weight: 900; }
 
-        /* Play Area dengan Jarak Visual yang Seimbang */
         .play-area { text-align: center; padding: 10px 20px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; gap: 15px; }
         
         .mode-toggles { display: flex; justify-content: center; gap: 12px; }
@@ -138,6 +136,9 @@
 
     <script src="global.js"></script>
     <script>
+        // --- KONFIGURASI ---
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqQWXIJuVnkIxLvdu3kYiiRDVh7eyrsy-KU6rG1qtQClgfAzmMoclv2ULFZ_hRdE_qUg/exec";
+
         // --- UPDATE TAMPILAN SALDO ---
         function updateSaldoDisplay() {
             const currentSaldo = parseInt(localStorage.getItem('saldo') || 0);
@@ -155,8 +156,7 @@
             if (!username) return;
             isSyncing = true;
             try {
-                const SCRIPT_URL_USER = "https://script.google.com/macros/s/AKfycbwqQWXIJuVnkIxLvdu3kYiiRDVh7eyrsy-KU6rG1qtQClgfAzmMoclv2ULFZ_hRdE_qUg/exec";
-                const response = await fetch(SCRIPT_URL_USER, {
+                const response = await fetch(SCRIPT_URL, {
                     method: "POST",
                     body: JSON.stringify({ action: "getUserData", username: username })
                 });
@@ -164,12 +164,13 @@
                 if (data && data.saldo !== undefined) {
                     localStorage.setItem('saldo', data.saldo);
                     updateSaldoDisplay();
+                    if(data.tier) document.getElementById('tier-name').innerText = data.tier + " PLAYER";
                 }
             } catch (e) { console.error("Sync Error:", e); } 
             finally { isSyncing = false; }
         }
 
-        setInterval(syncSaldoRealtime, 5000);
+        setInterval(syncSaldoRealtime, 15000); // Sinkronisasi setiap 15 detik
 
         // --- GAME LOGIC ---
         let winChance = 0.35; 
@@ -233,22 +234,47 @@
             if (board.children.length > 5) board.removeChild(board.lastChild);
         }
 
-        // --- LOGIKA UPDATE SALDO LOKAL ---
-        function internalUpdateSaldo(amount) {
-            let current = parseInt(localStorage.getItem('saldo') || 0);
-            if (current + amount < 0) return false;
-            current += amount;
-            localStorage.setItem('saldo', current);
-            updateSaldoDisplay();
-            return true;
+        // --- GABUNGAN: LOGIKA PROSES HASIL GAME (SYNC KE SHEETS) ---
+        async function processGameResult(multiplierValue) {
+            const user = localStorage.getItem('user_session');
+            const bet = bets[betIdx];
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'playGame',
+                        username: user,
+                        betAmount: bet,
+                        multiplier: multiplierValue
+                    })
+                });
+
+                const res = await response.json();
+
+                if (res.result === "SUCCESS") {
+                    localStorage.setItem('saldo', res.newSaldo);
+                    updateSaldoDisplay();
+                    
+                    if (res.isWin && res.winAmount > 0) {
+                        addScoreBoard(res.winAmount);
+                        return res.winAmount;
+                    }
+                } else if (res.result === "INSUFFICIENT") {
+                    setMode('normal');
+                    showNeonModal("Saldo tidak cukup!");
+                }
+            } catch (e) {
+                console.error("Gagal sinkronisasi game", e);
+            }
+            return 0;
         }
 
         function dropBall() {
+            const currentSaldo = parseInt(localStorage.getItem('saldo') || 0);
             const bet = bets[betIdx];
-            // Gunakan fungsi internalUpdateSaldo jika global updateSaldo tidak tersedia
-            const success = (typeof updateSaldo === 'function') ? updateSaldo(-bet) : internalUpdateSaldo(-bet);
             
-            if (!success) { 
+            if (currentSaldo < bet) { 
                 setMode('normal'); 
                 showNeonModal("Saldo Tidak Cukup!"); 
                 return; 
@@ -259,12 +285,10 @@
             container.appendChild(ballEl);
 
             let startOffset = (Math.random() - 0.5) * 10;
-            if (Math.random() < winChance) startOffset = Math.random() > 0.5 ? 25 : -25;
-
             let ball = { el: ballEl, x: container.offsetWidth / 2 + startOffset, y: 15, vx: (Math.random() - 0.5) * 2, vy: 0 };
             const gravity = 0.6; const friction = 0.98; const bounce = 0.5; 
 
-            const moveBall = setInterval(() => {
+            const moveBall = setInterval(async () => {
                 ball.vy += gravity; ball.vx *= friction; ball.x += ball.vx; ball.y += ball.vy;
                 pegLocations.forEach(p => {
                     const dx = ball.x - p.x; const dy = ball.y - p.y;
@@ -277,6 +301,7 @@
                         ball.x = p.x + Math.cos(angle) * 11.5; ball.y = p.y + Math.sin(angle) * 11.5;
                     }
                 });
+                
                 if (ball.x < 10) { ball.x = 10; ball.vx *= -0.4; }
                 if (ball.x > container.offsetWidth - 10) { ball.x = container.offsetWidth - 10; ball.vx *= -0.4; }
                 ball.el.style.left = ball.x + 'px'; ball.el.style.top = ball.y + 'px';
@@ -286,6 +311,7 @@
                     const containerRect = container.getBoundingClientRect();
                     const slotsEls = document.querySelectorAll('.slot');
                     let finalSlot = -1; 
+                    
                     slotsEls.forEach((s, index) => {
                         const sRect = s.getBoundingClientRect();
                         const ballGlobalX = ball.x + containerRect.left;
@@ -297,13 +323,13 @@
                     });
 
                     if (finalSlot !== -1) {
-                        const win = Math.floor(bet * slots[finalSlot]);
-                        (typeof updateSaldo === 'function') ? updateSaldo(win) : internalUpdateSaldo(win);
-                        if (win > 0) {
-                            addScoreBoard(win);
+                        // Jalankan sinkronisasi ke server
+                        const winAmount = await processGameResult(slots[finalSlot]);
+                        
+                        if (winAmount > 0) {
                             const p = document.createElement('div');
                             p.className = 'win-popup';
-                            p.innerText = `+${win.toLocaleString()}`;
+                            p.innerText = `+${winAmount.toLocaleString()}`;
                             p.style.left = ball.x + 'px'; p.style.top = '280px';
                             document.body.appendChild(p);
                             setTimeout(() => p.remove(), 1000);
