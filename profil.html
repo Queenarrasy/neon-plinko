@@ -8,8 +8,8 @@
     <style>
         :root { 
             --pink: #ff0077; --blue: #00d4ff; --yellow: #fbff00; --bg: #070816; 
-            --pink-neon: 0 0 10px var(--pink);
-            --blue-neon: 0 0 10px var(--blue);
+            --neon-pink: 0 0 10px var(--pink);
+            --neon-blue: 0 0 10px var(--blue);
         }
         
         body { 
@@ -18,69 +18,12 @@
             font-family: 'Segoe UI', sans-serif; 
             margin: 0; 
             padding: 20px;
-        }
-
-        .header-profil {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .header-profil i {
-            font-size: 50px;
-            color: var(--pink);
-            text-shadow: var(--pink-neon);
-        }
-
-        .user-info h3 { margin: 0; color: var(--blue); text-shadow: var(--blue-neon); }
-        .user-info p { margin: 0; font-size: 12px; color: #aaa; }
-
-        /* Sesuai Permintaan: SALDO UTAMA VIP */
-        .saldo-card {
-            background: linear-gradient(135deg, #0d0f26, #1a1d40);
-            border: 2px solid var(--blue);
-            border-radius: 20px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: var(--blue-neon);
-            margin-bottom: 25px;
-        }
-
-        .saldo-card p {
-            margin: 0;
-            font-size: 14px;
-            font-weight: 900;
-            letter-spacing: 1px;
-            color: var(--yellow);
-        }
-
-        .saldo-card h2 {
-            margin: 10px 0 0 0;
-            font-size: 32px;
-            color: white;
-            text-shadow: 0 0 15px var(--blue);
-        }
-
-        .menu-list {
             display: flex;
             flex-direction: column;
-            gap: 15px;
-        }
-
-        .menu-item {
-            background: rgba(255,255,255,0.05);
-            padding: 15px;
-            border-radius: 12px;
-            display: flex;
-            justify-content: space-between;
             align-items: center;
-            text-decoration: none;
-            color: white;
-            border: 1px solid #333;
         }
 
-        .menu-item i { color: var(--pink); }
+        .container { width: 100%; max-width: 400px; }
 
         .btn-back {
             display: inline-block;
@@ -88,67 +31,150 @@
             color: var(--blue);
             text-decoration: none;
             font-weight: bold;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        /* HEADER USER */
+        .user-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .user-header i {
+            font-size: 50px;
+            color: var(--pink);
+            text-shadow: var(--neon-pink);
+        }
+        .user-header div h3 { margin: 0; color: var(--blue); text-shadow: var(--neon-blue); text-transform: uppercase; }
+        .user-header div p { margin: 0; font-size: 12px; color: #888; }
+
+        /* SALDO CARD - TETAP SESUAI STRUKTUR ANDA */
+        .saldo-card {
+            background: linear-gradient(135deg, #0d0f26, #1a1d40);
+            border: 2px solid var(--blue);
+            border-radius: 20px;
+            padding: 25px 20px;
+            text-align: center;
+            box-shadow: var(--neon-blue);
+            margin-bottom: 25px;
+        }
+
+        .saldo-card p {
+            margin: 0;
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: var(--yellow);
+            text-transform: uppercase;
+        }
+
+        .saldo-card h2 {
+            margin: 10px 0 0 0;
+            font-size: 35px;
+            color: white;
+            text-shadow: 0 0 15px var(--blue);
+            font-weight: 900;
+        }
+
+        /* MENU BOX */
+        .menu-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .info-row {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #222;
+        }
+
+        .info-row span:first-child { color: #888; font-size: 12px; font-weight: bold; }
+        .info-row span:last-child { color: var(--blue); font-size: 13px; font-weight: bold; }
+
+        .btn-action {
+            background: rgba(255, 0, 119, 0.1);
+            color: var(--pink);
+            padding: 15px;
+            border-radius: 12px;
+            text-decoration: none;
+            text-align: center;
+            font-weight: 900;
+            border: 1px solid var(--pink);
+            box-shadow: var(--neon-pink);
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
     </style>
 </head>
 <body>
 
-    <a href="game.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> KEMBALI</a>
+    <div class="container">
+        <a href="game.html" class="btn-back"><i class="fa-solid fa-chevron-left"></i> Kembali</a>
 
-    <div class="header-profil">
-        <i class="fa-solid fa-circle-user"></i>
-        <div class="user-info">
-            <h3 id="display-username">PLAYER</h3>
-            <p id="display-fullname">VIP Member</p>
+        <div class="user-header">
+            <i class="fa-solid fa-circle-user"></i>
+            <div>
+                <h3 id="profile-username">PLAYER</h3>
+                <p id="profile-tier">VIP MEMBER</p>
+            </div>
+        </div>
+
+        <div class="saldo-card">
+            <p>SALDO UTAMA VIP</p>
+            <h2 id="display-saldo">IDR 0</h2>
+        </div>
+
+        <div class="menu-container">
+            <div class="info-row">
+                <span>NAMA LENGKAP</span>
+                <span id="profile-fullname">-</span>
+            </div>
+            <div class="info-row">
+                <span>BANK / E-WALLET</span>
+                <span id="profile-bank">-</span>
+            </div>
+            <div class="info-row">
+                <span>NOMOR REKENING</span>
+                <span id="profile-rek">-</span>
+            </div>
+
+            <a href="deposit.html" class="btn-action" style="background: rgba(0, 212, 255, 0.1); color: var(--blue); border-color: var(--blue); box-shadow: var(--neon-blue); margin-top: 20px;">
+                <i class="fa-solid fa-wallet"></i> DEPOSIT
+            </a>
+            <a href="withdraw.html" class="btn-action">
+                <i class="fa-solid fa-money-bill-transfer"></i> WITHDRAW
+            </a>
         </div>
     </div>
 
-    <div class="saldo-card">
-        <p>SALDO UTAMA VIP</p>
-        <h2 id="display-saldo">IDR 0</h2>
-    </div>
-
-    <div class="menu-list">
-        <div class="menu-item">
-            <span>Metode Bank</span>
-            <span id="display-bank" style="color: var(--blue);">...</span>
-        </div>
-        <div class="menu-item">
-            <span>Nomor Rekening</span>
-            <span id="display-rekening">...</span>
-        </div>
-        <a href="deposit.html" class="menu-item">
-            <span>Tambah Saldo</span>
-            <i class="fa-solid fa-chevron-right"></i>
-        </a>
-        <a href="withdraw.html" class="menu-item">
-            <span>Tarik Dana</span>
-            <i class="fa-solid fa-chevron-right"></i>
-        </a>
-    </div>
-
-    <script src="global.js"></script>
     <script>
-        // Fungsi untuk mengambil data terbaru dari Google Sheets
-        async function syncDataProfil() {
+        // GANTI DENGAN URL WEB APP ANDA
+        const SCRIPT_URL = "ISI_URL_WEB_APP_GOOGLE_SCRIPT_DI_SINI";
+
+        async function syncProfile() {
             const user = localStorage.getItem('user_session');
             if (!user) {
                 window.location.href = 'login.html';
                 return;
             }
 
-            // Tampilkan data lokal dulu agar tidak kosong
-            document.getElementById('display-username').innerText = user.toUpperCase();
-            document.getElementById('display-fullname').innerText = localStorage.getItem('fullname') || 'VIP Player';
-            document.getElementById('display-bank').innerText = localStorage.getItem('bank') || '-';
-            document.getElementById('display-rekening').innerText = localStorage.getItem('rekening') || '-';
-            
-            const localSaldo = localStorage.getItem('saldo') || 0;
-            document.getElementById('display-saldo').innerText = 'IDR ' + parseInt(localSaldo).toLocaleString();
+            // Set tampilan awal dari data login tersimpan
+            document.getElementById('profile-username').innerText = user.toUpperCase();
+            document.getElementById('profile-fullname').innerText = localStorage.getItem('fullname') || '-';
+            document.getElementById('profile-bank').innerText = localStorage.getItem('bank') || '-';
+            document.getElementById('profile-rek').innerText = localStorage.getItem('rekening') || '-';
 
             try {
-                // Panggil action 'getUserData' yang ada di Apps Script terbaru Anda
-                const response = await fetch(window.SCRIPT_URL, {
+                // Ambil data terbaru dari Google Sheets (Terutama Saldo)
+                const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
                     body: JSON.stringify({
                         action: 'getUserData',
@@ -159,21 +185,25 @@
                 const data = await response.json();
 
                 if (data.result === "SUCCESS") {
-                    // Update LocalStorage dengan data terbaru dari server
+                    // Update Saldo Utama VIP secara Real-time
+                    const saldoBaru = parseInt(data.saldo);
+                    document.getElementById('display-saldo').innerText = "IDR " + saldoBaru.toLocaleString('id-ID');
+                    document.getElementById('profile-tier').innerText = "MEMBER " + data.tier;
+                    
+                    // Simpan ke local agar halaman lain ikut terupdate
                     localStorage.setItem('saldo', data.saldo);
                     localStorage.setItem('tier', data.tier);
-
-                    // Update tampilan Saldo Utama VIP secara halus
-                    document.getElementById('display-saldo').innerText = 'IDR ' + parseInt(data.saldo).toLocaleString();
-                    console.log("Saldo disinkronkan dengan server.");
                 }
             } catch (err) {
-                console.error("Gagal sinkron saldo:", err);
+                console.error("Sinkronisasi gagal:", err);
+                // Fallback ke saldo lokal jika offline
+                const localSaldo = parseInt(localStorage.getItem('saldo')) || 0;
+                document.getElementById('display-saldo').innerText = "IDR " + localSaldo.toLocaleString('id-ID');
             }
         }
 
-        // Jalankan saat halaman dibuka
-        window.onload = syncDataProfil;
+        // Jalankan sinkronisasi saat halaman dibuka
+        window.onload = syncProfile;
     </script>
 </body>
 </html>
