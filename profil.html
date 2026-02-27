@@ -151,7 +151,8 @@
                 <div class="val" id="p-bank">-</div>
             </div>
             <div class="data-item">
-                <div class="label">Nomor Rekening</div> <div class="val" id="p-rek">-</div>
+                <div class="label">Nomor Rekening</div>
+                <div class="val" id="p-rek">-</div>
             </div>
             <div class="data-item">
                 <div class="label">Status Keanggotaan</div>
@@ -178,54 +179,61 @@
         }
 
         async function executeLogout() {
-            // Update status ke Offline di Database sebelum hapus session
-            if(typeof updateOnlineStatus === 'function') {
-                await updateOnlineStatus("Offline");
+            try {
+                // Update status ke Offline di Database jika fungsi tersedia
+                if(typeof updateOnlineStatus === 'function') {
+                    await updateOnlineStatus("Offline");
+                }
+            } catch (e) {
+                console.log("Status update skipped");
             }
             localStorage.clear();
             location.href = 'auth.html';
         }
 
         function loadProfileData() {
-            // Mengambil data dari localStorage yang disimpan saat Login/Daftar di auth.html
             const sessionUser = localStorage.getItem('user_session');
             
             if (sessionUser) {
-                // Tampilkan Username
+                // 1. Username
                 document.getElementById('p-user').innerText = sessionUser;
                 
-                // Sinkronisasi Nama Lengkap (Sesuai Kolom C Sheet)
+                // 2. Nama Lengkap (Kunci: fullname)
                 const name = localStorage.getItem('fullname');
                 document.getElementById('p-full').innerText = (name && name !== "undefined" && name !== "null") ? name : "-";
                 
-                // Sinkronisasi Bank
+                // 3. Bank / E-Wallet (Kunci: bank_name)
                 const bank = localStorage.getItem('bank_name');
-                document.getElementById('p-bank').innerText = (bank && bank !== "undefined") ? bank : "-";
+                document.getElementById('p-bank').innerText = (bank && bank !== "undefined" && bank !== "null") ? bank : "-";
                 
-                // Sinkronisasi Nomor Rekening (Sesuai Kolom D Sheet)
+                // 4. Nomor Rekening (Kunci: account_no)
                 const rek = localStorage.getItem('account_no');
                 document.getElementById('p-rek').innerText = (rek && rek !== "undefined" && rek !== "null") ? rek : "-";
                 
-                // Status Keanggotaan (Sesuai Kolom L Sheet)
-                document.getElementById('p-status').innerText = localStorage.getItem('user_status') || "ACTIVE";
+                // 5. Status Keanggotaan
+                const status = localStorage.getItem('user_status');
+                document.getElementById('p-status').innerText = (status && status !== "undefined") ? status : "ACTIVE";
                 
-                // Saldo & Tier (Sesuai Kolom G & H Sheet)
-                const saldo = parseInt(localStorage.getItem('saldo_permainan')) || 0;
+                // 6. Saldo & Tier
+                const saldoRaw = localStorage.getItem('saldo_permainan');
+                const saldo = parseInt(saldoRaw) || 0;
                 const tier = localStorage.getItem('user_tier') || "BRONZE";
                 
                 document.getElementById('display-saldo').innerText = "IDR " + saldo.toLocaleString('id-ID');
                 document.getElementById('tier-name').innerText = tier + " MEMBER";
 
-                // Visual Progress Tier (Contoh Target XP ke Tier Selanjutnya: 1.000.000)
+                // 7. Visual Progress Tier (Target XP: 1.000.000)
                 let persen = (saldo / 1000000) * 100;
                 if (persen > 100) persen = 100;
-                if (persen < 2) persen = 2; // Biar bar kelihatan sedikit jika 0
+                if (persen < 2) persen = 2; // Biar bar tetap terlihat sedikit
                 
                 const bar = document.getElementById('tier-progress-bar');
-                bar.style.width = persen + "%";
-                document.getElementById('tier-persen').innerText = Math.floor(persen) + "%";
+                if(bar) {
+                    bar.style.width = persen + "%";
+                    document.getElementById('tier-persen').innerText = Math.floor(persen) + "%";
+                }
             } else {
-                // Keamanan: Jika tidak ada session, lempar ke login
+                // Jika tidak login, kembalikan ke auth
                 location.href = 'auth.html';
             }
         }
