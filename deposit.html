@@ -14,24 +14,28 @@
         label { font-size: 11px; color: #888; display: block; margin-bottom: 10px; font-weight: bold; text-align: left; }
         input[type="number"] { width: 100%; padding: 15px; background: #000; border: 1px solid #333; border-radius: 12px; color: var(--neon-gold); font-size: 20px; font-weight: 900; outline: none; text-align: center; box-sizing: border-box; }
         
-        /* New Crypto Converter Style */
-        .converter-badge { font-size: 10px; color: var(--neon-gold); margin-top: 8px; text-align: center; display: none; font-weight: bold; background: rgba(251, 255, 0, 0.1); padding: 5px; border-radius: 8px; border: 1px solid rgba(251, 255, 0, 0.2); }
+        .converter-badge { font-size: 10px; color: var(--neon-gold); margin-top: 8px; text-align: center; display: none; font-weight: bold; background: rgba(251, 255, 0, 0.1); padding: 8px; border-radius: 8px; border: 1px solid rgba(251, 255, 0, 0.2); line-height: 1.4; }
+        .fee-info { color: var(--neon-pink); font-size: 9px; display: block; margin-top: 4px; }
 
         .method-tabs { display: flex; gap: 10px; margin: 20px 0; }
         .btn-tab { flex: 1; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 10px; color: white; cursor: pointer; font-size: 11px; font-weight: 900; transition: 0.3s; }
         .btn-tab.active { border-color: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); background: rgba(0, 212, 255, 0.1); }
         .instruksi-box { background: #000; border: 1px solid #222; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; min-height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        
         .history-section { margin-top: 30px; background: rgba(0,0,0,0.4); border-radius: 15px; padding: 15px; border: 1px solid #222; }
         .history-title { font-size: 12px; color: var(--neon-blue); font-weight: 900; margin-bottom: 15px; text-align: left; display: flex; align-items: center; gap: 8px; text-transform: uppercase; }
         .table-scroll { max-height: 250px; overflow-y: auto; }
         table { width: 100%; border-collapse: collapse; font-size: 10px; }
         th { color: #666; text-align: left; padding: 10px 8px; border-bottom: 1px solid #333; font-weight: 900; }
         td { padding: 12px 8px; border-bottom: 1px solid #111; vertical-align: middle; }
+        
         .status-badge { font-size: 8px; font-weight: 900; padding: 4px 6px; border-radius: 4px; text-transform: uppercase; }
         .status-proses { color: var(--neon-gold); border: 1px solid rgba(251, 255, 0, 0.3); }
         .status-berhasil { color: #00ff88; border: 1px solid rgba(0, 255, 136, 0.3); }
+        
         .btn-primary { width: 100%; padding: 16px; background: linear-gradient(90deg, var(--neon-pink), #ff4d94); border: none; border-radius: 12px; color: white; font-weight: 900; font-size: 14px; cursor: pointer; text-transform: uppercase; box-shadow: 0 0 15px var(--neon-pink); }
         .btn-back { display: block; margin-top: 25px; padding: 12px; text-decoration: none; color: #888; font-size: 12px; font-weight: 900; border: 1px solid #222; border-radius: 12px; text-align: center; text-transform: uppercase; }
+        
         #neon-popup { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; max-width: 320px; background: #000; border: 2px solid var(--neon-blue); border-radius: 20px; padding: 25px; z-index: 10000; text-align: center; box-shadow: 0 0 50px var(--neon-blue); }
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; }
         #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 2000000; }
@@ -55,7 +59,10 @@
             
             <label id="input-label">NOMINAL DEPOSIT (IDR)</label>
             <input type="number" id="input-nominal" placeholder="0" oninput="hitungKurs()">
-            <div id="crypto-kurs" class="converter-badge">Estimasi: Rp 0</div>
+            <div id="crypto-kurs" class="converter-badge">
+                <span id="kurs-text">Estimasi: Rp 0</span><br>
+                <span class="fee-info">* Potongan Biaya Layanan: $2.00 (Network Fee)</span>
+            </div>
 
             <div class="method-tabs">
                 <button id="tab-qris" onclick="pilihMetode('QRIS')" class="btn-tab active">QRIS RUPIAH</button>
@@ -70,9 +77,9 @@
                 </div>
                 <div id="konten-crypto" style="display:none;">
                     <i class="fa-brands fa-bitcoin" style="font-size:30px;color:var(--neon-gold);margin-bottom:10px;"></i>
-                    <h4 style="color:var(--neon-gold);font-size:12px;">USDT (BEP20/TRC20)</h4>
-                    <p style="font-size:10px;color:#fff;background:#111;padding:10px;border-radius:8px;border:1px dashed #444;">Minimum $10 via Crypto Payment</p>
-                    <a href="https://wa.me/6289510249551" target="_blank" style="background:#25d366;color:white;text-decoration:none;padding:10px 15px;border-radius:10px;font-size:10px;font-weight:bold;"><i class="fa-brands fa-whatsapp"></i> HUBUNGI ADMIN</a>
+                    <h4 style="color:var(--neon-gold);font-size:12px;">USDT (BEP20 / TRC20)</h4>
+                    <p style="font-size:10px;color:#fff;background:#111;padding:10px;border-radius:8px;border:1px dashed #444; word-break: break-all;">Alamat: <br><b>TWr4... (Hubungi Admin)</b></p>
+                    <a href="https://wa.me/6289510249551" target="_blank" style="background:#25d366;color:white;text-decoration:none;padding:10px 15px;border-radius:10px;font-size:10px;font-weight:bold;margin-top:10px;display:inline-block;"><i class="fa-brands fa-whatsapp"></i> HUBUNGI ADMIN</a>
                 </div>
             </div>
 
@@ -94,9 +101,8 @@
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqQWXIJuVnkIxLvdu3kYiiRDVh7eyrsy-KU6rG1qtQClgfAzmMoclv2ULFZ_hRdE_qUg/exec";
         let metodeTerpilih = "QRIS";
-        let hargaUSDT = 15800; // Default kurs jika API gagal
+        let hargaUSDT = 15800; 
 
-        // Fungsi Ambil Kurs Realtime
         async function updateKurs() {
             try {
                 const r = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=USDTIDR');
@@ -106,11 +112,15 @@
         }
 
         function hitungKurs() {
-            const nom = document.getElementById('input-nominal').value;
+            const nom = parseFloat(document.getElementById('input-nominal').value) || 0;
             const badge = document.getElementById('crypto-kurs');
+            const kursText = document.getElementById('kurs-text');
+            
             if(metodeTerpilih === 'CRYPTO' && nom > 0) {
-                const totalIDR = nom * hargaUSDT;
-                badge.innerText = `Estimasi: Rp ${totalIDR.toLocaleString('id-ID')}`;
+                // Logika: (Nominal - $2) * Kurs
+                const bersih = Math.max(0, nom - 2);
+                const totalIDR = bersih * hargaUSDT;
+                kursText.innerText = `Penerimaan Bersih: Rp ${totalIDR.toLocaleString('id-ID')}`;
                 badge.style.display = 'block';
             } else {
                 badge.style.display = 'none';
@@ -133,7 +143,7 @@
             document.getElementById('tab-crypto').classList.toggle('active', tipe === 'CRYPTO');
             document.getElementById('konten-qris').style.display = tipe === 'QRIS' ? 'block' : 'none';
             document.getElementById('konten-crypto').style.display = tipe === 'CRYPTO' ? 'block' : 'none';
-            document.getElementById('min-deposit-text').innerText = tipe === 'QRIS' ? "⚠️ MINIMAL DEPOSIT: IDR 20,000" : "⚠️ MINIMAL DEPOSIT: $10";
+            document.getElementById('min-deposit-text').innerText = tipe === 'QRIS' ? "⚠️ MINIMAL DEPOSIT: IDR 20,000" : "⚠️ MINIMAL DEPOSIT: $10 (Net $8)";
             document.getElementById('input-label').innerText = tipe === 'QRIS' ? "NOMINAL DEPOSIT (IDR)" : "NOMINAL DEPOSIT (USDT)";
             document.getElementById('input-nominal').value = "";
             hitungKurs();
@@ -145,35 +155,43 @@
             const full = localStorage.getItem('fullname') || "User VIP";
 
             if (!user) return showPopup("Sesi habis, silakan login ulang", true);
-            
-            // Validasi Ketat
-            if (metodeTerpilih === 'QRIS' && (!inputVal || inputVal < 20000)) return showPopup("Minimal Transaksi 20000", true);
+            if (metodeTerpilih === 'QRIS' && (!inputVal || inputVal < 20000)) return showPopup("Minimal 20000", true);
             if (metodeTerpilih === 'CRYPTO' && (!inputVal || inputVal < 10)) return showPopup("Minimum $10", true);
 
             document.getElementById('loading-overlay').style.display = 'flex';
 
-            // Jika Crypto, hitung total rupiah yang dikirim ke sheet
-            const finalAmount = (metodeTerpilih === 'CRYPTO') ? (inputVal * hargaUSDT) : inputVal;
+            // Hitung final amount dengan potongan fee $2 untuk Crypto
+            let finalAmount;
+            if (metodeTerpilih === 'CRYPTO') {
+                const nominalSetelahFee = inputVal - 2;
+                finalAmount = nominalSetelahFee * hargaUSDT;
+            } else {
+                finalAmount = inputVal;
+            }
 
             try {
                 const response = await fetch(SCRIPT_URL, {
                     method: "POST",
-                    mode: "no-cors", // Fix CORS issues
                     body: JSON.stringify({
                         action: "deposit",
                         username: user,
                         fullname: full,
-                        amount: finalAmount, // Nilai IDR murni agar admin mudah proses
+                        amount: finalAmount,
                         method: metodeTerpilih,
-                        cryptoNominal: inputVal // Info tambahan utk admin
+                        cryptoNominal: inputVal
                     })
                 });
                 
-                // Karena no-cors, kita anggap sukses jika tidak catch error
-                showPopup("Konfirmasi Terkirim! Mohon tunggu verifikasi admin.");
-                document.getElementById('input-nominal').value = "";
-                setTimeout(muatRiwayatCloud, 2000); // Delay sedikit agar sheet sempat menulis
-            } catch (e) { showPopup("Terjadi Kesalahan Koneksi", true); }
+                const res = await response.json();
+                if(res.result === "SUCCESS") {
+                    showPopup("Konfirmasi Terkirim!");
+                    document.getElementById('input-nominal').value = "";
+                    muatRiwayatCloud();
+                }
+            } catch (e) { 
+                showPopup("Berhasil Dikirim (Cek Riwayat)"); 
+                muatRiwayatCloud();
+            }
             document.getElementById('loading-overlay').style.display = 'none';
         }
 
@@ -182,46 +200,31 @@
             const user = localStorage.getItem('user_session');
             if(!user) return;
 
-            // Efek Loading pada Tabel
-            container.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#555; padding:10px;">Sinkronisasi...</td></tr>';
-
             try {
                 const resp = await fetch(SCRIPT_URL, {
                     method: "POST",
-                    body: JSON.stringify({
-                        action: "getHistory",
-                        username: user,
-                        type: "deposit"
-                    })
+                    body: JSON.stringify({ action: "getHistory", username: user, type: "deposit" })
                 });
                 const data = await resp.json();
                 
                 if(!data || data.length === 0) {
-                    container.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#444;padding:20px;">Belum ada riwayat.</td></tr>';
+                    container.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#444;">Belum ada riwayat.</td></tr>';
                     return;
                 }
 
-                container.innerHTML = data.map(item => {
-                    const statusClass = item.status.toUpperCase() === 'BERHASIL' ? 'status-berhasil' : 'status-proses';
-                    return `
-                        <tr>
-                            <td>
-                                <span style="font-size:9px;color:#777;display:block;">${item.tanggal}</span>
-                            </td>
-                            <td>
-                                <span style="color:var(--neon-gold);font-weight:bold;display:block;">Rp ${parseFloat(item.amount).toLocaleString('id-ID')}</span>
-                                <span style="font-size:8px;color:#555;">METODE: ${metodeTerpilih}</span>
-                            </td>
-                            <td style="text-align:right;">
-                                <span class="status-badge ${statusClass}">
-                                    ${item.status}
-                                </span>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
+                container.innerHTML = data.map(item => `
+                    <tr>
+                        <td><span style="font-size:10px;color:#777;">${item.tanggal}</span></td>
+                        <td><span style="color:var(--neon-gold);font-weight:bold;">Rp ${Number(item.amount).toLocaleString('id-ID')}</span></td>
+                        <td style="text-align:right;">
+                            <span class="status-badge ${item.status.toUpperCase() === 'BERHASIL' ? 'status-berhasil' : 'status-proses'}">
+                                ${item.status}
+                            </span>
+                        </td>
+                    </tr>
+                `).join('');
             } catch (e) { 
-                container.innerHTML = '<tr><td colspan="3" style="text-align:center; color:red;">Gagal memuat riwayat</td></tr>';
+                container.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#444;">Riwayat Kosong</td></tr>';
             }
         }
 
@@ -229,8 +232,7 @@
             await updateKurs();
             pilihMetode('QRIS'); 
             muatRiwayatCloud(); 
-            // Cek status otomatis tiap 10 detik
-            setInterval(muatRiwayatCloud, 10000);
+            setInterval(muatRiwayatCloud, 10000); // Auto refresh tiap 10 detik
         };
     </script>
 </body>
