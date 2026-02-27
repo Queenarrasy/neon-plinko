@@ -20,7 +20,7 @@ async function fetchCloud(data) {
 }
 
 // ============================================================
-// 1. SISTEM POP-UP NEON GLOBAL (PENGGANTI ALERT)
+// 1. SISTEM POP-UP NEON GLOBAL
 // ============================================================
 const injectNeonModal = () => {
     if (document.getElementById('neon-global-overlay')) return;
@@ -36,17 +36,14 @@ const injectNeonModal = () => {
             background: #050612; border: 2px solid #00d4ff; border-radius: 25px;
             padding: 30px; text-align: center; width: 85%; max-width: 350px;
             box-shadow: 0 0 30px rgba(0, 212, 255, 0.4);
-            animation: neonSlide 0.3s ease-out;
         }
-        @keyframes neonSlide { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .neon-modal-box h2 { color: #fbff00; text-shadow: 0 0 10px #fbff00; margin: 0 0 15px; font-size: 22px; text-transform: uppercase; }
         .neon-modal-box p { color: #ffffff; margin-bottom: 25px; line-height: 1.5; font-size: 15px; }
         .neon-modal-btn {
             background: transparent; border: 2px solid #ff0077; color: #ff0077;
             padding: 12px 0; width: 100%; border-radius: 50px; font-weight: 900;
-            cursor: pointer; box-shadow: 0 0 15px #ff0077; text-transform: uppercase; transition: 0.3s;
+            cursor: pointer; box-shadow: 0 0 15px #ff0077; text-transform: uppercase;
         }
-        .neon-modal-btn:hover { background: #ff0077; color: #fff; }
     `;
     document.head.appendChild(style);
 
@@ -64,9 +61,12 @@ const injectNeonModal = () => {
 
 window.showNeonAlert = function(msg, title = "NOTIFIKASI") {
     injectNeonModal();
-    document.getElementById('neon-modal-title').innerText = title;
-    document.getElementById('neon-modal-msg').innerText = msg;
-    document.getElementById('neon-global-overlay').style.display = 'flex';
+    const titleEl = document.getElementById('neon-modal-title');
+    const msgEl = document.getElementById('neon-modal-msg');
+    const overlay = document.getElementById('neon-global-overlay');
+    if(titleEl) titleEl.innerText = title;
+    if(msgEl) msgEl.innerText = msg;
+    if(overlay) overlay.style.display = 'flex';
 };
 
 window.closeNeonAlert = function() {
@@ -74,92 +74,71 @@ window.closeNeonAlert = function() {
     if(el) el.style.display = 'none';
 };
 
-window.alert = function(msg) { showNeonAlert(msg, "VIP INFO"); };
-
 // ============================================================
-// 2. SISTEM AUTH (REGISTER & LOGIN) - PERBAIKAN VARIABEL
+// 2. SISTEM AUTH
 // ============================================================
 async function cloudRegister(userData) {
     const res = await fetchCloud({ action: "register", ...userData });
-    // Menyesuaikan respons Apps Script yang mengembalikan objek {result: "SUCCESS"}
     if (res && (res === "SUCCESS" || res.result === "SUCCESS")) {
         localStorage.setItem('user_session', userData.username);
-        localStorage.setItem('fullname', userData.fullname || "-");
-        localStorage.setItem('bank_name', userData.bank || "-");
-        localStorage.setItem('account_no', userData.rekening || "-");
-        localStorage.setItem('saldo_permainan', 0);
-        localStorage.setItem('user_tier', "BRONZE");
-        showNeonAlert("Pendaftaran Berhasil! Selamat Datang.", "SUKSES");
+        localStorage.setItem('saldo', 0); // Sesuaikan nama ke 'saldo'
+        showNeonAlert("Pendaftaran Berhasil!", "SUKSES");
         setTimeout(() => window.location.href = "game.html", 2000);
         return "SUCCESS";
-    } else if (res && (res === "EXISTS" || res.result === "EXISTS")) {
-        showNeonAlert("Username sudah digunakan, coba yang lain!", "GAGAL");
-        return "EXISTS";
-    } else {
-        showNeonAlert("Terjadi gangguan server!", "ERROR");
-        return "ERROR";
     }
+    showNeonAlert("Gagal Mendaftar!", "ERROR");
+    return "ERROR";
 }
 
 async function cloudLogin(username, password) {
     const res = await fetchCloud({ action: "login", username, password });
-    // Perbaikan pengecekan: Apps Script mengirim data user jika sukses
     if (res && res.result === "SUCCESS") {
         localStorage.setItem('user_session', res.username);
-        localStorage.setItem('fullname', res.fullname || "-");
-        localStorage.setItem('bank_name', res.bank || "-");
-        localStorage.setItem('account_no', res.rekening || "-");
-        localStorage.setItem('saldo_permainan', res.saldo || 0);
+        localStorage.setItem('saldo', res.saldo || 0); // Sesuaikan nama ke 'saldo'
         localStorage.setItem('user_tier', res.tier || "BRONZE");
-        
-        // Simpan winrate dari server (jika ada)
-        if(res.winrate) localStorage.setItem('winrate_setting', res.winrate);
-
-        showNeonAlert("Login Berhasil! Mengalihkan...", "SUKSES");
+        showNeonAlert("Login Berhasil!", "SUKSES");
         setTimeout(() => window.location.href = "game.html", 1500);
         return "SUCCESS";
-    } else {
-        showNeonAlert("Username atau Password salah!", "LOGIN GAGAL");
-        return "FAILED";
     }
+    showNeonAlert("Login Gagal!", "ERROR");
+    return "FAILED";
 }
 
 // ============================================================
-// 3. SISTEM SALDO & TIER
+// 3. SISTEM SALDO (SINKRON DENGAN GAME.HTML)
 // ============================================================
-function updateSaldo(jumlah) {
-    let saldo = parseInt(localStorage.getItem('saldo_permainan')) || 0;
+window.updateSaldo = function(jumlah) {
+    // Gunakan kunci 'saldo' agar sama dengan yang ada di game.html
+    let saldo = Number(localStorage.getItem('saldo')) || 0;
+    
     if (jumlah < 0 && Math.abs(jumlah) > saldo) {
-        showNeonAlert("Saldo tidak cukup untuk melakukan taruhan!", "SALDO KURANG");
+        showNeonAlert("Saldo tidak cukup!", "SALDO KURANG");
         return false;
     }
+
     saldo += jumlah;
-    localStorage.setItem('saldo_permainan', saldo);
+    localStorage.setItem('saldo', saldo);
 
-    // Update tampilan di semua elemen saldo
-    document.querySelectorAll('#display-saldo').forEach(d => {
-        d.innerText = "IDR " + saldo.toLocaleString('id-ID');
-    });
+    // Update tampilan saldo di UI
+    const saldoEl = document.getElementById('display-saldo');
+    if(saldoEl) {
+        saldoEl.innerText = "IDR " + saldo.toLocaleString('id-ID');
+    }
 
-    // Sinkronisasi ke Cloud jika ada perubahan (Win/Loss)
+    // Sinkronisasi ke Cloud jika saldo bertambah (Menang)
     const currentUsername = localStorage.getItem('user_session');
-    if (currentUsername && jumlah !== 0) {
-        // Pastikan Anda sudah menambahkan action 'updateSaldo' di Apps Script jika ingin ini jalan
-        fetchCloud({ action: "updateSaldo", username: currentUsername, newSaldo: saldo });
+    if (currentUsername && jumlah > 0) {
+        fetchCloud({ 
+            action: "updateSaldo", 
+            username: currentUsername, 
+            newSaldo: saldo 
+        });
     }
     return true;
-}
+};
 
 // ============================================================
-// 4. SISTEM BAHASA (i18n)
-// ============================================================
-function applyLanguage() {
-    const lang = localStorage.getItem('appLang') || 'id';
-    // Implementasi pemetaan teks bahasa jika diperlukan
-}
-
-// ============================================================
-// 5. MONITORING INBOX & HADIAH
+// 4. MONITORING INBOX
 // ============================================================
 async function syncInbox() {
     const user = localStorage.getItem('user_session');
@@ -179,15 +158,19 @@ async function syncInbox() {
 }
 
 // ============================================================
-// 6. INITIALIZATION LOAD
+// 5. INITIALIZATION
 // ============================================================
 window.addEventListener('load', () => {
     injectNeonModal();
-    applyLanguage();
-    updateSaldo(0); // Refresh tampilan saldo saat halaman dimuat
+    // Inisialisasi tampilan awal
+    const savedSaldo = localStorage.getItem('saldo');
+    if(savedSaldo !== null) {
+        const saldoEl = document.getElementById('display-saldo');
+        if(saldoEl) saldoEl.innerText = "IDR " + Number(savedSaldo).toLocaleString('id-ID');
+    }
+    
     if (localStorage.getItem('user_session')) {
         syncInbox();
-        // Cek inbox secara berkala tiap 60 detik
         setInterval(syncInbox, 60000);
     }
 });
