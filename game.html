@@ -166,8 +166,53 @@
 
     <script src="global.js"></script>
     <script>
+        // --- AUTO UPDATE SALDO DARI DATABASE ---
+        let isSyncing = false;
+        async function syncSaldoRealtime() {
+            if (isSyncing) return;
+            const username = localStorage.getItem('user_session');
+            if (!username) return;
+
+            isSyncing = true;
+            try {
+                // Pastikan SCRIPT_URL sudah didefinisikan di global.js atau di sini
+                // Ganti dengan URL script Anda jika belum ada di global.js
+                const SCRIPT_URL_USER = "https://script.google.com/macros/s/AKfycbwqQWXIJuVnkIxLvdu3kYiiRDVh7eyrsy-KU6rG1qtQClgfAzmMoclv2ULFZ_hRdE_qUg/exec";
+                
+                const response = await fetch(SCRIPT_URL_USER, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "getUserData", username: username })
+                });
+                const data = await response.json();
+                
+                if (data && data.saldo !== undefined) {
+                    const currentLocalSaldo = parseInt(localStorage.getItem('saldo') || 0);
+                    const serverSaldo = parseInt(data.saldo);
+
+                    // Jika saldo di server berbeda (misal deposit baru saja disetujui admin)
+                    if (serverSaldo !== currentLocalSaldo) {
+                        localStorage.setItem('saldo', serverSaldo);
+                        if (typeof updateSaldoDisplay === 'function') {
+                            updateSaldoDisplay();
+                        } else {
+                            document.getElementById('display-saldo').innerText = 'IDR ' + serverSaldo.toLocaleString();
+                        }
+                        console.log("Saldo updated from server: " + serverSaldo);
+                    }
+                }
+            } catch (e) {
+                console.error("Sync Error:", e);
+            } finally {
+                isSyncing = false;
+            }
+        }
+
+        // Jalankan sinkronisasi setiap 5 detik
+        setInterval(syncSaldoRealtime, 5000);
+        // ----------------------------------------
+
         // --- ADMIN CONTROL ---
-        let winChance = 0.35; // Probabilitas bola diarahkan ke sisi luar (multiplier besar)
+        let winChance = 0.35; 
         
         const container = document.getElementById('game-container');
         const bets = [400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 4000, 6000, 8000, 10000, 12000, 16000, 18000, 20000];
@@ -199,7 +244,10 @@
                 }
             }
         }
-        window.addEventListener('load', initPegs);
+        window.addEventListener('load', () => {
+            initPegs();
+            syncSaldoRealtime(); // Jalankan sekali saat load
+        });
         window.addEventListener('resize', initPegs);
 
         function showNeonModal(msg) { document.getElementById('modal-msg').innerText = msg; document.getElementById('neon-overlay').style.display = 'flex'; }
